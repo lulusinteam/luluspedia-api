@@ -12,6 +12,8 @@ import { AppModule } from './app.module';
 import validationOptions from './utils/validation-options';
 import { AllConfigType } from './config/config.type';
 import { ResolvePromisesInterceptor } from './utils/serializer.interceptor';
+import { JSendInterceptor } from './utils/jsend.interceptor';
+import { JSendExceptionFilter } from './utils/jsend-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
@@ -34,7 +36,12 @@ async function bootstrap() {
     // https://github.com/typestack/class-transformer/issues/549
     new ResolvePromisesInterceptor(),
     new ClassSerializerInterceptor(app.get(Reflector)),
+    // JSendInterceptor standardizes API responses according to JSend specification
+    new JSendInterceptor(),
   );
+
+  // Apply global exception filter for JSend formatted error responses
+  app.useGlobalFilters(new JSendExceptionFilter());
 
   const options = new DocumentBuilder()
     .setTitle('API')

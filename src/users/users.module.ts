@@ -13,8 +13,7 @@ import databaseConfig from '../database/config/database.config';
 import { FilesModule } from '../files/files.module';
 
 // <database-block>
-const infrastructurePersistenceModule = (databaseConfig() as DatabaseConfig)
-  .isDocumentDatabase
+const infrastructurePersistenceModule = (databaseConfig() as DatabaseConfig).isDocumentDatabase
   ? DocumentUserPersistenceModule
   : RelationalUserPersistenceModule;
 // </database-block>

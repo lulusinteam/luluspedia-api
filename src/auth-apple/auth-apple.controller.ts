@@ -1,11 +1,4 @@
-import {
-  Body,
-  Controller,
-  HttpCode,
-  HttpStatus,
-  Post,
-  SerializeOptions,
-} from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post, SerializeOptions } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from '../auth/auth.service';
 import { AuthAppleService } from './auth-apple.service';

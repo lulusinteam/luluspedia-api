@@ -11,13 +11,7 @@ import { SessionModule } from '../session/session.module';
 import { UsersModule } from '../users/users.module';
 
 @Module({
-  imports: [
-    UsersModule,
-    SessionModule,
-    PassportModule,
-    MailModule,
-    JwtModule.register({}),
-  ],
+  imports: [UsersModule, SessionModule, PassportModule, MailModule, JwtModule.register({})],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, JwtRefreshStrategy, AnonymousStrategy],
   exports: [AuthService],

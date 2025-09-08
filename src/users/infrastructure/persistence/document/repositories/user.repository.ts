@@ -36,7 +36,7 @@ export class UsersDocumentRepository implements UserRepository {
     const where: FilterQuery<UserSchemaClass> = {};
     if (filterOptions?.roles?.length) {
       where['role._id'] = {
-        $in: filterOptions.roles.map((role) => role.id.toString()),
+        $in: filterOptions.roles.map(role => role.id.toString()),
       };
     }
 
@@ -55,7 +55,7 @@ export class UsersDocumentRepository implements UserRepository {
       .skip((paginationOptions.page - 1) * paginationOptions.limit)
       .limit(paginationOptions.limit);
 
-    return userObjects.map((userObject) => UserMapper.toDomain(userObject));
+    return userObjects.map(userObject => UserMapper.toDomain(userObject));
   }
 
   async findById(id: User['id']): Promise<NullableType<User>> {
@@ -65,7 +65,7 @@ export class UsersDocumentRepository implements UserRepository {
 
   async findByIds(ids: User['id'][]): Promise<User[]> {
     const userObjects = await this.usersModel.find({ _id: { $in: ids } });
-    return userObjects.map((userObject) => UserMapper.toDomain(userObject));
+    return userObjects.map(userObject => UserMapper.toDomain(userObject));
   }
 
   async findByEmail(email: User['email']): Promise<NullableType<User>> {

@@ -12,7 +12,7 @@ import {
   SerializeOptions,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthEmailLoginDto } from './dto/auth-email-login.dto';
 import { AuthForgotPasswordDto } from './dto/auth-forgot-password.dto';
 import { AuthConfirmEmailDto } from './dto/auth-confirm-email.dto';
@@ -24,6 +24,7 @@ import { LoginResponseDto } from './dto/login-response.dto';
 import { NullableType } from '../utils/types/nullable.type';
 import { User } from '../users/domain/user';
 import { RefreshResponseDto } from './dto/refresh-response.dto';
+import { ApiJSendResponse } from '../utils/swagger-jsend.decorator';
 
 @ApiTags('Auth')
 @Controller({
@@ -37,9 +38,7 @@ export class AuthController {
     groups: ['me'],
   })
   @Post('email/login')
-  @ApiOkResponse({
-    type: LoginResponseDto,
-  })
+  @ApiJSendResponse(LoginResponseDto)
   @HttpCode(HttpStatus.OK)
   public login(@Body() loginDto: AuthEmailLoginDto): Promise<LoginResponseDto> {
     return this.service.validateLogin(loginDto);
@@ -90,18 +89,14 @@ export class AuthController {
   })
   @Get('me')
   @UseGuards(AuthGuard('jwt'))
-  @ApiOkResponse({
-    type: User,
-  })
+  @ApiJSendResponse(User)
   @HttpCode(HttpStatus.OK)
   public me(@Request() request): Promise<NullableType<User>> {
     return this.service.me(request.user);
   }
 
   @ApiBearerAuth()
-  @ApiOkResponse({
-    type: RefreshResponseDto,
-  })
+  @ApiJSendResponse(RefreshResponseDto)
   @SerializeOptions({
     groups: ['me'],
   })
@@ -132,9 +127,7 @@ export class AuthController {
   @Patch('me')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({
-    type: User,
-  })
+  @ApiJSendResponse(User)
   public update(
     @Request() request,
     @Body() userDto: AuthUpdateDto,

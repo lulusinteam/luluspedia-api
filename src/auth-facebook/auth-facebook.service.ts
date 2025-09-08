@@ -19,9 +19,7 @@ export class AuthFacebookService {
    * @param loginDto DTO containing the short-lived Facebook access token.
    * @returns Normalized user profile in internal SocialInterface format.
    */
-  async getProfileByToken(
-    loginDto: AuthFacebookLoginDto,
-  ): Promise<SocialInterface> {
+  async getProfileByToken(loginDto: AuthFacebookLoginDto): Promise<SocialInterface> {
     try {
       // Step 1: Verify that the token is valid and belongs to our app
       await this.verifyAccessToken(loginDto.accessToken);
@@ -42,20 +40,14 @@ export class AuthFacebookService {
       // Handle HTTP errors gracefully
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new HttpException(
-          errorData.error?.message || 'Facebook API error',
-          response.status,
-        );
+        throw new HttpException(errorData.error?.message || 'Facebook API error', response.status);
       }
 
       const data: FacebookInterface = await response.json();
 
       // Ensure required fields are present in the response
       if (!data.id) {
-        throw new HttpException(
-          'Invalid Facebook profile data',
-          HttpStatus.BAD_REQUEST,
-        );
+        throw new HttpException('Invalid Facebook profile data', HttpStatus.BAD_REQUEST);
       }
 
       // Map Facebook data to our internal social user interface
@@ -71,16 +63,10 @@ export class AuthFacebookService {
       }
 
       if (error.name === 'TimeoutError') {
-        throw new HttpException(
-          'Facebook API request timeout',
-          HttpStatus.REQUEST_TIMEOUT,
-        );
+        throw new HttpException('Facebook API request timeout', HttpStatus.REQUEST_TIMEOUT);
       }
 
-      throw new HttpException(
-        'Failed to get Facebook profile',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new HttpException('Failed to get Facebook profile', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -119,10 +105,7 @@ export class AuthFacebookService {
       });
 
       if (!response.ok) {
-        throw new HttpException(
-          'Token verification failed',
-          HttpStatus.UNAUTHORIZED,
-        );
+        throw new HttpException('Token verification failed', HttpStatus.UNAUTHORIZED);
       }
 
       const result = await response.json();
@@ -130,10 +113,7 @@ export class AuthFacebookService {
 
       // Check if the token is valid and active
       if (!tokenData.is_valid) {
-        throw new HttpException(
-          'Invalid Facebook access token',
-          HttpStatus.UNAUTHORIZED,
-        );
+        throw new HttpException('Invalid Facebook access token', HttpStatus.UNAUTHORIZED);
       }
 
       // Check if the token belongs to our app (security measure)
@@ -147,10 +127,7 @@ export class AuthFacebookService {
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException(
-        'Token verification failed',
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new HttpException('Token verification failed', HttpStatus.UNAUTHORIZED);
     }
   }
 
@@ -188,20 +165,14 @@ export class AuthFacebookService {
       });
 
       if (!response.ok) {
-        throw new HttpException(
-          'Failed to exchange token',
-          HttpStatus.BAD_REQUEST,
-        );
+        throw new HttpException('Failed to exchange token', HttpStatus.BAD_REQUEST);
       }
 
       const data = await response.json();
       return data.access_token;
     } catch (error) {
       console.error('Facebook token exchange failed:', error);
-      throw new HttpException(
-        'Failed to exchange token',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new HttpException('Failed to exchange token', HttpStatus.BAD_REQUEST);
     }
   }
 }

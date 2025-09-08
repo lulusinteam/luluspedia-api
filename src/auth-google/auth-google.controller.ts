@@ -6,11 +6,12 @@ import {
   Post,
   SerializeOptions,
 } from '@nestjs/common';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from '../auth/auth.service';
 import { AuthGoogleService } from './auth-google.service';
 import { AuthGoogleLoginDto } from './dto/auth-google-login.dto';
 import { LoginResponseDto } from '../auth/dto/login-response.dto';
+import { ApiJSendResponse } from '../utils/swagger-jsend.decorator';
 
 @ApiTags('Auth')
 @Controller({
@@ -23,9 +24,7 @@ export class AuthGoogleController {
     private readonly authGoogleService: AuthGoogleService,
   ) {}
 
-  @ApiOkResponse({
-    type: LoginResponseDto,
-  })
+  @ApiJSendResponse(LoginResponseDto)
   @SerializeOptions({
     groups: ['me'],
   })

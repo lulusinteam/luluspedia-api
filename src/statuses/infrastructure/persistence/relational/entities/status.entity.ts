@@ -3,7 +3,7 @@ import { Column, Entity, PrimaryColumn } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
 
 @Entity({
-  name: 'status',
+  name: 'statuses',
 })
 export class StatusEntity extends EntityRelationalHelper {
   @PrimaryColumn()

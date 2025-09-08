@@ -1,8 +1,4 @@
-import {
-  HttpStatus,
-  Module,
-  UnprocessableEntityException,
-} from '@nestjs/common';
+import { HttpStatus, Module, UnprocessableEntityException } from '@nestjs/common';
 import { FilesS3Controller } from './files.controller';
 import { MulterModule } from '@nestjs/platform-express';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -19,8 +15,7 @@ import { DatabaseConfig } from '../../../../database/config/database-config.type
 import databaseConfig from '../../../../database/config/database.config';
 
 // <database-block>
-const infrastructurePersistenceModule = (databaseConfig() as DatabaseConfig)
-  .isDocumentDatabase
+const infrastructurePersistenceModule = (databaseConfig() as DatabaseConfig).isDocumentDatabase
   ? DocumentFilePersistenceModule
   : RelationalFilePersistenceModule;
 // </database-block>
@@ -69,10 +64,7 @@ const infrastructurePersistenceModule = (databaseConfig() as DatabaseConfig)
             key: (request, file, callback) => {
               callback(
                 null,
-                `${randomStringGenerator()}.${file.originalname
-                  .split('.')
-                  .pop()
-                  ?.toLowerCase()}`,
+                `${randomStringGenerator()}.${file.originalname.split('.').pop()?.toLowerCase()}`,
               );
             },
           }),

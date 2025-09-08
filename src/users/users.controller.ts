@@ -16,7 +16,6 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import {
   ApiBearerAuth,
-  ApiCreatedResponse,
   ApiOkResponse,
   ApiParam,
   ApiTags,
@@ -25,16 +24,14 @@ import { Roles } from '../roles/roles.decorator';
 import { RoleEnum } from '../roles/roles.enum';
 import { AuthGuard } from '@nestjs/passport';
 
-import {
-  InfinityPaginationResponse,
-  InfinityPaginationResponseDto,
-} from '../utils/dto/infinity-pagination-response.dto';
+import { InfinityPaginationResponseDto } from '../utils/dto/infinity-pagination-response.dto';
 import { NullableType } from '../utils/types/nullable.type';
 import { QueryUserDto } from './dto/query-user.dto';
 import { User } from './domain/user';
 import { UsersService } from './users.service';
 import { RolesGuard } from '../roles/roles.guard';
 import { infinityPagination } from '../utils/infinity-pagination';
+import { ApiJSendResponse } from '../utils/swagger-jsend.decorator';
 
 @ApiBearerAuth()
 @Roles(RoleEnum.admin)
@@ -47,9 +44,7 @@ import { infinityPagination } from '../utils/infinity-pagination';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @ApiCreatedResponse({
-    type: User,
-  })
+  @ApiJSendResponse(User)
   @SerializeOptions({
     groups: ['admin'],
   })
@@ -59,9 +54,7 @@ export class UsersController {
     return this.usersService.create(createProfileDto);
   }
 
-  @ApiOkResponse({
-    type: InfinityPaginationResponse(User),
-  })
+  @ApiJSendResponse(InfinityPaginationResponseDto)
   @SerializeOptions({
     groups: ['admin'],
   })
@@ -89,9 +82,7 @@ export class UsersController {
     );
   }
 
-  @ApiOkResponse({
-    type: User,
-  })
+  @ApiJSendResponse(User)
   @SerializeOptions({
     groups: ['admin'],
   })

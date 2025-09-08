@@ -1,11 +1,5 @@
 import request from 'supertest';
-import {
-  APP_URL,
-  TESTER_EMAIL,
-  TESTER_PASSWORD,
-  MAIL_HOST,
-  MAIL_PORT,
-} from '../utils/constants';
+import { APP_URL, TESTER_EMAIL, TESTER_PASSWORD, MAIL_HOST, MAIL_PORT } from '../utils/constants';
 
 describe('Auth Module', () => {
   const app = APP_URL;
@@ -62,9 +56,8 @@ describe('Auth Module', () => {
           .then(({ body }) =>
             body
               .find(
-                (letter) =>
-                  letter.to[0].address.toLowerCase() ===
-                    newUserEmail.toLowerCase() &&
+                letter =>
+                  letter.to[0].address.toLowerCase() === newUserEmail.toLowerCase() &&
                   /.*confirm\-email\?hash\=(\S+).*/g.test(letter.text),
               )
               ?.text.replace(/.*confirm\-email\?hash\=(\S+).*/g, '$1'),
@@ -84,9 +77,8 @@ describe('Auth Module', () => {
           .then(({ body }) =>
             body
               .find(
-                (letter) =>
-                  letter.to[0].address.toLowerCase() ===
-                    newUserEmail.toLowerCase() &&
+                letter =>
+                  letter.to[0].address.toLowerCase() === newUserEmail.toLowerCase() &&
                   /.*confirm\-email\?hash\=(\S+).*/g.test(letter.text),
               )
               ?.text.replace(/.*confirm\-email\?hash\=(\S+).*/g, '$1'),
@@ -279,10 +271,9 @@ describe('Auth Module', () => {
         .get('/email')
         .then(({ body }) =>
           body
-            .find((letter) => {
+            .find(letter => {
               return (
-                letter.to[0].address.toLowerCase() ===
-                  newUserNewEmail.toLowerCase() &&
+                letter.to[0].address.toLowerCase() === newUserNewEmail.toLowerCase() &&
                 /.*confirm\-new\-email\?hash\=(\S+).*/g.test(letter.text)
               );
             })

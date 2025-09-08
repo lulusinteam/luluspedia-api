@@ -11,9 +11,7 @@ export abstract class SessionRepository {
 
   abstract update(
     id: Session['id'],
-    payload: Partial<
-      Omit<Session, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>
-    >,
+    payload: Partial<Omit<Session, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>>,
   ): Promise<Session | null>;
 
   abstract deleteById(id: Session['id']): Promise<void>;

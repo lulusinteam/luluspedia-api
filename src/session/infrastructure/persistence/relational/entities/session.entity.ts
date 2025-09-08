@@ -7,13 +7,14 @@ import {
   DeleteDateColumn,
   Column,
   UpdateDateColumn,
+  JoinColumn,
 } from 'typeorm';
 import { UserEntity } from '../../../../../users/infrastructure/persistence/relational/entities/user.entity';
 
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
 
 @Entity({
-  name: 'session',
+  name: 'sessions',
 })
 export class SessionEntity extends EntityRelationalHelper {
   @PrimaryGeneratedColumn()
@@ -23,17 +24,18 @@ export class SessionEntity extends EntityRelationalHelper {
     eager: true,
   })
   @Index()
+  @JoinColumn({ name: 'user_id' })
   user: UserEntity;
 
   @Column()
   hash: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  @DeleteDateColumn()
+  @DeleteDateColumn({ name: 'deleted_at' })
   deletedAt: Date;
 }

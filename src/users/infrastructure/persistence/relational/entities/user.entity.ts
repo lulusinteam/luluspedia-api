@@ -18,7 +18,7 @@ import { AuthProvidersEnum } from '../../../../../auth/auth-providers.enum';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
 
 @Entity({
-  name: 'user',
+  name: 'users',
 })
 export class UserEntity extends EntityRelationalHelper {
   @PrimaryGeneratedColumn()
@@ -36,39 +36,41 @@ export class UserEntity extends EntityRelationalHelper {
   provider: string;
 
   @Index()
-  @Column({ type: String, nullable: true })
+  @Column({ type: String, nullable: true, name: 'social_id' })
   socialId?: string | null;
 
   @Index()
-  @Column({ type: String, nullable: true })
+  @Column({ type: String, nullable: true, name: 'first_name' })
   firstName: string | null;
 
   @Index()
-  @Column({ type: String, nullable: true })
+  @Column({ type: String, nullable: true, name: 'last_name' })
   lastName: string | null;
 
   @OneToOne(() => FileEntity, {
     eager: true,
   })
-  @JoinColumn()
+  @JoinColumn({ name: 'photo_id' })
   photo?: FileEntity | null;
 
   @ManyToOne(() => RoleEntity, {
     eager: true,
   })
+  @JoinColumn({ name: 'role_id' })
   role?: RoleEntity | null;
 
   @ManyToOne(() => StatusEntity, {
     eager: true,
   })
+  @JoinColumn({ name: 'status_id' })
   status?: StatusEntity;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  @DeleteDateColumn()
+  @DeleteDateColumn({ name: 'deleted_at' })
   deletedAt: Date;
 }

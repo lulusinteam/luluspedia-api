@@ -46,6 +46,9 @@ Belongs to the [bc boilerplates](https://bcboilerplates.com/) ecosystem
 - [x] E2E and units tests.
 - [x] Docker.
 - [x] CI (Github Actions).
+- [x] JSend Response Format for consistent API responses.
+- [x] Standardized JSON response format with meta information.
+- [x] Prettier configuration for automatic code formatting.
 
 ## Contributors
 

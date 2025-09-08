@@ -36,7 +36,7 @@ export class UsersRelationalRepository implements UserRepository {
   }): Promise<User[]> {
     const where: FindOptionsWhere<UserEntity> = {};
     if (filterOptions?.roles?.length) {
-      where.role = filterOptions.roles.map((role) => ({
+      where.role = filterOptions.roles.map(role => ({
         id: Number(role.id),
       }));
     }
@@ -54,7 +54,7 @@ export class UsersRelationalRepository implements UserRepository {
       ),
     });
 
-    return entities.map((user) => UserMapper.toDomain(user));
+    return entities.map(user => UserMapper.toDomain(user));
   }
 
   async findById(id: User['id']): Promise<NullableType<User>> {
@@ -70,7 +70,7 @@ export class UsersRelationalRepository implements UserRepository {
       where: { id: In(ids) },
     });
 
-    return entities.map((user) => UserMapper.toDomain(user));
+    return entities.map(user => UserMapper.toDomain(user));
   }
 
   async findByEmail(email: User['email']): Promise<NullableType<User>> {

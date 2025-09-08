@@ -48,9 +48,7 @@ export class FilesLocalController {
     },
   })
   @UseInterceptors(FileInterceptor('file'))
-  async uploadFile(
-    @UploadedFile() file: Express.Multer.File,
-  ): Promise<FileResponseDto> {
+  async uploadFile(@UploadedFile() file: Express.Multer.File): Promise<FileResponseDto> {
     return this.filesService.create(file);
   }
 

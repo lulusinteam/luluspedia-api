@@ -1,10 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import {
-  IsNumber,
-  IsOptional,
-  IsString,
-  ValidateNested,
-} from 'class-validator';
+import { IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Transform, Type, plainToInstance } from 'class-transformer';
 import { User } from '../domain/user';
 import { RoleDto } from '../../roles/dto/role.dto';
@@ -43,9 +38,7 @@ export class QueryUserDto {
 
   @ApiPropertyOptional({ type: String })
   @IsOptional()
-  @Transform(({ value }) =>
-    value ? plainToInstance(FilterUserDto, JSON.parse(value)) : undefined,
-  )
+  @Transform(({ value }) => (value ? plainToInstance(FilterUserDto, JSON.parse(value)) : undefined))
   @ValidateNested()
   @Type(() => FilterUserDto)
   filters?: FilterUserDto | null;

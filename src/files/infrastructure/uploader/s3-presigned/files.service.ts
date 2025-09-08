@@ -35,9 +35,7 @@ export class FilesS3PresignedService {
     });
   }
 
-  async create(
-    file: FileUploadDto,
-  ): Promise<{ file: FileType; uploadSignedUrl: string }> {
+  async create(file: FileUploadDto): Promise<{ file: FileType; uploadSignedUrl: string }> {
     if (!file) {
       throw new UnprocessableEntityException({
         status: HttpStatus.UNPROCESSABLE_ENTITY,
@@ -69,10 +67,7 @@ export class FilesS3PresignedService {
       });
     }
 
-    const key = `${randomStringGenerator()}.${file.fileName
-      .split('.')
-      .pop()
-      ?.toLowerCase()}`;
+    const key = `${randomStringGenerator()}.${file.fileName.split('.').pop()?.toLowerCase()}`;
 
     const command = new PutObjectCommand({
       Bucket: this.configService.getOrThrow('file.awsDefaultS3Bucket', {
