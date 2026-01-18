@@ -30,7 +30,7 @@ export class JSendInterceptor implements NestInterceptor {
     const endpoint = request.originalUrl;
 
     return next.handle().pipe(
-      map((data) => {
+      map(data => {
         const responseTime = Date.now() - startTime;
         const time = new Date().toISOString();
 
@@ -78,7 +78,7 @@ export class JSendInterceptor implements NestInterceptor {
           meta,
         };
       }),
-      catchError((error) => {
+      catchError(error => {
         // Handle HttpExceptions (4xx, 5xx)
         if (error instanceof HttpException) {
           const status = error.getStatus();

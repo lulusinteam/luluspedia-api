@@ -13,13 +13,17 @@ export class SessionService {
     return this.sessionRepository.findById(id);
   }
 
-  create(data: Omit<Session, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>): Promise<Session> {
+  create(
+    data: Omit<Session, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>,
+  ): Promise<Session> {
     return this.sessionRepository.create(data);
   }
 
   update(
     id: Session['id'],
-    payload: Partial<Omit<Session, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>>,
+    payload: Partial<
+      Omit<Session, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>
+    >,
   ): Promise<Session | null> {
     return this.sessionRepository.update(id, payload);
   }

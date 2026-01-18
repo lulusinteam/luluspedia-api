@@ -5,7 +5,11 @@ import { UserRepository } from '../user.repository';
 import { UsersDocumentRepository } from './repositories/user.repository';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: UserSchemaClass.name, schema: UserSchema }])],
+  imports: [
+    MongooseModule.forFeature([
+      { name: UserSchemaClass.name, schema: UserSchema },
+    ]),
+  ],
   providers: [
     {
       provide: UserRepository,

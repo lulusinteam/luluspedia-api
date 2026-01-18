@@ -1,4 +1,11 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, SerializeOptions } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  SerializeOptions,
+} from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from '../auth/auth.service';
 import { AuthFacebookService } from './auth-facebook.service';
@@ -24,8 +31,11 @@ export class AuthFacebookController {
   })
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login(@Body() loginDto: AuthFacebookLoginDto): Promise<LoginResponseDto> {
-    const socialData = await this.authFacebookService.getProfileByToken(loginDto);
+  async login(
+    @Body() loginDto: AuthFacebookLoginDto,
+  ): Promise<LoginResponseDto> {
+    const socialData =
+      await this.authFacebookService.getProfileByToken(loginDto);
 
     return this.authService.validateSocialLogin('facebook', socialData);
   }

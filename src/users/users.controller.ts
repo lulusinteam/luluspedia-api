@@ -16,7 +16,6 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import {
   ApiBearerAuth,
-  ApiOkResponse,
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
@@ -32,6 +31,7 @@ import { UsersService } from './users.service';
 import { RolesGuard } from '../roles/roles.guard';
 import { infinityPagination } from '../utils/infinity-pagination';
 import { ApiJSendResponse } from '../utils/swagger-jsend.decorator';
+import { DeleteUserResponseDto } from './dto/delete-user-response.dto';
 
 @ApiBearerAuth()
 @Roles(RoleEnum.admin)
@@ -97,9 +97,7 @@ export class UsersController {
     return this.usersService.findById(id);
   }
 
-  @ApiOkResponse({
-    type: User,
-  })
+  @ApiJSendResponse(User)
   @SerializeOptions({
     groups: ['admin'],
   })
@@ -117,14 +115,22 @@ export class UsersController {
     return this.usersService.update(id, updateProfileDto);
   }
 
+  @ApiJSendResponse(DeleteUserResponseDto)
+  @SerializeOptions({
+    groups: ['admin'],
+  })
   @Delete(':id')
   @ApiParam({
     name: 'id',
     type: String,
     required: true,
   })
-  @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id') id: User['id']): Promise<void> {
-    return this.usersService.remove(id);
+  @HttpCode(HttpStatus.OK)
+  async remove(@Param('id') id: User['id']): Promise<DeleteUserResponseDto> {
+    await this.usersService.remove(id);
+
+    return {
+      id,
+    };
   }
 }

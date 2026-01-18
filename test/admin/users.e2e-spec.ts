@@ -5,7 +5,8 @@ import { StatusEnum } from '../../src/statuses/statuses.enum';
 
 describe('Users Module', () => {
   const app = APP_URL;
-  let apiToken;
+  let apiToken: string;
+  let regularToken: string;
 
   beforeAll(async () => {
     await request(app)
@@ -14,6 +15,49 @@ describe('Users Module', () => {
       .then(({ body }) => {
         apiToken = body.token;
       });
+
+    const regularEmail = `regular.${Date.now()}@example.com`;
+    const regularPassword = 'secret';
+
+    await request(app).post('/api/v1/auth/email/register').send({
+      email: regularEmail,
+      password: regularPassword,
+      firstName: 'Regular',
+      lastName: 'User',
+    });
+
+    await request(app)
+      .post('/api/v1/auth/email/login')
+      .send({ email: regularEmail, password: regularPassword })
+      .then(({ body }) => {
+        regularToken = body.token;
+      });
+  });
+
+  describe('Authorization guard', () => {
+    it('should reject non-admin for listing users', () => {
+      return request(app)
+        .get(`/api/v1/users`)
+        .auth(regularToken, {
+          type: 'bearer',
+        })
+        .expect(403);
+    });
+
+    it('should reject non-admin for creating user', () => {
+      return request(app)
+        .post(`/api/v1/users`)
+        .auth(regularToken, {
+          type: 'bearer',
+        })
+        .send({
+          email: `unauthorized.${Date.now()}@example.com`,
+          password: 'secret',
+          firstName: 'No',
+          lastName: 'Access',
+        })
+        .expect(403);
+    });
   });
 
   describe('Update', () => {
@@ -105,7 +149,11 @@ describe('Users Module', () => {
               id: StatusEnum.active,
             },
           })
-          .expect(201);
+          .expect(201)
+          .expect(({ body }) => {
+            expect(body.data.email).toEqual(newUserByAdminEmail);
+            expect(body.data.id).toBeDefined();
+          });
       });
 
       describe('Guest', () => {
@@ -142,6 +190,86 @@ describe('Users Module', () => {
             expect(body.data[0].password).not.toBeDefined();
           });
       });
+    });
+  });
+
+  describe('Get single', () => {
+    let subjectUser;
+
+    beforeAll(async () => {
+      const email = `get-single.${Date.now()}@example.com`;
+      const password = 'secret';
+
+      await request(app).post('/api/v1/auth/email/register').send({
+        email,
+        password,
+        firstName: 'Single',
+        lastName: 'User',
+      });
+
+      await request(app)
+        .post('/api/v1/auth/email/login')
+        .send({ email, password })
+        .then(({ body }) => {
+          subjectUser = body.user;
+        });
+    });
+
+    it('should return user detail: /api/v1/users/:id (GET)', () => {
+      return request(app)
+        .get(`/api/v1/users/${subjectUser.id}`)
+        .auth(apiToken, {
+          type: 'bearer',
+        })
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body.data.id).toEqual(subjectUser.id);
+          expect(body.data.email).toEqual(subjectUser.email);
+        });
+    });
+  });
+
+  describe('Delete', () => {
+    const deletableEmail = `delete.${Date.now()}@example.com`;
+    const deletablePassword = 'secret';
+    let deletableUserId: string;
+
+    beforeAll(async () => {
+      await request(app).post('/api/v1/auth/email/register').send({
+        email: deletableEmail,
+        password: deletablePassword,
+        firstName: 'Delete',
+        lastName: 'Me',
+      });
+
+      await request(app)
+        .post('/api/v1/auth/email/login')
+        .send({ email: deletableEmail, password: deletablePassword })
+        .then(({ body }) => {
+          deletableUserId = body.user.id;
+        });
+    });
+
+    it('should delete user and return payload: /api/v1/users/:id (DELETE)', async () => {
+      await request(app)
+        .delete(`/api/v1/users/${deletableUserId}`)
+        .auth(apiToken, {
+          type: 'bearer',
+        })
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body.data.id).toEqual(deletableUserId);
+        });
+
+      await request(app)
+        .get(`/api/v1/users/${deletableUserId}`)
+        .auth(apiToken, {
+          type: 'bearer',
+        })
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body.data).toBeNull();
+        });
     });
   });
 });

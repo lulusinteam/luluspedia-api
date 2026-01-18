@@ -1,6 +1,14 @@
 import { registerAs } from '@nestjs/config';
 
-import { IsOptional, IsInt, Min, Max, IsString, ValidateIf, IsBoolean } from 'class-validator';
+import {
+  IsOptional,
+  IsInt,
+  Min,
+  Max,
+  IsString,
+  ValidateIf,
+  IsBoolean,
+} from 'class-validator';
 import validateConfig from '../../utils/validate-config';
 import { DatabaseConfig } from './database-config.type';
 
@@ -72,7 +80,9 @@ export default registerAs<DatabaseConfig>('database', () => {
     url: process.env.DATABASE_URL,
     type: process.env.DATABASE_TYPE,
     host: process.env.DATABASE_HOST,
-    port: process.env.DATABASE_PORT ? parseInt(process.env.DATABASE_PORT, 10) : 5432,
+    port: process.env.DATABASE_PORT
+      ? parseInt(process.env.DATABASE_PORT, 10)
+      : 5432,
     password: process.env.DATABASE_PASSWORD,
     name: process.env.DATABASE_NAME,
     username: process.env.DATABASE_USERNAME,

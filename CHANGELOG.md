@@ -5,6 +5,7 @@
 
 ### Features
 
+* **users:** lock CRUD endpoints to admin role, add delete payload & docs
 * **auth:** update email ([9e180c9](https://github.com/brocoders/nestjs-boilerplate/commit/9e180c985bf4730405da8acb0b7e26c96c630252))
 * **document:** add domain condition to document ([becb3c3](https://github.com/brocoders/nestjs-boilerplate/commit/becb3c368ee0df2eeca72176eb9d8250fdd5d46e))
 * **install-scripts:** add option to select database ([2c204a6](https://github.com/brocoders/nestjs-boilerplate/commit/2c204a67198c3879a13123f2e3293d5dd322bbab))

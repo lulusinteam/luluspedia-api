@@ -5,7 +5,11 @@ import { FileRepository } from '../file.repository';
 import { FileDocumentRepository } from './repositories/file.repository';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: FileSchemaClass.name, schema: FileSchema }])],
+  imports: [
+    MongooseModule.forFeature([
+      { name: FileSchemaClass.name, schema: FileSchema },
+    ]),
+  ],
   providers: [
     {
       provide: FileRepository,

@@ -70,6 +70,20 @@ For auth with external services or social networks you need:
 
 1. Make any requests using a JWT token
 
+### Admin-only user management
+
+Administrators can manage application users through the `/api/v1/users` endpoints. Every handler inside `UsersController` is protected by `AuthGuard('jwt')` and `RolesGuard`, and the `RoleEnum.admin` role is required. Requests authenticated with a non-admin token will receive `403 Forbidden`.
+
+Available routes:
+
+- `POST /api/v1/users` – create users (passwords are hashed and email collisions are rejected).
+- `GET /api/v1/users` – list users with pagination metadata.
+- `GET /api/v1/users/:id` – fetch a single user.
+- `PATCH /api/v1/users/:id` – update profile fields, email, password, status, and role.
+- `DELETE /api/v1/users/:id` – soft-delete a user and return the deleted identifier.
+
+All endpoints emit JSend-formatted responses (status/data/meta) so clients can rely on a consistent shape.
+
 ---
 
 ## Configure Auth

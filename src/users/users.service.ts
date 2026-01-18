@@ -1,4 +1,8 @@
-import { HttpStatus, Injectable, UnprocessableEntityException } from '@nestjs/common';
+import {
+  HttpStatus,
+  Injectable,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { NullableType } from '../utils/types/nullable.type';
 import { FilterUserDto, SortUserDto } from './dto/query-user.dto';
@@ -36,7 +40,9 @@ export class UsersService {
     let email: string | null = null;
 
     if (createUserDto.email) {
-      const userObject = await this.usersRepository.findByEmail(createUserDto.email);
+      const userObject = await this.usersRepository.findByEmail(
+        createUserDto.email,
+      );
       if (userObject) {
         throw new UnprocessableEntityException({
           status: HttpStatus.UNPROCESSABLE_ENTITY,
@@ -51,7 +57,9 @@ export class UsersService {
     let photo: FileType | null | undefined = undefined;
 
     if (createUserDto.photo?.id) {
-      const fileObject = await this.filesService.findById(createUserDto.photo.id);
+      const fileObject = await this.filesService.findById(
+        createUserDto.photo.id,
+      );
       if (!fileObject) {
         throw new UnprocessableEntityException({
           status: HttpStatus.UNPROCESSABLE_ENTITY,
@@ -161,7 +169,10 @@ export class UsersService {
     });
   }
 
-  async update(id: User['id'], updateUserDto: UpdateUserDto): Promise<User | null> {
+  async update(
+    id: User['id'],
+    updateUserDto: UpdateUserDto,
+  ): Promise<User | null> {
     // Do not remove comment below.
     // <updating-property />
 
@@ -179,7 +190,9 @@ export class UsersService {
     let email: string | null | undefined = undefined;
 
     if (updateUserDto.email) {
-      const userObject = await this.usersRepository.findByEmail(updateUserDto.email);
+      const userObject = await this.usersRepository.findByEmail(
+        updateUserDto.email,
+      );
 
       if (userObject && userObject.id !== id) {
         throw new UnprocessableEntityException({
@@ -198,7 +211,9 @@ export class UsersService {
     let photo: FileType | null | undefined = undefined;
 
     if (updateUserDto.photo?.id) {
-      const fileObject = await this.filesService.findById(updateUserDto.photo.id);
+      const fileObject = await this.filesService.findById(
+        updateUserDto.photo.id,
+      );
       if (!fileObject) {
         throw new UnprocessableEntityException({
           status: HttpStatus.UNPROCESSABLE_ENTITY,

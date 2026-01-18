@@ -5,7 +5,11 @@ import { SessionRepository } from '../session.repository';
 import { SessionDocumentRepository } from './repositories/session.repository';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: SessionSchemaClass.name, schema: SessionSchema }])],
+  imports: [
+    MongooseModule.forFeature([
+      { name: SessionSchemaClass.name, schema: SessionSchema },
+    ]),
+  ],
   providers: [
     {
       provide: SessionRepository,

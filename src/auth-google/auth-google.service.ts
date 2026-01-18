@@ -1,4 +1,8 @@
-import { HttpStatus, Injectable, UnprocessableEntityException } from '@nestjs/common';
+import {
+  HttpStatus,
+  Injectable,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OAuth2Client } from 'google-auth-library';
 import { SocialInterface } from '../social/interfaces/social.interface';
@@ -16,10 +20,14 @@ export class AuthGoogleService {
     );
   }
 
-  async getProfileByToken(loginDto: AuthGoogleLoginDto): Promise<SocialInterface> {
+  async getProfileByToken(
+    loginDto: AuthGoogleLoginDto,
+  ): Promise<SocialInterface> {
     const ticket = await this.google.verifyIdToken({
       idToken: loginDto.idToken,
-      audience: [this.configService.getOrThrow('google.clientId', { infer: true })],
+      audience: [
+        this.configService.getOrThrow('google.clientId', { infer: true }),
+      ],
     });
 
     const data = ticket.getPayload();

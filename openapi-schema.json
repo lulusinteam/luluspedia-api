@@ -225,8 +225,15 @@
           }
         ],
         "responses": {
-          "204": {
-            "description": ""
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteUserResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1050,6 +1057,17 @@
             "$ref": "#/components/schemas/StatusDto"
           }
         }
+      },
+      "DeleteUserResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id"
+        ]
       },
       "FileResponseDto": {
         "type": "object",

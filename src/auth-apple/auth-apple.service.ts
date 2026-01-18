@@ -9,7 +9,9 @@ import { AllConfigType } from '../config/config.type';
 export class AuthAppleService {
   constructor(private configService: ConfigService<AllConfigType>) {}
 
-  async getProfileByToken(loginDto: AuthAppleLoginDto): Promise<SocialInterface> {
+  async getProfileByToken(
+    loginDto: AuthAppleLoginDto,
+  ): Promise<SocialInterface> {
     const data = await appleSigninAuth.verifyIdToken(loginDto.idToken, {
       audience: this.configService.get('apple.appAudience', { infer: true }),
     });

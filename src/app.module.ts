@@ -29,7 +29,8 @@ import { MongooseConfigService } from './database/mongoose-config.service';
 import { DatabaseConfig } from './database/config/database-config.type';
 
 // <database-block>
-const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig).isDocumentDatabase
+const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
+  .isDocumentDatabase
   ? MongooseModule.forRootAsync({
       useClass: MongooseConfigService,
     })
