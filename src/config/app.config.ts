@@ -28,13 +28,27 @@ class EnvironmentVariablesValidator {
   @IsOptional()
   APP_PORT: number;
 
+  @IsInt()
+  @Min(0)
+  @Max(65535)
+  @IsOptional()
+  ADMIN_PORT: number;
+
   @IsUrl({ require_tld: false })
   @IsOptional()
   FRONTEND_DOMAIN: string;
 
   @IsUrl({ require_tld: false })
   @IsOptional()
+  FRONTEND_DOMAIN_ADMIN: string;
+
+  @IsUrl({ require_tld: false })
+  @IsOptional()
   BACKEND_DOMAIN: string;
+
+  @IsUrl({ require_tld: false })
+  @IsOptional()
+  BACKEND_DOMAIN_ADMIN: string;
 
   @IsString()
   @IsOptional()
@@ -57,12 +71,18 @@ export default registerAs<AppConfig>('app', () => {
     name: process.env.APP_NAME || 'app',
     workingDirectory: process.env.PWD || process.cwd(),
     frontendDomain: process.env.FRONTEND_DOMAIN,
+    frontendDomainAdmin: process.env.FRONTEND_DOMAIN_ADMIN,
     backendDomain: process.env.BACKEND_DOMAIN ?? 'http://localhost',
+    backendDomainAdmin:
+      process.env.BACKEND_DOMAIN_ADMIN ?? 'http://localhost:3001',
     port: process.env.APP_PORT
       ? parseInt(process.env.APP_PORT, 10)
       : process.env.PORT
         ? parseInt(process.env.PORT, 10)
         : 3000,
+    adminPort: process.env.ADMIN_PORT
+      ? parseInt(process.env.ADMIN_PORT, 10)
+      : 3001,
     apiPrefix: process.env.API_PREFIX || 'api',
     fallbackLanguage: process.env.APP_FALLBACK_LANGUAGE || 'en',
     headerLanguage: process.env.APP_HEADER_LANGUAGE || 'x-custom-lang',

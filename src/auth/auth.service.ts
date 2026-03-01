@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   HttpStatus,
   Injectable,
   NotFoundException,
@@ -28,6 +29,7 @@ import { Session } from '../session/domain/session';
 import { SessionService } from '../session/session.service';
 import { StatusEnum } from '../statuses/statuses.enum';
 import { User } from '../users/domain/user';
+import { Role } from '../roles/domain/role';
 
 @Injectable()
 export class AuthService {
@@ -39,12 +41,15 @@ export class AuthService {
     private configService: ConfigService<AllConfigType>,
   ) {}
 
-  async validateLogin(loginDto: AuthEmailLoginDto): Promise<LoginResponseDto> {
+  async validateLogin(
+    loginDto: AuthEmailLoginDto,
+    allowedRole: RoleEnum,
+  ): Promise<LoginResponseDto> {
     const user = await this.usersService.findByEmail(loginDto.email);
 
     if (!user) {
-      throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
+      throw new UnauthorizedException({
+        status: HttpStatus.UNAUTHORIZED,
         errors: {
           email: 'notFound',
         },
@@ -52,8 +57,8 @@ export class AuthService {
     }
 
     if (user.provider !== AuthProvidersEnum.email) {
-      throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
+      throw new UnauthorizedException({
+        status: HttpStatus.UNAUTHORIZED,
         errors: {
           email: `needLoginViaProvider:${user.provider}`,
         },
@@ -61,8 +66,8 @@ export class AuthService {
     }
 
     if (!user.password) {
-      throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
+      throw new UnauthorizedException({
+        status: HttpStatus.UNAUTHORIZED,
         errors: {
           password: 'incorrectPassword',
         },
@@ -75,10 +80,20 @@ export class AuthService {
     );
 
     if (!isValidPassword) {
-      throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
+      throw new UnauthorizedException({
+        status: HttpStatus.UNAUTHORIZED,
         errors: {
           password: 'incorrectPassword',
+        },
+      });
+    }
+
+    const userRoleId = (user.role as Role)?.id ?? user.role?.id;
+    if (Number(userRoleId) !== Number(allowedRole)) {
+      throw new ForbiddenException({
+        status: HttpStatus.FORBIDDEN,
+        errors: {
+          role: 'forbiddenRole',
         },
       });
     }

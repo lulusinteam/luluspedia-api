@@ -25,6 +25,7 @@ import { NullableType } from '../utils/types/nullable.type';
 import { User } from '../users/domain/user';
 import { RefreshResponseDto } from './dto/refresh-response.dto';
 import { ApiJSendResponse } from '../utils/swagger-jsend.decorator';
+import { RoleEnum } from '../roles/roles.enum';
 
 @ApiTags('Auth')
 @Controller({
@@ -41,7 +42,7 @@ export class AuthController {
   @ApiJSendResponse(LoginResponseDto)
   @HttpCode(HttpStatus.OK)
   public login(@Body() loginDto: AuthEmailLoginDto): Promise<LoginResponseDto> {
-    return this.service.validateLogin(loginDto);
+    return this.service.validateLogin(loginDto, RoleEnum.user);
   }
 
   @Post('email/register')

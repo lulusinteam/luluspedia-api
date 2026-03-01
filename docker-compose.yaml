@@ -30,12 +30,31 @@ services:
   #   ports:
   #     - 6379:6379
 
+  # User API — handles register, login (user only), forgot-password, etc.
   api:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - ${APP_PORT}:${APP_PORT}
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+
+  # Admin API — handles login (admin only), separate port & swagger
+  api-admin:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["/opt/startup.admin.sh"]
+    ports:
+      - ${ADMIN_PORT}:${ADMIN_PORT}
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - api   # Pastikan User API (yang run migration) sudah up duluan
 
 volumes:
   boilerplate-db:

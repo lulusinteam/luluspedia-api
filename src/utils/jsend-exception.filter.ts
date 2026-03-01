@@ -49,26 +49,15 @@ export class JSendExceptionFilter implements ExceptionFilter {
         status >= HttpStatus.BAD_REQUEST &&
         status < HttpStatus.INTERNAL_SERVER_ERROR
       ) {
-        // For validation errors (typically 422 Unprocessable Entity)
-        if (errorResponse.errors) {
-          responseBody = {
-            status: 'fail',
-            data: errorResponse.errors,
-            meta,
-          };
-        } else {
-          // For other client errors
-          responseBody = {
-            status: 'fail',
-            data: {
-              message:
-                typeof errorResponse === 'string'
-                  ? errorResponse
-                  : errorResponse.message || 'Client error',
-            },
-            meta,
-          };
-        }
+        // Client errors (4xx) are mapped to "fail" status
+        responseBody = {
+          status: 'fail',
+          data:
+            typeof errorResponse === 'object' && errorResponse !== null
+              ? errorResponse.errors || errorResponse
+              : { message: errorResponse || 'Client error' },
+          meta,
+        };
       } else {
         // Server errors (5xx) are mapped to "error" status
         responseBody = {
