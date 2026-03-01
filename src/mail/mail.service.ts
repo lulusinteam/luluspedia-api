@@ -34,7 +34,7 @@ export class MailService {
     const url = new URL(
       this.configService.getOrThrow('app.frontendDomain', {
         infer: true,
-      }) + '/confirm-email',
+      }) + '/auth/confirm-email',
     );
     url.searchParams.set('hash', mailData.data.hash);
 
@@ -56,6 +56,7 @@ export class MailService {
         url: url.toString(),
         actionTitle: emailConfirmTitle,
         app_name: this.configService.get('app.name', { infer: true }),
+        year: new Date().getFullYear(),
         text1,
         text2,
         text3,
@@ -86,7 +87,7 @@ export class MailService {
     const url = new URL(
       this.configService.getOrThrow('app.frontendDomain', {
         infer: true,
-      }) + '/password-change',
+      }) + '/auth/reset-password',
     );
     url.searchParams.set('hash', mailData.data.hash);
     url.searchParams.set('expires', mailData.data.tokenExpires.toString());
@@ -111,6 +112,7 @@ export class MailService {
         app_name: this.configService.get('app.name', {
           infer: true,
         }),
+        year: new Date().getFullYear(),
         text1,
         text2,
         text3,
@@ -160,6 +162,7 @@ export class MailService {
         url: url.toString(),
         actionTitle: emailConfirmTitle,
         app_name: this.configService.get('app.name', { infer: true }),
+        year: new Date().getFullYear(),
         text1,
         text2,
         text3,

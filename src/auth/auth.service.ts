@@ -30,6 +30,7 @@ import { SessionService } from '../session/session.service';
 import { StatusEnum } from '../statuses/statuses.enum';
 import { User } from '../users/domain/user';
 import { Role } from '../roles/domain/role';
+import { Status } from '../statuses/domain/status';
 
 @Injectable()
 export class AuthService {
@@ -94,6 +95,16 @@ export class AuthService {
         status: HttpStatus.FORBIDDEN,
         errors: {
           role: 'forbiddenRole',
+        },
+      });
+    }
+
+    const userStatusId = (user.status as Status)?.id ?? user.status?.id;
+    if (Number(userStatusId) !== StatusEnum.active) {
+      throw new UnauthorizedException({
+        status: HttpStatus.UNAUTHORIZED,
+        errors: {
+          status: 'notActive',
         },
       });
     }

@@ -3,12 +3,9 @@ import {
   NestInterceptor,
   ExecutionContext,
   CallHandler,
-  HttpStatus,
-  HttpException,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
-import { throwError } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { Request } from 'express';
 
 /**
@@ -77,79 +74,6 @@ export class JSendInterceptor implements NestInterceptor {
           data: data || {},
           meta,
         };
-      }),
-      catchError(error => {
-        // Handle HttpExceptions (4xx, 5xx)
-        if (error instanceof HttpException) {
-          const status = error.getStatus();
-          const errorResponse = error.getResponse() as any;
-
-          // Client errors (4xx) are mapped to "fail" status
-          if (
-            status >= HttpStatus.BAD_REQUEST &&
-            status < HttpStatus.INTERNAL_SERVER_ERROR
-          ) {
-            // For validation errors (typically 422 Unprocessable Entity)
-            if (errorResponse.errors) {
-              return throwError(
-                () =>
-                  new HttpException(
-                    {
-                      status: 'fail',
-                      data: errorResponse.errors,
-                    },
-                    status,
-                  ),
-              );
-            }
-
-            // For other client errors
-            return throwError(
-              () =>
-                new HttpException(
-                  {
-                    status: 'fail',
-                    data: {
-                      message:
-                        typeof errorResponse === 'string'
-                          ? errorResponse
-                          : errorResponse.message || 'Client error',
-                    },
-                  },
-                  status,
-                ),
-            );
-          }
-
-          // Server errors (5xx) are mapped to "error" status
-          return throwError(
-            () =>
-              new HttpException(
-                {
-                  status: 'error',
-                  message:
-                    typeof errorResponse === 'string'
-                      ? errorResponse
-                      : errorResponse.message || 'Server error',
-                  code: status,
-                },
-                status,
-              ),
-          );
-        }
-
-        // Unexpected errors
-        return throwError(
-          () =>
-            new HttpException(
-              {
-                status: 'error',
-                message: 'Internal server error',
-                code: HttpStatus.INTERNAL_SERVER_ERROR,
-              },
-              HttpStatus.INTERNAL_SERVER_ERROR,
-            ),
-        );
       }),
     );
   }
