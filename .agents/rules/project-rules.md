@@ -1,3 +1,7 @@
+---
+trigger: always_on
+---
+
 # Project Rules
 
 > [!IMPORTANT]
@@ -164,7 +168,7 @@ For errors:
 ## Logging & Observability
 
 1. **Structured logs** – Use the shared logger provider; log JSON objects with `context`, `message`, and `meta` fields.
-2. **Levels** – `debug` for verbose diagnostics (disabled in prod), `log`/info for lifecycle events, `warn` for recoverable issues, `error` for failures surfaced to operators.
+2. **Levels** – `debug` for verbose diagnostics (disabled in prod), `log`/`info` for lifecycle events, `warn` for recoverable issues, `error` for failures surfaced to operators.
 3. **Tracing** – Propagate correlation/request IDs through services and include them in response `meta` and log entries.
 4. **Metrics** – When exposing new long-running processes, add counters/histograms through the observability module (if applicable) or document planned instrumentation.
 
@@ -181,3 +185,4 @@ For errors:
 ---
 
 Adhering to these rules keeps the codebase predictable, testable, and onboarding-friendly. When in doubt, open a short architecture discussion before writing code; aligning early is cheaper than rewriting later.
+
