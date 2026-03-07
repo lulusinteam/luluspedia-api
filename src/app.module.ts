@@ -42,8 +42,15 @@ const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
     });
 // </database-block>
 
+import { CategoriesModule } from './modules/categories/categories.module';
+import { TryoutsModule } from './modules/tryouts/tryouts.module';
+import { QuestionsModule } from './modules/questions/questions.module';
+import { OptionsModule } from './modules/options/options.module';
+
 @Module({
   imports: [
+    OptionsModule,
+    QuestionsModule,
     ConfigModule.forRoot({
       isGlobal: true,
       load: [
@@ -85,6 +92,9 @@ const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
     UsersModule,
     FilesModule,
     AuthModule,
+    CategoriesModule,
+    TryoutsModule,
+    QuestionsModule,
     AuthFacebookModule,
     AuthGoogleModule,
     AuthAppleModule,
