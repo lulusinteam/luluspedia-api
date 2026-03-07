@@ -1,22 +1,22 @@
 import { Module } from '@nestjs/common';
 import databaseConfig from './database/config/database.config';
-import authConfig from './auth/config/auth.config';
+import authConfig from './modules/auth/config/auth.config';
 import appConfig from './config/app.config';
-import mailConfig from './mail/config/mail.config';
+import mailConfig from './modules/mail/config/mail.config';
 import path from 'path';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HeaderResolver, I18nModule } from 'nestjs-i18n';
 import { TypeOrmConfigService } from './database/typeorm-config.service';
-import { MailModule } from './mail/mail.module';
+import { MailModule } from './modules/mail/mail.module';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { AllConfigType } from './config/config.type';
-import { SessionModule } from './session/session.module';
-import { MailerModule } from './mailer/mailer.module';
+import { SessionModule } from './modules/session/session.module';
+import { MailerModule } from './modules/mailer/mailer.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MongooseConfigService } from './database/mongoose-config.service';
 import { DatabaseConfig } from './database/config/database-config.type';
-import { AdminAuthModule } from './auth/admin/admin-auth.module';
+import { AdminAuthModule } from './modules/auth/admin/admin-auth.module';
 
 // <database-block>
 const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)

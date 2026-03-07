@@ -1,0 +1,151 @@
+// Use DBML to define your database structure
+// Use online editor at dbdiagram.io to visualize
+
+Table users {
+  id uuid [primary key]
+  email varchar [unique, note: 'nullable']
+  password varchar [note: 'nullable']
+  provider varchar [default: 'email']
+  social_id varchar [note: 'nullable']
+  first_name varchar [note: 'nullable']
+  last_name varchar [note: 'nullable']
+  photo_id uuid [note: 'nullable']
+  role_id uuid [note: 'nullable']
+  status_id uuid [note: 'nullable']
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+}
+
+Table roles {
+  id uuid [primary key]
+  name varchar
+}
+
+Table statuses {
+  id uuid [primary key]
+  name varchar
+}
+
+Table sessions {
+  id uuid [primary key]
+  user_id uuid
+  hash varchar
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+}
+
+Table files {
+  id uuid [primary key]
+  path varchar
+}
+
+Table categories {
+  id uuid [primary key]
+  slug varchar [unique]
+  label varchar
+}
+
+Enum tryout_status_enum {
+  draft
+  scheduled
+  published
+  archived
+}
+
+Table tryouts {
+  id uuid [primary key]
+  title varchar
+  category_id uuid [note: 'Reference to categories']
+  description text
+  cover_id uuid [note: 'Reference to files']
+  is_recommended boolean [default: false]
+  duration integer [note: 'Duration in minutes']
+  is_shuffled boolean [default: false]
+  show_result boolean [default: true]
+  show_explanation boolean [default: true]
+  pass_score integer [default: 0]
+  status tryout_status_enum [default: 'draft']
+  scheduled_at timestamp [note: 'Planned publication time']
+  published_at timestamp [note: 'Actual publication time']
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+}
+
+Enum difficulty_enum {
+  easy
+  medium
+  hard
+}
+
+Table questions {
+  id uuid [primary key]
+  tryout_id uuid [note: 'Reference to tryouts']
+  order_number integer [note: 'Sequence of the question, starts from 1']
+  content text
+  explanation text [note: 'Detailed explanation shown if show_explanation is true']
+  image_id uuid [note: 'Optional reference to files, nullable']
+  explanation_image_id uuid [note: 'Optional explanation image, nullable']
+  difficulty difficulty_enum
+  points integer [default: 0]
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+}
+
+Table options {
+  id uuid [primary key]
+  question_id uuid [note: 'Reference to questions']
+  content text
+  is_correct boolean [default: false]
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+}
+
+Enum user_tryout_status_enum {
+  in_progress
+  completed
+  abandoned
+}
+
+Table user_tryouts {
+  id uuid [primary key]
+  user_id uuid
+  tryout_id uuid
+  start_time timestamp [default: `now()`]
+  end_time timestamp [note: 'When the user submitted the tryout']
+  total_score integer [default: 0]
+  status user_tryout_status_enum [default: 'in_progress']
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+}
+
+Table user_answers {
+  id uuid [primary key]
+  user_tryout_id uuid
+  question_id uuid
+  selected_option_id uuid [note: 'Nullable if user didnt answer']
+  is_correct boolean [note: 'Cached for performance']
+  points_earned integer [default: 0, note: 'Points from question if correct']
+  created_at timestamp
+}
+
+Ref: users.photo_id - files.id
+Ref: users.role_id > roles.id
+Ref: users.status_id > statuses.id
+Ref: sessions.user_id > users.id
+Ref: tryouts.category_id > categories.id
+Ref: tryouts.cover_id > files.id
+Ref: questions.tryout_id > tryouts.id
+Ref: questions.image_id > files.id
+Ref: questions.explanation_image_id > files.id
+Ref: options.question_id > questions.id
+Ref: user_tryouts.user_id > users.id
+Ref: user_tryouts.tryout_id > tryouts.id
+Ref: user_answers.user_tryout_id > user_tryouts.id
+Ref: user_answers.question_id > questions.id
+Ref: user_answers.selected_option_id > options.id

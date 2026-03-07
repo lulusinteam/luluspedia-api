@@ -55,7 +55,7 @@ This document establishes the authoritative checklist for contributing to the Ne
 Use the following minimal layout when scaffolding a feature (document and relational persistence folders included as needed):
 
 ```txt
-src/<feature>/
+src/modules/<feature>/
 ├── domain
 │   └── <entity>.ts
 ├── dto
