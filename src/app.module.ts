@@ -27,6 +27,10 @@ import { MailerModule } from './modules/mailer/mailer.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MongooseConfigService } from './database/mongoose-config.service';
 import { DatabaseConfig } from './database/config/database-config.type';
+import { CategoriesModule } from './modules/categories/categories.module';
+import { TryoutsModule } from './modules/tryouts/tryouts.module';
+import { QuestionsModule } from './modules/questions/questions.module';
+import { OptionsModule } from './modules/options/options.module';
 
 // <database-block>
 const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
@@ -42,15 +46,8 @@ const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
     });
 // </database-block>
 
-import { CategoriesModule } from './modules/categories/categories.module';
-import { TryoutsModule } from './modules/tryouts/tryouts.module';
-import { QuestionsModule } from './modules/questions/questions.module';
-import { OptionsModule } from './modules/options/options.module';
-
 @Module({
   imports: [
-    OptionsModule,
-    QuestionsModule,
     ConfigModule.forRoot({
       isGlobal: true,
       load: [
@@ -95,6 +92,7 @@ import { OptionsModule } from './modules/options/options.module';
     CategoriesModule,
     TryoutsModule,
     QuestionsModule,
+    OptionsModule,
     AuthFacebookModule,
     AuthGoogleModule,
     AuthAppleModule,

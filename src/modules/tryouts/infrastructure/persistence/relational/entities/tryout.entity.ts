@@ -14,7 +14,7 @@ import { FileEntity } from '../../../../../files/infrastructure/persistence/rela
 import { TryoutStatusEnum } from '../../../../tryouts.enum';
 
 @Entity({
-  name: 'tryout',
+  name: 'tryouts',
 })
 export class TryoutEntity extends EntityRelationalHelper {
   @PrimaryGeneratedColumn('uuid')

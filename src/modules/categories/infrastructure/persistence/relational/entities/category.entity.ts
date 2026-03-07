@@ -8,10 +8,9 @@ import {
 import { EntityRelationalHelper } from '../../../../../../utils/relational-entity-helper';
 
 @Entity({
-  name: 'category',
+  name: 'categories',
 })
 export class CategoryEntity extends EntityRelationalHelper {
-  @PrimaryGeneratedColumn('uuid')
   @PrimaryGeneratedColumn('uuid')
   id: string;
 

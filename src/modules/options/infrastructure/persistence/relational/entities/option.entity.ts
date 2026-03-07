@@ -13,7 +13,7 @@ import { QuestionEntity } from '../../../../../questions/infrastructure/persiste
 import { FileEntity } from '../../../../../files/infrastructure/persistence/relational/entities/file.entity';
 
 @Entity({
-  name: 'option',
+  name: 'options',
 })
 export class OptionEntity extends EntityRelationalHelper {
   @PrimaryGeneratedColumn('uuid')

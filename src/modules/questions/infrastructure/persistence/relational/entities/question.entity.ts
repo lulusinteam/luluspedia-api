@@ -14,7 +14,7 @@ import { FileEntity } from '../../../../../files/infrastructure/persistence/rela
 import { QuestionTypeEnum } from '../../../../questions.enum';
 
 @Entity({
-  name: 'question',
+  name: 'questions',
 })
 export class QuestionEntity extends EntityRelationalHelper {
   @PrimaryGeneratedColumn('uuid')
