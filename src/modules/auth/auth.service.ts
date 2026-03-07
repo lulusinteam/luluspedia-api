@@ -90,7 +90,7 @@ export class AuthService {
     }
 
     const userRoleId = (user.role as Role)?.id ?? user.role?.id;
-    if (Number(userRoleId) !== Number(allowedRole)) {
+    if (userRoleId !== allowedRole) {
       throw new ForbiddenException({
         status: HttpStatus.FORBIDDEN,
         errors: {
@@ -100,7 +100,7 @@ export class AuthService {
     }
 
     const userStatusId = (user.status as Status)?.id ?? user.status?.id;
-    if (Number(userStatusId) !== StatusEnum.active) {
+    if (userStatusId !== StatusEnum.active) {
       throw new UnauthorizedException({
         status: HttpStatus.UNAUTHORIZED,
         errors: {

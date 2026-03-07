@@ -17,8 +17,8 @@ import { EntityRelationalHelper } from '../../../../../../utils/relational-entit
   name: 'sessions',
 })
 export class SessionEntity extends EntityRelationalHelper {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @ManyToOne(() => UserEntity, {
     eager: true,

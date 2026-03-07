@@ -6,8 +6,8 @@ import { EntityRelationalHelper } from '../../../../../../utils/relational-entit
   name: 'statuses',
 })
 export class StatusEntity extends EntityRelationalHelper {
-  @PrimaryColumn()
-  id: number;
+  @PrimaryColumn('uuid')
+  id: string;
 
   @Column()
   name?: string;

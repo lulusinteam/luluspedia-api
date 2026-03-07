@@ -20,7 +20,7 @@ export class SessionRelationalRepository implements SessionRepository {
   async findById(id: Session['id']): Promise<NullableType<Session>> {
     const entity = await this.sessionRepository.findOne({
       where: {
-        id: Number(id),
+        id: id as string,
       },
     });
 
@@ -41,7 +41,7 @@ export class SessionRelationalRepository implements SessionRepository {
     >,
   ): Promise<Session | null> {
     const entity = await this.sessionRepository.findOne({
-      where: { id: Number(id) },
+      where: { id: id as string },
     });
 
     if (!entity) {
@@ -62,14 +62,14 @@ export class SessionRelationalRepository implements SessionRepository {
 
   async deleteById(id: Session['id']): Promise<void> {
     await this.sessionRepository.softDelete({
-      id: Number(id),
+      id: id as string,
     });
   }
 
   async deleteByUserId(conditions: { userId: User['id'] }): Promise<void> {
     await this.sessionRepository.softDelete({
       user: {
-        id: Number(conditions.userId),
+        id: conditions.userId as string,
       },
     });
   }
@@ -80,9 +80,9 @@ export class SessionRelationalRepository implements SessionRepository {
   }): Promise<void> {
     await this.sessionRepository.softDelete({
       user: {
-        id: Number(conditions.userId),
+        id: conditions.userId as string,
       },
-      id: Not(Number(conditions.excludeSessionId)),
+      id: Not(conditions.excludeSessionId as string),
     });
   }
 }
