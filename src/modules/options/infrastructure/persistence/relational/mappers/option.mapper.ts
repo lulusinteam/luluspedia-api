@@ -18,7 +18,7 @@ export class OptionMapper {
     if (raw.question) {
       domainEntity.question = QuestionMapper.toDomain(raw.question);
     }
-    
+
     if (raw.attachment) {
       domainEntity.attachment = FileMapper.toDomain(raw.attachment);
     }
