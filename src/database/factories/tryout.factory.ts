@@ -1,8 +1,10 @@
 import { faker } from '@faker-js/faker';
-import { TryoutEntity } from '../../src/modules/tryouts/infrastructure/persistence/relational/entities/tryout.entity';
-import { TryoutStatusEnum } from '../../src/modules/tryouts/tryouts.enum';
+import { TryoutEntity } from '../../modules/tryouts/infrastructure/persistence/relational/entities/tryout.entity';
+import { TryoutStatusEnum } from '../../modules/tryouts/tryouts.enum';
 
-export const createTryoutFactory = (overrides?: Partial<TryoutEntity>): Partial<TryoutEntity> => {
+export const createTryoutFactory = (
+  overrides?: Partial<TryoutEntity>,
+): Partial<TryoutEntity> => {
   return {
     title: faker.word.words({ count: { min: 3, max: 6 } }),
     description: faker.lorem.paragraph(),

@@ -5,9 +5,10 @@ import { TryoutEntity } from '../../../../modules/tryouts/infrastructure/persist
 import { QuestionEntity } from '../../../../modules/questions/infrastructure/persistence/relational/entities/question.entity';
 import { OptionEntity } from '../../../../modules/options/infrastructure/persistence/relational/entities/option.entity';
 import { CategoryEntity } from '../../../../modules/categories/infrastructure/persistence/relational/entities/category.entity';
-import { createTryoutFactory } from '../../../../../test/factories/tryout.factory';
-import { createQuestionFactory } from '../../../../../test/factories/question.factory';
-import { createOptionFactory } from '../../../../../test/factories/option.factory';
+import { DeepPartial } from 'typeorm';
+import { createTryoutFactory } from '../../../factories/tryout.factory';
+import { createQuestionFactory } from '../../../factories/question.factory';
+import { createOptionFactory } from '../../../factories/option.factory';
 
 @Injectable()
 export class TryoutSeedService {
@@ -31,14 +32,15 @@ export class TryoutSeedService {
       const tryoutCategory = categories.length > 0 ? categories[0] : null;
 
       if (!tryoutCategory) {
-        console.warn('No category found to assign tryout. Please check category seeders.');
+        console.warn(
+          'No category found to assign tryout. Please check category seeders.',
+        );
         return;
       }
 
       // 2. Create the dummy tryout
-      const tryout = this.tryoutRepository.create(
-        createTryoutFactory({ category: tryoutCategory }),
-      );
+      const tryoutData = createTryoutFactory({ category: tryoutCategory });
+      const tryout = this.tryoutRepository.create(tryoutData as DeepPartial<TryoutEntity>);
       const savedTryout = await this.tryoutRepository.save(tryout);
 
       // 3. Batch arrays to store relationships efficiently
@@ -46,14 +48,13 @@ export class TryoutSeedService {
       const allOptionsToSave: OptionEntity[] = [];
 
       for (let i = 0; i < 100; i++) {
-        const question = this.questionRepository.create(
-          createQuestionFactory({ tryout: savedTryout, orderOverride: i + 1 }),
-        );
+        const questionData = createQuestionFactory({ tryout: savedTryout, orderOverride: i + 1 });
+        const question = this.questionRepository.create(questionData as DeepPartial<QuestionEntity>);
         questionsToSave.push(question);
       }
 
       // Bulk insert questions to get their IDs
-      const savedQuestions = await this.questionRepository.save(questionsToSave);
+      const savedQuestions = await this.questionRepository.save(questionsToSave as DeepPartial<QuestionEntity>[]) as unknown as QuestionEntity[];
 
       // 4. Generate 5 options per inserted question
       for (const savedQuestion of savedQuestions) {
@@ -61,13 +62,12 @@ export class TryoutSeedService {
         const correctIndex = Math.floor(Math.random() * 5);
 
         for (let j = 0; j < 5; j++) {
-          const option = this.optionRepository.create(
-            createOptionFactory({
-              question: savedQuestion,
-              isCorrect: j === correctIndex,
-              orderOverride: j + 1,
-            }),
-          );
+          const optionData = createOptionFactory({
+            question: savedQuestion,
+            isCorrect: j === correctIndex,
+            orderOverride: j + 1,
+          });
+          const option = this.optionRepository.create(optionData as DeepPartial<OptionEntity>);
           allOptionsToSave.push(option);
         }
       }
@@ -77,10 +77,11 @@ export class TryoutSeedService {
       const chunkSize = 200;
       for (let i = 0; i < allOptionsToSave.length; i += chunkSize) {
         const chunk = allOptionsToSave.slice(i, i + chunkSize);
-        await this.optionRepository.save(chunk);
+        await this.optionRepository.save(chunk as DeepPartial<OptionEntity>[]);
       }
-      
-      console.log(`Successfully seeded ${savedTryout.title} with 100 questions and 500 options.`);
+      console.log(
+        `Successfully seeded ${savedTryout?.title || 'Unknown Title'} with 100 questions and 500 options.`,
+      );
     }
   }
 }
