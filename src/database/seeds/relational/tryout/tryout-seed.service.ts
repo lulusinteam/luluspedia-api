@@ -99,7 +99,9 @@ export class TryoutSeedService {
         const chunkSize = 250;
         for (let i = 0; i < allOptionsToSave.length; i += chunkSize) {
           const chunk = allOptionsToSave.slice(i, i + chunkSize);
-          await this.optionRepository.save(chunk as DeepPartial<OptionEntity>[]);
+          await this.optionRepository.save(
+            chunk as DeepPartial<OptionEntity>[],
+          );
         }
 
         console.log(
