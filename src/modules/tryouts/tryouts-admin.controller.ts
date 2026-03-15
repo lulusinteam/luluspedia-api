@@ -39,12 +39,12 @@ import { TryoutStatsResponseDto } from './dto/tryout-stats-response.dto';
 @ApiBearerAuth()
 @Roles(RoleEnum.admin)
 @UseGuards(AuthGuard('jwt'), RolesGuard)
-@ApiTags('Tryouts')
+@ApiTags('Admin | Tryouts')
 @Controller({
   path: 'tryouts',
   version: '1',
 })
-export class TryoutsController {
+export class TryoutsAdminController {
   constructor(
     private readonly tryoutsService: TryoutsService,
     private readonly questionsService: QuestionsService,
@@ -54,11 +54,7 @@ export class TryoutsController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() createTryoutDto: CreateTryoutDto): Promise<Tryout> {
-    console.log('--- CREATE TRYOUT ---');
-    console.log('Request Body:', JSON.stringify(createTryoutDto, null, 2));
-    const result = await this.tryoutsService.create(createTryoutDto);
-    console.log('Response Data:', JSON.stringify(result, null, 2));
-    return result;
+    return this.tryoutsService.create(createTryoutDto);
   }
 
   @ApiJSendPaginatedResponse(Tryout)
@@ -138,12 +134,7 @@ export class TryoutsController {
     @Param('id') id: Tryout['id'],
     @Body() updateTryoutDto: UpdateTryoutDto,
   ): Promise<Tryout | null> {
-    console.log('--- UPDATE TRYOUT ---');
-    console.log('ID:', id);
-    console.log('Request Body:', JSON.stringify(updateTryoutDto, null, 2));
-    const result = await this.tryoutsService.update(id, updateTryoutDto);
-    console.log('Response Data:', JSON.stringify(result, null, 2));
-    return result;
+    return this.tryoutsService.update(id, updateTryoutDto);
   }
 
   @Delete(':id')

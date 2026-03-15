@@ -23,8 +23,11 @@ import { CategoriesModule } from './modules/categories/categories.module';
 import { TryoutsModule } from './modules/tryouts/tryouts.module';
 import { QuestionsModule } from './modules/questions/questions.module';
 import { OptionsModule } from './modules/options/options.module';
+import { QuestionsAdminController } from './modules/questions/questions-admin.controller';
 import { FilesModule } from './modules/files/files.module';
 import { UsersModule } from './modules/users/users.module';
+import { TryoutsAdminController } from './modules/tryouts/tryouts-admin.controller';
+import { UsersAdminController } from './modules/users/users-admin.controller';
 
 // <database-block>
 const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
@@ -90,6 +93,11 @@ const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
     MailerModule,
     FilesModule,
     UsersModule,
+  ],
+  controllers: [
+    TryoutsAdminController,
+    UsersAdminController,
+    QuestionsAdminController,
   ],
 })
 export class AdminAppModule {}

@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { TryoutEntity } from '../entities/tryout.entity';
 import { CategoryEntity } from '../../../../../categories/infrastructure/persistence/relational/entities/category.entity';
+import { RatingEntity } from '../../../../../ratings/infrastructure/persistence/relational/entities/rating.entity';
+import { WishlistEntity } from '../../../../../wishlists/infrastructure/persistence/relational/entities/wishlist.entity';
 import { NullableType } from '../../../../../../utils/types/nullable.type';
 import { Tryout } from '../../../../domain/tryout';
 import { TryoutRepository } from '../../tryout.repository';
@@ -197,6 +199,97 @@ export class TryoutRelationalRepository implements TryoutRepository {
     result.all = total;
 
     return result;
+  }
+
+  async findAllUser({
+    paginationOptions,
+    search,
+    category,
+    isWishlist,
+    userId,
+  }: {
+    paginationOptions: IPaginationOptions;
+    search?: string;
+    category?: string;
+    isWishlist?: boolean;
+    userId?: string;
+  }): Promise<[Tryout[], number]> {
+    const query = this.tryoutRepository
+      .createQueryBuilder('tryouts')
+      .leftJoinAndSelect('tryouts.category', 'category')
+      .leftJoinAndSelect('tryouts.cover', 'cover')
+      // Aggregate ratings
+      .leftJoin(
+        qb =>
+          qb
+            .select('rateable_id')
+            .addSelect('AVG(score)', 'avgScore')
+            .addSelect('COUNT(id)', 'countScore')
+            .from(RatingEntity, 'ratings')
+            .where('rateable_type = :type', { type: 'tryouts' })
+            .groupBy('rateable_id'),
+        'ratings_agg',
+        'ratings_agg.rateable_id = tryouts.id',
+      )
+      .addSelect('COALESCE(ratings_agg."avgScore", 0)', 'tryouts_ratingAverage')
+      .addSelect('COALESCE(ratings_agg."countScore", 0)', 'tryouts_ratingCount')
+      // Count questions
+      .loadRelationCountAndMap('tryouts.questionCount', 'tryouts.questions');
+
+    // Only published tryouts for users
+    query.andWhere('tryouts.status = :status', { status: 'published' });
+
+    if (search) {
+      query.andWhere('tryouts.title ILIKE :search', { search: `%${search}%` });
+    }
+
+    if (category) {
+      if (this.isUUID(category)) {
+        query.andWhere('category.id = :category', { category });
+      } else {
+        query.andWhere('category.slug = :category', { category });
+      }
+    }
+
+    if (userId) {
+      // Join with wishlists if userId is provided to check status
+      query.leftJoin(
+        WishlistEntity,
+        'wishlist',
+        'wishlist.wishlistable_id = tryouts.id AND wishlist.wishlistable_type = :wType AND wishlist.user_id = :userId',
+        { wType: 'tryouts', userId },
+      );
+      query.addSelect(
+        'CASE WHEN wishlist.id IS NOT NULL THEN true ELSE false END',
+        'tryouts_isWishlist',
+      );
+
+      if (isWishlist !== undefined) {
+        if (isWishlist) {
+          query.andWhere('wishlist.id IS NOT NULL');
+        } else {
+          query.andWhere('wishlist.id IS NULL');
+        }
+      }
+    }
+
+    query
+      .skip((paginationOptions.page - 1) * paginationOptions.limit)
+      .take(paginationOptions.limit)
+      .orderBy('tryouts.publishedAt', 'DESC');
+
+    const [entities, count] = await query.getManyAndCount();
+
+    return [
+      entities.map(entity => {
+        const domain = TryoutMapper.toDomain(entity);
+        // Map the raw aggregated values back to the domain object
+        // TypeORM query builder with getManyAndCount maps aliased columns starting with the table alias prefix
+        // to the entity object if the entity has those properties.
+        return domain;
+      }),
+      count,
+    ];
   }
 
   async remove(id: Tryout['id']): Promise<void> {

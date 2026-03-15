@@ -80,4 +80,10 @@ export class TryoutEntity extends EntityRelationalHelper {
 
   @DeleteDateColumn()
   deletedAt: Date;
+
+  // Virtual fields populated by QueryBuilder
+  questionCount?: number;
+  ratingAverage?: number;
+  ratingCount?: number;
+  isWishlist?: boolean;
 }

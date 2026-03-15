@@ -36,6 +36,28 @@ export class TryoutsService {
     return this.tryoutRepository.countByStatus();
   }
 
+  async findAllUser({
+    paginationOptions,
+    search,
+    category,
+    isWishlist,
+    userId,
+  }: {
+    paginationOptions: IPaginationOptions;
+    search?: string;
+    category?: string;
+    isWishlist?: boolean;
+    userId?: string;
+  }): Promise<[Tryout[], number]> {
+    return this.tryoutRepository.findAllUser({
+      paginationOptions,
+      search,
+      category,
+      isWishlist,
+      userId,
+    });
+  }
+
   async findOne(id: Tryout['id']): Promise<NullableType<Tryout>> {
     return this.tryoutRepository.findById(id);
   }

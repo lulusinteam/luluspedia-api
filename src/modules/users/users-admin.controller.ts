@@ -35,12 +35,12 @@ import { DeleteUserResponseDto } from './dto/delete-user-response.dto';
 @ApiBearerAuth()
 @Roles(RoleEnum.admin)
 @UseGuards(AuthGuard('jwt'), RolesGuard)
-@ApiTags('Users')
+@ApiTags('Admin | Users')
 @Controller({
   path: 'users',
   version: '1',
 })
-export class UsersController {
+export class UsersAdminController {
   constructor(private readonly usersService: UsersService) {}
 
   @ApiJSendResponse(User)

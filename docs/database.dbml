@@ -149,3 +149,39 @@ Ref: user_tryouts.tryout_id > tryouts.id
 Ref: user_answers.user_tryout_id > user_tryouts.id
 Ref: user_answers.question_id > questions.id
 Ref: user_answers.selected_option_id > options.id
+
+Table ratings {
+  id uuid [primary key]
+  user_id uuid [note: 'Reviewer/User giving the rating']
+  rateable_id uuid [note: 'ID of the related model']
+  rateable_type varchar [note: 'Type of the related model (e.g., tryouts)']
+  score integer [note: 'Rating score, min 1 max 5']
+  review text [note: 'Optional review comment']
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+
+  indexes {
+    (rateable_id, rateable_type)
+    user_id
+  }
+}
+
+Ref: ratings.user_id > users.id
+
+Table wishlists {
+  id uuid [primary key]
+  user_id uuid [note: 'User who added to wishlist']
+  wishlistable_id uuid [note: 'ID of the related model']
+  wishlistable_type varchar [note: 'Type of the related model (e.g., tryouts)']
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+
+  indexes {
+    (wishlistable_id, wishlistable_type)
+    user_id
+  }
+}
+
+Ref: wishlists.user_id > users.id

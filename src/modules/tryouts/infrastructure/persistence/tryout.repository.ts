@@ -33,6 +33,20 @@ export abstract class TryoutRepository {
     status?: string;
   }): Promise<[(Tryout & { questionCount: number })[], number]>;
 
+  abstract findAllUser({
+    paginationOptions,
+    search,
+    category,
+    isWishlist,
+    userId,
+  }: {
+    paginationOptions: IPaginationOptions;
+    search?: string;
+    category?: string;
+    isWishlist?: boolean;
+    userId?: string;
+  }): Promise<[Tryout[], number]>;
+
   abstract countByStatus(): Promise<Record<string, number>>;
 
   abstract remove(id: Tryout['id']): Promise<void>;

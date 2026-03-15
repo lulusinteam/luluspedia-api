@@ -120,7 +120,7 @@ export class TryoutDocumentRepository implements TryoutRepository {
     ];
   }
 
-  countByStatus(): Promise<Record<string, number>> {
+  async countByStatus(): Promise<Record<string, number>> {
     return Promise.resolve({
       all: 0,
       draft: 0,
@@ -128,6 +128,48 @@ export class TryoutDocumentRepository implements TryoutRepository {
       published: 0,
       archived: 0,
     });
+  }
+
+  async findAllUser({
+    paginationOptions,
+    search,
+    category,
+  }: {
+    paginationOptions: IPaginationOptions;
+    search?: string;
+    category?: string;
+    isWishlist?: boolean;
+    userId?: string;
+  }): Promise<[Tryout[], number]> {
+    const filter: any = { status: 'published' };
+    if (search) {
+      filter.title = { $regex: search, $options: 'i' };
+    }
+    if (category) {
+      filter.category = category;
+    }
+
+    const entityObjects = await this.tryoutModel
+      .find(filter)
+      .skip((paginationOptions.page - 1) * paginationOptions.limit)
+      .limit(paginationOptions.limit)
+      .populate('category')
+      .populate('cover');
+
+    const count = await this.tryoutModel.countDocuments(filter);
+
+    return [
+      entityObjects.map(entityObject => {
+        const domain = TryoutMapper.toDomain(entityObject);
+        return {
+          ...domain,
+          ratingAverage: 0,
+          ratingCount: 0,
+          isWishlist: false,
+        };
+      }),
+      count,
+    ];
   }
 
   async remove(id: Tryout['id']): Promise<void> {

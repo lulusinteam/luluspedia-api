@@ -3,11 +3,10 @@ import { RelationalTryoutPersistenceModule } from './infrastructure/persistence/
 import { QuestionsModule } from '../questions/questions.module';
 
 import { TryoutsService } from './tryouts.service';
-import { TryoutsController } from './tryouts.controller';
 
 @Module({
   imports: [RelationalTryoutPersistenceModule, QuestionsModule],
-  controllers: [TryoutsController],
+  controllers: [],
   providers: [TryoutsService],
   exports: [TryoutsService, RelationalTryoutPersistenceModule],
 })

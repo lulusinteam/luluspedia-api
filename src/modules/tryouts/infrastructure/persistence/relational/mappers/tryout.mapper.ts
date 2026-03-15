@@ -32,13 +32,25 @@ export class TryoutMapper {
       domainEntity.cover = FileMapper.toDomain(raw.cover);
     }
 
-    if (raw.questions) {
+    if (raw.questions && Array.isArray(raw.questions)) {
       domainEntity.questions = raw.questions.map(question =>
         QuestionMapper.toDomain(question),
       );
       domainEntity.questionCount = raw.questions.length;
-    } else if ((raw as any).questionCount !== undefined) {
-      domainEntity.questionCount = Number((raw as any).questionCount);
+    } else if (raw.questionCount !== undefined) {
+      domainEntity.questionCount = Number(raw.questionCount);
+    }
+
+    if (raw.ratingAverage !== undefined) {
+      domainEntity.ratingAverage = Number(raw.ratingAverage);
+    }
+
+    if (raw.ratingCount !== undefined) {
+      domainEntity.ratingCount = Number(raw.ratingCount);
+    }
+
+    if (raw.isWishlist !== undefined) {
+      domainEntity.isWishlist = Boolean(raw.isWishlist);
     }
 
     return domainEntity;

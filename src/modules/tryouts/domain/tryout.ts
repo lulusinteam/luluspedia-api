@@ -58,4 +58,13 @@ export class Tryout {
 
   @ApiProperty()
   questionCount?: number;
+
+  @ApiProperty()
+  ratingAverage?: number;
+
+  @ApiProperty()
+  ratingCount?: number;
+
+  @ApiProperty()
+  isWishlist?: boolean;
 }

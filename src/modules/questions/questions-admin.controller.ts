@@ -25,12 +25,12 @@ import { ApiJSendResponse } from '../../utils/swagger-jsend.decorator';
 @ApiBearerAuth()
 @Roles(RoleEnum.admin)
 @UseGuards(AuthGuard('jwt'), RolesGuard)
-@ApiTags('Questions')
+@ApiTags('Admin | Questions')
 @Controller({
   path: 'questions',
   version: '1',
 })
-export class QuestionsController {
+export class QuestionsAdminController {
   constructor(private readonly questionsService: QuestionsService) {}
 
   @ApiJSendResponse(Question)

@@ -31,6 +31,9 @@ import { CategoriesModule } from './modules/categories/categories.module';
 import { TryoutsModule } from './modules/tryouts/tryouts.module';
 import { QuestionsModule } from './modules/questions/questions.module';
 import { OptionsModule } from './modules/options/options.module';
+import { RatingsModule } from './modules/ratings/ratings.module';
+import { WishlistsModule } from './modules/wishlists/wishlists.module';
+import { TryoutsUserController } from './modules/tryouts/tryouts-user.controller';
 
 // <database-block>
 const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
@@ -93,6 +96,8 @@ const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
     TryoutsModule,
     QuestionsModule,
     OptionsModule,
+    RatingsModule,
+    WishlistsModule,
     AuthFacebookModule,
     AuthGoogleModule,
     AuthAppleModule,
@@ -101,5 +106,6 @@ const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
     MailerModule,
     HomeModule,
   ],
+  controllers: [TryoutsUserController],
 })
 export class AppModule {}
