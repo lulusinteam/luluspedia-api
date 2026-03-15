@@ -1,11 +1,22 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { TryoutsService } from '../tryouts/tryouts.service';
+import { SearchHistoryEntity } from './infrastructure/persistence/relational/entities/search-history.entity';
 
 @Injectable()
 export class SearchService {
-  constructor(private readonly tryoutsService: TryoutsService) {}
+  constructor(
+    private readonly tryoutsService: TryoutsService,
+    @InjectRepository(SearchHistoryEntity)
+    private readonly searchHistoryRepository: Repository<SearchHistoryEntity>,
+  ) {}
 
-  async globalSearch(query: string) {
+  async globalSearch(query: string, userId?: string) {
+    if (query && query.length > 2) {
+      await this.logSearch(query, userId);
+    }
+
     const tryouts = await this.tryoutsService.globalSearch(query);
 
     // Grouping results as per Approach B
@@ -33,5 +44,34 @@ export class SearchService {
       }),
       courses: [], // Future implementation
     };
+  }
+
+  async logSearch(query: string, userId?: string) {
+    await this.searchHistoryRepository.save(
+      this.searchHistoryRepository.create({
+        query,
+        userId: userId || null,
+      }),
+    );
+  }
+
+  async getPopular(limit = 10) {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const result = await this.searchHistoryRepository
+      .createQueryBuilder('history')
+      .select('history.query', 'query')
+      .addSelect('COUNT(history.id)', 'count')
+      .where('history.createdAt >= :date', { date: thirtyDaysAgo })
+      .groupBy('history.query')
+      .orderBy('count', 'DESC')
+      .limit(limit)
+      .getRawMany();
+
+    return result.map(r => ({
+      query: r.query,
+      count: parseInt(r.count),
+    }));
   }
 }

@@ -5,6 +5,7 @@ import {
   HttpStatus,
   HttpCode,
   UseGuards,
+  Request,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiQuery } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
@@ -25,7 +26,15 @@ export class SearchController {
   @HttpCode(HttpStatus.OK)
   @ApiQuery({ name: 'q', required: true, type: String })
   @ApiJSendResponse(Object)
-  async search(@Query('q') query: string) {
-    return this.searchService.globalSearch(query);
+  async search(@Request() request, @Query('q') query: string) {
+    return this.searchService.globalSearch(query, request.user?.id);
+  }
+
+  @Get('popular')
+  @HttpCode(HttpStatus.OK)
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiJSendResponse(Object)
+  async getPopular(@Query('limit') limit?: number) {
+    return this.searchService.getPopular(limit);
   }
 }
