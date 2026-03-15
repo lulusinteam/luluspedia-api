@@ -5,8 +5,9 @@ export const createOptionFactory = (
   overrides?: Partial<OptionEntity>,
 ): Partial<OptionEntity> => {
   return {
-    text: faker.lorem.sentence(),
+    content: faker.lorem.sentence(),
     isCorrect: false, // Default to false, seeder modifies exactly one per question
+    orderNumber: 1,
     createdAt: new Date(),
     updatedAt: new Date(),
     ...overrides,

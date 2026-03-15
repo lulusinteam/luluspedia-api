@@ -11,18 +11,22 @@ export class QuestionMapper {
     domainEntity.id = raw._id.toString();
     domainEntity.createdAt = raw.createdAt;
     domainEntity.updatedAt = raw.updatedAt;
-    domainEntity.text = raw.text;
-    domainEntity.questionType = raw.questionType;
-    domainEntity.scoreWeight = raw.scoreWeight;
+    domainEntity.content = raw.content;
+    domainEntity.difficulty = raw.difficulty as any;
+    domainEntity.points = raw.points;
     domainEntity.explanation = raw.explanation;
-    domainEntity.orderOverride = raw.orderOverride;
+    domainEntity.orderNumber = raw.orderNumber as number;
 
     if (raw.tryout) {
       domainEntity.tryout = TryoutMapper.toDomain(raw.tryout);
     }
 
-    if (raw.attachment) {
-      domainEntity.attachment = FileMapper.toDomain(raw.attachment);
+    if (raw.image) {
+      domainEntity.image = FileMapper.toDomain(raw.image);
+    }
+
+    if (raw.explanationImage) {
+      domainEntity.explanationImage = FileMapper.toDomain(raw.explanationImage);
     }
 
     return domainEntity;
@@ -35,11 +39,11 @@ export class QuestionMapper {
     }
     persistenceSchema.createdAt = domainEntity.createdAt;
     persistenceSchema.updatedAt = domainEntity.updatedAt;
-    persistenceSchema.text = domainEntity.text;
-    persistenceSchema.questionType = domainEntity.questionType;
-    persistenceSchema.scoreWeight = domainEntity.scoreWeight;
+    persistenceSchema.content = domainEntity.content;
+    persistenceSchema.difficulty = domainEntity.difficulty;
+    persistenceSchema.points = domainEntity.points;
     persistenceSchema.explanation = domainEntity.explanation;
-    persistenceSchema.orderOverride = domainEntity.orderOverride;
+    persistenceSchema.orderNumber = domainEntity.orderNumber;
 
     if (domainEntity.tryout) {
       const tryout = new TryoutSchemaClass();
@@ -47,10 +51,16 @@ export class QuestionMapper {
       persistenceSchema.tryout = tryout;
     }
 
-    if (domainEntity.attachment) {
-      const attachment = new FileSchemaClass();
-      attachment._id = domainEntity.attachment.id;
-      persistenceSchema.attachment = attachment;
+    if (domainEntity.image) {
+      const image = new FileSchemaClass();
+      image._id = domainEntity.image.id;
+      persistenceSchema.image = image;
+    }
+
+    if (domainEntity.explanationImage) {
+      const explanationImage = new FileSchemaClass();
+      explanationImage._id = domainEntity.explanationImage.id;
+      persistenceSchema.explanationImage = explanationImage;
     }
 
     return persistenceSchema;

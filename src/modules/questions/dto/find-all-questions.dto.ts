@@ -1,17 +1,22 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNumber, IsOptional } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class FindAllQuestionsDto {
-  @ApiPropertyOptional()
+  @ApiProperty({ required: false })
   @Transform(({ value }) => (value ? Number(value) : 1))
   @IsNumber()
   @IsOptional()
   page?: number;
 
-  @ApiPropertyOptional()
+  @ApiProperty({ required: false })
   @Transform(({ value }) => (value ? Number(value) : 10))
   @IsNumber()
   @IsOptional()
   limit?: number;
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  tryoutId?: string;
 }

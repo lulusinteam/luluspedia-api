@@ -10,26 +10,26 @@ import { Question } from '../../questions/domain/question';
 import { FileDto } from '../../files/dto/file.dto';
 
 export class CreateOptionDto {
-  @ApiProperty({ type: () => Question })
-  @IsNotEmpty()
-  question: Question;
+  @ApiProperty({ type: () => Question, required: false })
+  @IsOptional()
+  question?: Question;
 
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  text: string;
+  content: string;
 
   @ApiProperty({ type: () => FileDto, required: false })
   @IsOptional()
-  attachment?: FileDto | null;
+  image?: FileDto | null;
 
-  @ApiProperty({ required: false, default: false })
-  @IsOptional()
+  @ApiProperty({ default: false })
   @IsBoolean()
+  @IsOptional()
   isCorrect?: boolean;
 
   @ApiProperty({ required: false })
   @IsOptional()
   @IsNumber()
-  orderOverride?: number;
+  orderNumber?: number;
 }

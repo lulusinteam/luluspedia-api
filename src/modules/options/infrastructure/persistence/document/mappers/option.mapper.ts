@@ -11,16 +11,16 @@ export class OptionMapper {
     domainEntity.id = raw._id.toString();
     domainEntity.createdAt = raw.createdAt;
     domainEntity.updatedAt = raw.updatedAt;
-    domainEntity.text = raw.text;
+    domainEntity.content = raw.content;
     domainEntity.isCorrect = raw.isCorrect;
-    domainEntity.orderOverride = raw.orderOverride;
+    domainEntity.orderNumber = raw.orderNumber as number;
 
     if (raw.question) {
       domainEntity.question = QuestionMapper.toDomain(raw.question);
     }
 
-    if (raw.attachment) {
-      domainEntity.attachment = FileMapper.toDomain(raw.attachment);
+    if (raw.image) {
+      domainEntity.image = FileMapper.toDomain(raw.image);
     }
 
     return domainEntity;
@@ -33,9 +33,9 @@ export class OptionMapper {
     }
     persistenceSchema.createdAt = domainEntity.createdAt;
     persistenceSchema.updatedAt = domainEntity.updatedAt;
-    persistenceSchema.text = domainEntity.text;
+    persistenceSchema.content = domainEntity.content;
     persistenceSchema.isCorrect = domainEntity.isCorrect;
-    persistenceSchema.orderOverride = domainEntity.orderOverride;
+    persistenceSchema.orderNumber = domainEntity.orderNumber;
 
     if (domainEntity.question) {
       const question = new QuestionSchemaClass();
@@ -43,10 +43,10 @@ export class OptionMapper {
       persistenceSchema.question = question;
     }
 
-    if (domainEntity.attachment) {
-      const attachment = new FileSchemaClass();
-      attachment._id = domainEntity.attachment.id;
-      persistenceSchema.attachment = attachment;
+    if (domainEntity.image) {
+      const image = new FileSchemaClass();
+      image._id = domainEntity.image.id;
+      persistenceSchema.image = image;
     }
 
     return persistenceSchema;

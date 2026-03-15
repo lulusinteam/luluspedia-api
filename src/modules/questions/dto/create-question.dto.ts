@@ -6,46 +6,61 @@ import {
   IsOptional,
   IsString,
   Min,
+  IsArray,
+  ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import { Tryout } from '../../tryouts/domain/tryout';
 import { FileDto } from '../../files/dto/file.dto';
-import { QuestionTypeEnum } from '../questions.enum';
+import { DifficultyEnum } from '../questions.enum';
+import { CreateOptionDto } from '../../options/dto/create-option.dto';
 
 export class CreateQuestionDto {
-  @ApiProperty({ type: () => Tryout })
-  @IsNotEmpty()
-  tryout: Tryout;
-
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  text: string;
-
-  @ApiProperty({ type: () => FileDto, required: false })
+  @ApiProperty({ type: () => Tryout, required: false })
   @IsOptional()
-  attachment?: FileDto | null;
-
-  @ApiProperty({
-    enum: QuestionTypeEnum,
-    default: QuestionTypeEnum.multiple_choice,
-  })
-  @IsEnum(QuestionTypeEnum)
-  @IsNotEmpty()
-  questionType: QuestionTypeEnum;
+  tryout?: Tryout;
 
   @ApiProperty({ required: false, default: 1 })
   @IsOptional()
   @IsNumber()
-  @Min(0)
-  scoreWeight?: number;
+  orderNumber?: number;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  content: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
   explanation?: string;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ type: () => FileDto, required: false })
+  @IsOptional()
+  image?: FileDto | null;
+
+  @ApiProperty({ type: () => FileDto, required: false })
+  @IsOptional()
+  explanationImage?: FileDto | null;
+
+  @ApiProperty({
+    enum: DifficultyEnum,
+    default: DifficultyEnum.medium,
+  })
+  @IsEnum(DifficultyEnum)
+  @IsOptional()
+  difficulty?: DifficultyEnum;
+
+  @ApiProperty({ required: false, default: 0 })
   @IsOptional()
   @IsNumber()
-  orderOverride?: number;
+  @Min(0)
+  points?: number;
+
+  @ApiProperty({ type: () => CreateOptionDto, isArray: true, required: false })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateOptionDto)
+  options?: CreateOptionDto[];
 }

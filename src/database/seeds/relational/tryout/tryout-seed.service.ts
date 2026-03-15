@@ -64,7 +64,7 @@ export class TryoutSeedService {
         for (let i = 0; i < QUESTIONS_PER_TRYOUT; i++) {
           const questionData = createQuestionFactory({
             tryout: savedTryout,
-            orderOverride: i + 1,
+            orderNumber: i + 1,
           });
           const question = this.questionRepository.create(
             questionData as DeepPartial<QuestionEntity>,
@@ -86,7 +86,7 @@ export class TryoutSeedService {
             const optionData = createOptionFactory({
               question: savedQuestion,
               isCorrect: j === correctIndex,
-              orderOverride: j + 1,
+              orderNumber: j + 1,
             });
             const option = this.optionRepository.create(
               optionData as DeepPartial<OptionEntity>,

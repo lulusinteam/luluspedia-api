@@ -1,9 +1,10 @@
 import { Question } from '../../../../domain/question';
 import { TryoutEntity } from '../../../../../tryouts/infrastructure/persistence/relational/entities/tryout.entity';
-import { TryoutMapper } from '../../../../../tryouts/infrastructure/persistence/relational/mappers/tryout.mapper';
 import { FileEntity } from '../../../../../files/infrastructure/persistence/relational/entities/file.entity';
 import { FileMapper } from '../../../../../files/infrastructure/persistence/relational/mappers/file.mapper';
+import { OptionMapper } from '../../../../../options/infrastructure/persistence/relational/mappers/option.mapper';
 import { QuestionEntity } from '../entities/question.entity';
+import { DifficultyEnum } from '../../../../questions.enum';
 
 export class QuestionMapper {
   static toDomain(raw: QuestionEntity): Question {
@@ -11,18 +12,24 @@ export class QuestionMapper {
     domainEntity.id = raw.id;
     domainEntity.createdAt = raw.createdAt;
     domainEntity.updatedAt = raw.updatedAt;
-    domainEntity.text = raw.text;
-    domainEntity.questionType = raw.questionType;
-    domainEntity.scoreWeight = raw.scoreWeight;
+    domainEntity.orderNumber = raw.orderNumber;
+    domainEntity.content = raw.content;
     domainEntity.explanation = raw.explanation;
-    domainEntity.orderOverride = raw.orderOverride;
+    domainEntity.points = raw.points;
+    domainEntity.difficulty = raw.difficulty;
 
-    if (raw.tryout) {
-      domainEntity.tryout = TryoutMapper.toDomain(raw.tryout);
+    if (raw.image) {
+      domainEntity.image = FileMapper.toDomain(raw.image);
     }
 
-    if (raw.attachment) {
-      domainEntity.attachment = FileMapper.toDomain(raw.attachment);
+    if (raw.explanationImage) {
+      domainEntity.explanationImage = FileMapper.toDomain(raw.explanationImage);
+    }
+
+    if (raw.options) {
+      domainEntity.options = raw.options.map(option =>
+        OptionMapper.toDomain(option),
+      );
     }
 
     return domainEntity;
@@ -30,16 +37,17 @@ export class QuestionMapper {
 
   static toPersistence(domainEntity: Question): QuestionEntity {
     const persistenceEntity = new QuestionEntity();
-    if (domainEntity.id) {
+
+    if (domainEntity.id && this.isUUID(domainEntity.id)) {
       persistenceEntity.id = domainEntity.id;
     }
-    persistenceEntity.createdAt = domainEntity.createdAt;
-    persistenceEntity.updatedAt = domainEntity.updatedAt;
-    persistenceEntity.text = domainEntity.text;
-    persistenceEntity.questionType = domainEntity.questionType;
-    persistenceEntity.scoreWeight = domainEntity.scoreWeight;
+
+    persistenceEntity.orderNumber = domainEntity.orderNumber || 1;
+    persistenceEntity.content = domainEntity.content;
     persistenceEntity.explanation = domainEntity.explanation;
-    persistenceEntity.orderOverride = domainEntity.orderOverride;
+    persistenceEntity.points = domainEntity.points || 0;
+    persistenceEntity.difficulty =
+      domainEntity.difficulty || DifficultyEnum.medium;
 
     if (domainEntity.tryout) {
       const tryout = new TryoutEntity();
@@ -47,12 +55,30 @@ export class QuestionMapper {
       persistenceEntity.tryout = tryout;
     }
 
-    if (domainEntity.attachment) {
-      const attachment = new FileEntity();
-      attachment.id = domainEntity.attachment.id;
-      persistenceEntity.attachment = attachment;
+    if (domainEntity.image) {
+      const image = new FileEntity();
+      image.id = domainEntity.image.id;
+      persistenceEntity.image = image;
+    }
+
+    if (domainEntity.explanationImage) {
+      const explanationImage = new FileEntity();
+      explanationImage.id = domainEntity.explanationImage.id;
+      persistenceEntity.explanationImage = explanationImage;
+    }
+
+    if (domainEntity.options) {
+      persistenceEntity.options = domainEntity.options.map(option =>
+        OptionMapper.toPersistence(option),
+      );
     }
 
     return persistenceEntity;
+  }
+
+  private static isUUID(id: string): boolean {
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+      id,
+    );
   }
 }

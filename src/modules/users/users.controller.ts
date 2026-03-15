@@ -26,7 +26,10 @@ import { User } from './domain/user';
 import { UsersService } from './users.service';
 import { RolesGuard } from '../roles/roles.guard';
 import { infinityPagination } from '../../utils/infinity-pagination';
-import { ApiJSendResponse } from '../../utils/swagger-jsend.decorator';
+import {
+  ApiJSendResponse,
+  ApiJSendPaginatedResponse,
+} from '../../utils/swagger-jsend.decorator';
 import { DeleteUserResponseDto } from './dto/delete-user-response.dto';
 
 @ApiBearerAuth()
@@ -50,7 +53,7 @@ export class UsersController {
     return this.usersService.create(createProfileDto);
   }
 
-  @ApiJSendResponse(InfinityPaginationResponseDto)
+  @ApiJSendPaginatedResponse(User)
   @SerializeOptions({
     groups: ['admin'],
   })

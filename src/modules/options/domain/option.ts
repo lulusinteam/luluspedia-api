@@ -8,20 +8,20 @@ export class Option {
   })
   id: string;
 
-  @ApiProperty({ type: () => Question })
-  question: Question;
+  @ApiProperty({ type: () => Question, required: false })
+  question?: Question;
 
   @ApiProperty()
-  text: string;
+  content: string;
 
   @ApiProperty({ type: () => FileType, required: false, nullable: true })
-  attachment: FileType | null;
+  image: FileType | null;
 
   @ApiProperty()
   isCorrect: boolean;
 
-  @ApiProperty({ nullable: true })
-  orderOverride?: number | null;
+  @ApiProperty()
+  orderNumber?: number | null;
 
   @ApiProperty()
   createdAt: Date;

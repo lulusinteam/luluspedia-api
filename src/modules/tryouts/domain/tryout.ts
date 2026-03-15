@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Category } from '../../categories/domain/category';
 import { FileType } from '../../files/domain/file';
+import { Question } from '../../questions/domain/question';
 
 export class Tryout {
   @ApiProperty({
@@ -46,8 +47,15 @@ export class Tryout {
 
   @ApiProperty()
   publishedAt?: Date;
+
+  @ApiProperty({ type: () => Question, isArray: true, required: false })
+  questions?: Question[];
+
   createdAt: Date;
 
   @ApiProperty()
   updatedAt: Date;
+
+  @ApiProperty()
+  questionCount?: number;
 }

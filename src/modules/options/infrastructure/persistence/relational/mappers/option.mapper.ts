@@ -1,6 +1,5 @@
 import { Option } from '../../../../domain/option';
 import { QuestionEntity } from '../../../../../questions/infrastructure/persistence/relational/entities/question.entity';
-import { QuestionMapper } from '../../../../../questions/infrastructure/persistence/relational/mappers/question.mapper';
 import { FileEntity } from '../../../../../files/infrastructure/persistence/relational/entities/file.entity';
 import { FileMapper } from '../../../../../files/infrastructure/persistence/relational/mappers/file.mapper';
 import { OptionEntity } from '../entities/option.entity';
@@ -11,16 +10,12 @@ export class OptionMapper {
     domainEntity.id = raw.id;
     domainEntity.createdAt = raw.createdAt;
     domainEntity.updatedAt = raw.updatedAt;
-    domainEntity.text = raw.text;
+    domainEntity.content = raw.content;
     domainEntity.isCorrect = raw.isCorrect;
-    domainEntity.orderOverride = raw.orderOverride;
+    domainEntity.orderNumber = raw.orderNumber;
 
-    if (raw.question) {
-      domainEntity.question = QuestionMapper.toDomain(raw.question);
-    }
-
-    if (raw.attachment) {
-      domainEntity.attachment = FileMapper.toDomain(raw.attachment);
+    if (raw.image) {
+      domainEntity.image = FileMapper.toDomain(raw.image);
     }
 
     return domainEntity;
@@ -28,14 +23,14 @@ export class OptionMapper {
 
   static toPersistence(domainEntity: Option): OptionEntity {
     const persistenceEntity = new OptionEntity();
-    if (domainEntity.id) {
+
+    if (domainEntity.id && this.isUUID(domainEntity.id)) {
       persistenceEntity.id = domainEntity.id;
     }
-    persistenceEntity.createdAt = domainEntity.createdAt;
-    persistenceEntity.updatedAt = domainEntity.updatedAt;
-    persistenceEntity.text = domainEntity.text;
+
+    persistenceEntity.content = domainEntity.content;
     persistenceEntity.isCorrect = domainEntity.isCorrect;
-    persistenceEntity.orderOverride = domainEntity.orderOverride;
+    persistenceEntity.orderNumber = domainEntity.orderNumber;
 
     if (domainEntity.question) {
       const question = new QuestionEntity();
@@ -43,12 +38,18 @@ export class OptionMapper {
       persistenceEntity.question = question;
     }
 
-    if (domainEntity.attachment) {
-      const attachment = new FileEntity();
-      attachment.id = domainEntity.attachment.id;
-      persistenceEntity.attachment = attachment;
+    if (domainEntity.image) {
+      const image = new FileEntity();
+      image.id = domainEntity.image.id;
+      persistenceEntity.image = image;
     }
 
     return persistenceEntity;
+  }
+
+  private static isUUID(id: string): boolean {
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+      id,
+    );
   }
 }

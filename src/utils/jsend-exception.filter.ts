@@ -7,15 +7,6 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 
-/**
- * JSend Exception Filter
- *
- * Handles exceptions and formats them according to JSend specification:
- * https://github.com/omniti-labs/jsend
- *
- * - Client errors (4xx) are mapped to "fail" status
- * - Server errors (5xx) are mapped to "error" status
- */
 @Catch()
 export class JSendExceptionFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
@@ -27,35 +18,48 @@ export class JSendExceptionFilter implements ExceptionFilter {
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
 
     // Create meta object with required information
-    const meta = {
-      endpoint: request.originalUrl,
-      time: new Date().toISOString(),
-      response_time: `${Date.now() - startTime}ms`,
+    const endpoint = request.originalUrl;
+    const time = new Date().toISOString();
+    const responseTime = Date.now() - startTime;
+    const meta: any = {
+      endpoint,
+      time,
+      response_time: `${responseTime}ms`,
     };
 
-    let responseBody: any = {
-      status: 'error',
-      message: 'Internal server error',
-      code: HttpStatus.INTERNAL_SERVER_ERROR,
-      meta,
-    };
+    let responseBody: any;
 
     if (exception instanceof HttpException) {
       status = exception.getStatus();
-      const errorResponse = exception.getResponse() as any;
+      const errorResponse: any = exception.getResponse();
 
-      // Client errors (4xx) are mapped to "fail" status
-      if (
-        status >= HttpStatus.BAD_REQUEST &&
-        status < HttpStatus.INTERNAL_SERVER_ERROR
-      ) {
+      // For standard NestJS 400 Bad Request (Validation errors)
+      if (status === HttpStatus.BAD_REQUEST) {
+        responseBody = {
+          status: 'fail',
+          data: {
+            message:
+              typeof errorResponse === 'string'
+                ? errorResponse
+                : errorResponse.message || 'Validation failed',
+            errors: errorResponse.errors || undefined,
+            error: errorResponse.error || 'Bad Request',
+            statusCode: status,
+          },
+          meta,
+        };
+      } else if (status >= 400 && status < 500) {
         // Client errors (4xx) are mapped to "fail" status
         responseBody = {
           status: 'fail',
-          data:
-            typeof errorResponse === 'object' && errorResponse !== null
-              ? errorResponse.errors || errorResponse
-              : { message: errorResponse || 'Client error' },
+          data: {
+            message:
+              typeof errorResponse === 'string'
+                ? errorResponse
+                : errorResponse.message || 'Client error',
+            error: errorResponse.error || 'Fail',
+            statusCode: status,
+          },
           meta,
         };
       } else {
@@ -70,11 +74,14 @@ export class JSendExceptionFilter implements ExceptionFilter {
           meta,
         };
       }
-    }
-
-    // Add request path to error responses for easier debugging
-    if (responseBody.status === 'error') {
-      responseBody.meta.path = request.url;
+    } else {
+      // For any other unexpected errors
+      responseBody = {
+        status: 'error',
+        message: (exception as any)?.message || 'Internal server error',
+        code: status,
+        meta,
+      };
     }
 
     response.status(status).json(responseBody);

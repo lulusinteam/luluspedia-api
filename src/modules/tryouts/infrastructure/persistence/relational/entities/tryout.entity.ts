@@ -7,10 +7,12 @@ import {
   ManyToOne,
   JoinColumn,
   DeleteDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../../utils/relational-entity-helper';
 import { CategoryEntity } from '../../../../../categories/infrastructure/persistence/relational/entities/category.entity';
 import { FileEntity } from '../../../../../files/infrastructure/persistence/relational/entities/file.entity';
+import { QuestionEntity } from '../../../../../questions/infrastructure/persistence/relational/entities/question.entity';
 import { TryoutStatusEnum } from '../../../../tryouts.enum';
 
 @Entity({
@@ -19,6 +21,11 @@ import { TryoutStatusEnum } from '../../../../tryouts.enum';
 export class TryoutEntity extends EntityRelationalHelper {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @OneToMany(() => QuestionEntity, question => question.tryout, {
+    cascade: true,
+  })
+  questions: QuestionEntity[];
 
   @Column({ type: String })
   title: string;
@@ -34,7 +41,7 @@ export class TryoutEntity extends EntityRelationalHelper {
   @JoinColumn({ name: 'cover_id' })
   cover: FileEntity | null;
 
-  @Column({ type: 'boolean', default: false })
+  @Column({ type: 'boolean', name: 'is_recommended', default: false })
   isRecommended: boolean;
 
   @Column({ type: 'int' })
@@ -43,13 +50,13 @@ export class TryoutEntity extends EntityRelationalHelper {
   @Column({ type: 'boolean', default: false })
   isShuffled: boolean;
 
-  @Column({ type: 'boolean', default: true })
+  @Column({ type: 'boolean', name: 'show_result', default: true })
   showResult: boolean;
 
-  @Column({ type: 'boolean', default: true })
+  @Column({ type: 'boolean', name: 'show_explanation', default: true })
   showExplanation: boolean;
 
-  @Column({ type: 'int', default: 0 })
+  @Column({ type: 'int', name: 'pass_score', default: 0 })
   passScore: number;
 
   @Column({
@@ -59,10 +66,10 @@ export class TryoutEntity extends EntityRelationalHelper {
   })
   status: string;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: 'timestamp', name: 'scheduled_at', nullable: true })
   scheduledAt?: Date;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: 'timestamp', name: 'published_at', nullable: true })
   publishedAt?: Date;
 
   @CreateDateColumn()

@@ -7,11 +7,13 @@ import {
   ManyToOne,
   JoinColumn,
   DeleteDateColumn,
+  OneToMany,
 } from 'typeorm';
+import { OptionEntity } from '../../../../../options/infrastructure/persistence/relational/entities/option.entity';
 import { EntityRelationalHelper } from '../../../../../../utils/relational-entity-helper';
 import { TryoutEntity } from '../../../../../tryouts/infrastructure/persistence/relational/entities/tryout.entity';
 import { FileEntity } from '../../../../../files/infrastructure/persistence/relational/entities/file.entity';
-import { QuestionTypeEnum } from '../../../../questions.enum';
+import { DifficultyEnum } from '../../../../questions.enum';
 
 @Entity({
   name: 'questions',
@@ -20,32 +22,41 @@ export class QuestionEntity extends EntityRelationalHelper {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @OneToMany(() => OptionEntity, option => option.question, {
+    cascade: true,
+  })
+  options: OptionEntity[];
+
   @ManyToOne(() => TryoutEntity)
   @JoinColumn({ name: 'tryout_id' })
   tryout: TryoutEntity;
 
+  @Column({ type: 'int', name: 'order_number', default: 1 })
+  orderNumber: number;
+
   @Column({ type: 'text' })
-  text: string;
-
-  @ManyToOne(() => FileEntity, { nullable: true })
-  @JoinColumn({ name: 'attachment_id' })
-  attachment: FileEntity | null;
-
-  @Column({
-    type: 'enum',
-    enum: QuestionTypeEnum,
-    default: QuestionTypeEnum.multiple_choice,
-  })
-  questionType: string;
-
-  @Column({ type: 'int', default: 1 })
-  scoreWeight: number;
+  content: string;
 
   @Column({ type: 'text', nullable: true })
   explanation: string;
 
-  @Column({ type: 'int', nullable: true })
-  orderOverride?: number | null;
+  @ManyToOne(() => FileEntity, { nullable: true })
+  @JoinColumn({ name: 'image_id' })
+  image: FileEntity | null;
+
+  @ManyToOne(() => FileEntity, { nullable: true })
+  @JoinColumn({ name: 'explanation_image_id' })
+  explanationImage: FileEntity | null;
+
+  @Column({
+    type: 'enum',
+    enum: DifficultyEnum,
+    default: DifficultyEnum.medium,
+  })
+  difficulty: DifficultyEnum;
+
+  @Column({ type: 'int', default: 0 })
+  points: number;
 
   @CreateDateColumn()
   createdAt: Date;

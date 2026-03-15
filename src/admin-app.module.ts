@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
+import * as fs from 'fs';
 import databaseConfig from './database/config/database.config';
 import authConfig from './modules/auth/config/auth.config';
 import appConfig from './config/app.config';
 import mailConfig from './modules/mail/config/mail.config';
+import fileConfig from './modules/files/config/file.config';
 import path from 'path';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -17,6 +19,12 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { MongooseConfigService } from './database/mongoose-config.service';
 import { DatabaseConfig } from './database/config/database-config.type';
 import { AdminAuthModule } from './modules/auth/admin/admin-auth.module';
+import { CategoriesModule } from './modules/categories/categories.module';
+import { TryoutsModule } from './modules/tryouts/tryouts.module';
+import { QuestionsModule } from './modules/questions/questions.module';
+import { OptionsModule } from './modules/options/options.module';
+import { FilesModule } from './modules/files/files.module';
+import { UsersModule } from './modules/users/users.module';
 
 // <database-block>
 const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
@@ -36,17 +44,26 @@ const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [databaseConfig, authConfig, appConfig, mailConfig],
+      load: [databaseConfig, authConfig, appConfig, mailConfig, fileConfig],
       envFilePath: ['.env'],
     }),
     infrastructureDatabaseModule,
     I18nModule.forRootAsync({
-      useFactory: (configService: ConfigService<AllConfigType>) => ({
-        fallbackLanguage: configService.getOrThrow('app.fallbackLanguage', {
-          infer: true,
-        }),
-        loaderOptions: { path: path.join(__dirname, '/i18n/'), watch: true },
-      }),
+      useFactory: (configService: ConfigService<AllConfigType>) => {
+        const i18nPaths = [
+          path.join(process.cwd(), 'src', 'i18n'),
+          path.join(__dirname, 'i18n'),
+          path.join(process.cwd(), 'dist', 'i18n'),
+        ];
+        const i18nPath = i18nPaths.find(p => fs.existsSync(p)) || i18nPaths[0];
+
+        return {
+          fallbackLanguage: configService.getOrThrow('app.fallbackLanguage', {
+            infer: true,
+          }),
+          loaderOptions: { path: i18nPath, watch: true },
+        };
+      },
       resolvers: [
         {
           use: HeaderResolver,
@@ -64,9 +81,15 @@ const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
       inject: [ConfigService],
     }),
     AdminAuthModule,
+    CategoriesModule,
+    TryoutsModule,
+    QuestionsModule,
+    OptionsModule,
     SessionModule,
     MailModule,
     MailerModule,
+    FilesModule,
+    UsersModule,
   ],
 })
 export class AdminAppModule {}

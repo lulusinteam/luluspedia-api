@@ -3,7 +3,7 @@ import { now, HydratedDocument } from 'mongoose';
 import { EntityDocumentHelper } from '../../../../../../utils/document-entity-helper';
 import { TryoutSchemaClass } from '../../../../../tryouts/infrastructure/persistence/document/entities/tryout.schema';
 import { FileSchemaClass } from '../../../../../files/infrastructure/persistence/document/entities/file.schema';
-import { QuestionTypeEnum } from '../../../../questions.enum';
+import { DifficultyEnum } from '../../../../questions.enum';
 
 export type QuestionSchemaDocument = HydratedDocument<QuestionSchemaClass>;
 
@@ -19,26 +19,29 @@ export class QuestionSchemaClass extends EntityDocumentHelper {
   tryout: TryoutSchemaClass;
 
   @Prop({ type: String })
-  text: string;
+  content: string;
 
   @Prop({ type: FileSchemaClass })
-  attachment: FileSchemaClass | null;
+  image: FileSchemaClass | null;
+
+  @Prop({ type: FileSchemaClass })
+  explanationImage: FileSchemaClass | null;
 
   @Prop({
     type: String,
-    enum: QuestionTypeEnum,
-    default: QuestionTypeEnum.multiple_choice,
+    enum: DifficultyEnum,
+    default: DifficultyEnum.medium,
   })
-  questionType: string;
+  difficulty: string;
 
-  @Prop({ type: Number, default: 1 })
-  scoreWeight: number;
+  @Prop({ type: Number, default: 0 })
+  points: number;
 
   @Prop({ type: String })
   explanation: string;
 
   @Prop({ type: Number })
-  orderOverride?: number | null;
+  orderNumber?: number | null;
 
   @Prop({ default: now })
   createdAt: Date;

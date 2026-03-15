@@ -4,21 +4,10 @@ import {
   ExecutionContext,
   CallHandler,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Request } from 'express';
 
-/**
- * JSend Response Format Interceptor
- *
- * Implements the JSend specification for consistent API responses:
- * https://github.com/omniti-labs/jsend
- *
- * Response formats:
- * - Success: { status: "success", data: {...} }
- * - Fail: { status: "fail", data: {...} } (for 4xx errors with validation issues)
- * - Error: { status: "error", message: "...", code: xxx } (for 5xx and other errors)
- */
 @Injectable()
 export class JSendInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
@@ -32,31 +21,55 @@ export class JSendInterceptor implements NestInterceptor {
         const time = new Date().toISOString();
 
         // Create meta object with required information
-        const meta = {
+        const meta: any = {
           endpoint,
           time,
           response_time: `${responseTime}ms`,
         };
 
-        // Check if data contains pagination information
+        // Check if data is using PaginationResponseDto structure (from pagination utility)
         if (
           data &&
-          data.hasNextPage !== undefined &&
-          Array.isArray(data.data)
+          typeof data === 'object' &&
+          'data' in data &&
+          'total' in data &&
+          'page' in data &&
+          'limit' in data
         ) {
-          // Move pagination info to meta
+          const { data: items, ...paginationInfo } = data;
+
+          // Map camelCase to snake_case for hasNextPage if needed by docs,
+          // or just keep as is if consensus is camelCase.
+          // The docs say "has_next_page".
           const paginationMeta = {
-            has_next_page: data.hasNextPage,
+            page: paginationInfo.page,
+            limit: paginationInfo.limit,
+            total_items: paginationInfo.total,
+            total_pages: paginationInfo.totalPages,
+            has_next_page: paginationInfo.hasNextPage || false,
           };
 
-          // Add page and limit if available
-          if (data.page !== undefined) {
-            paginationMeta['page'] = data.page;
-          }
+          return {
+            status: 'success',
+            data: items,
+            meta: {
+              ...meta,
+              pagination: paginationMeta,
+            },
+          };
+        }
 
-          if (data.limit !== undefined) {
-            paginationMeta['limit'] = data.limit;
-          }
+        // Logic for other paginated structures if any
+        if (
+          data &&
+          typeof data === 'object' &&
+          'data' in data &&
+          'meta' in data &&
+          data.meta &&
+          typeof data.meta === 'object' &&
+          'pagination' in data.meta
+        ) {
+          const paginationMeta = data.meta.pagination;
 
           return {
             status: 'success',
@@ -68,7 +81,6 @@ export class JSendInterceptor implements NestInterceptor {
           };
         }
 
-        // Handle regular successful responses
         return {
           status: 'success',
           data: data || {},

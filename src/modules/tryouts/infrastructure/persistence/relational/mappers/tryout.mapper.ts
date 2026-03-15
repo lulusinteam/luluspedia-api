@@ -1,9 +1,10 @@
-import { CategoryEntity } from '../../../../../categories/infrastructure/persistence/relational/entities/category.entity';
 import { CategoryMapper } from '../../../../../categories/infrastructure/persistence/relational/mappers/category.mapper';
 import { FileEntity } from '../../../../../files/infrastructure/persistence/relational/entities/file.entity';
 import { FileMapper } from '../../../../../files/infrastructure/persistence/relational/mappers/file.mapper';
+import { QuestionMapper } from '../../../../../questions/infrastructure/persistence/relational/mappers/question.mapper';
 import { Tryout } from '../../../../domain/tryout';
 import { TryoutEntity } from '../entities/tryout.entity';
+import { CategoryEntity } from '../../../../../categories/infrastructure/persistence/relational/entities/category.entity';
 
 export class TryoutMapper {
   static toDomain(raw: TryoutEntity): Tryout {
@@ -29,6 +30,15 @@ export class TryoutMapper {
 
     if (raw.cover) {
       domainEntity.cover = FileMapper.toDomain(raw.cover);
+    }
+
+    if (raw.questions) {
+      domainEntity.questions = raw.questions.map(question =>
+        QuestionMapper.toDomain(question),
+      );
+      domainEntity.questionCount = raw.questions.length;
+    } else if ((raw as any).questionCount !== undefined) {
+      domainEntity.questionCount = Number((raw as any).questionCount);
     }
 
     return domainEntity;
@@ -63,6 +73,12 @@ export class TryoutMapper {
       const cover = new FileEntity();
       cover.id = domainEntity.cover.id;
       persistenceEntity.cover = cover;
+    }
+
+    if (domainEntity.questions) {
+      persistenceEntity.questions = domainEntity.questions.map(question =>
+        QuestionMapper.toPersistence(question),
+      );
     }
 
     return persistenceEntity;

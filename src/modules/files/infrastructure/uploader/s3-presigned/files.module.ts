@@ -80,7 +80,7 @@ const infrastructurePersistenceModule = (databaseConfig() as DatabaseConfig)
     }),
   ],
   controllers: [FilesS3PresignedController],
-  providers: [ConfigModule, ConfigService, FilesS3PresignedService],
+  providers: [FilesS3PresignedService],
   exports: [FilesS3PresignedService],
 })
 export class FilesS3PresignedModule {}

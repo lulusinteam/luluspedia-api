@@ -24,17 +24,17 @@ export class OptionEntity extends EntityRelationalHelper {
   question: QuestionEntity;
 
   @Column({ type: 'text' })
-  text: string;
+  content: string;
 
   @ManyToOne(() => FileEntity, { nullable: true })
-  @JoinColumn({ name: 'attachment_id' })
-  attachment: FileEntity | null;
+  @JoinColumn({ name: 'image_id' })
+  image: FileEntity | null;
 
-  @Column({ type: 'boolean', default: false })
+  @Column({ type: 'boolean', name: 'is_correct', default: false })
   isCorrect: boolean;
 
-  @Column({ type: 'int', nullable: true })
-  orderOverride?: number | null;
+  @Column({ type: 'int', name: 'order_number', nullable: true })
+  orderNumber?: number | null;
 
   @CreateDateColumn()
   createdAt: Date;

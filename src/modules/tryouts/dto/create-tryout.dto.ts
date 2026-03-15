@@ -12,6 +12,9 @@ import {
 import { Category } from '../../categories/domain/category';
 import { FileDto } from '../../files/dto/file.dto';
 import { TryoutStatusEnum } from '../tryouts.enum';
+import { CreateQuestionDto } from '../../questions/dto/create-question.dto';
+import { IsArray, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateTryoutDto {
   @ApiProperty()
@@ -78,4 +81,15 @@ export class CreateTryoutDto {
   @IsOptional()
   @Transform(({ value }) => new Date(value))
   publishedAt?: Date;
+
+  @ApiProperty({
+    type: () => CreateQuestionDto,
+    isArray: true,
+    required: false,
+  })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateQuestionDto)
+  questions?: CreateQuestionDto[];
 }

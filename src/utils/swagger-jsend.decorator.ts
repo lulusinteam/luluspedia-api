@@ -22,7 +22,13 @@ export class JSendMetaResponse {
   @ApiProperty({
     required: false,
     type: Object,
-    example: { page: 1, limit: 10, has_next_page: true },
+    example: {
+      total: 50,
+      total_pages: 5,
+      page: 1,
+      limit: 10,
+      has_next_page: true,
+    },
   })
   pagination?: Record<string, any>;
 }
@@ -93,6 +99,40 @@ export const ApiJSendResponse = <TModel extends Type<any>>(dataDto: TModel) => {
           {
             properties: {
               data: { $ref: getSchemaPath(dataDto) },
+            },
+          },
+        ],
+      },
+    }),
+  );
+};
+
+/**
+ * Decorator for documenting JSend formatted paginated API responses in Swagger
+ *
+ * @param dataDto The DTO class that describes a single item in the data array
+ * @returns Decorator
+ */
+export const ApiJSendPaginatedResponse = <TModel extends Type<any>>(
+  dataDto: TModel,
+) => {
+  return applyDecorators(
+    ApiExtraModels(
+      JSendSuccessResponse,
+      JSendFailResponse,
+      JSendErrorResponse,
+      dataDto,
+    ),
+    ApiOkResponse({
+      schema: {
+        allOf: [
+          { $ref: getSchemaPath(JSendSuccessResponse) },
+          {
+            properties: {
+              data: {
+                type: 'array',
+                items: { $ref: getSchemaPath(dataDto) },
+              },
             },
           },
         ],

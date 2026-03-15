@@ -1,6 +1,5 @@
-export enum QuestionTypeEnum {
-  multiple_choice = 'multiple_choice',
-  multiple_select = 'multiple_select',
-  boolean = 'boolean',
-  essay = 'essay',
+export enum DifficultyEnum {
+  easy = 'easy',
+  medium = 'medium',
+  hard = 'hard',
 }

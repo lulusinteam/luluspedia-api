@@ -18,16 +18,16 @@ export class OptionSchemaClass extends EntityDocumentHelper {
   question: QuestionSchemaClass;
 
   @Prop({ type: String })
-  text: string;
+  content: string;
 
   @Prop({ type: FileSchemaClass })
-  attachment: FileSchemaClass | null;
+  image: FileSchemaClass | null;
 
   @Prop({ type: Boolean, default: false })
   isCorrect: boolean;
 
   @Prop({ type: Number })
-  orderOverride?: number | null;
+  orderNumber?: number | null;
 
   @Prop({ default: now })
   createdAt: Date;

@@ -23,5 +23,17 @@ export abstract class TryoutRepository {
     payload: DeepPartial<Tryout>,
   ): Promise<Tryout | null>;
 
+  abstract findAllAdmin({
+    paginationOptions,
+    search,
+    status,
+  }: {
+    paginationOptions: IPaginationOptions;
+    search?: string;
+    status?: string;
+  }): Promise<[(Tryout & { questionCount: number })[], number]>;
+
+  abstract countByStatus(): Promise<Record<string, number>>;
+
   abstract remove(id: Tryout['id']): Promise<void>;
 }
