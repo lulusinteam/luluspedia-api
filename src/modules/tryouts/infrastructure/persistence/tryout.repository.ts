@@ -50,4 +50,6 @@ export abstract class TryoutRepository {
   abstract countByStatus(): Promise<Record<string, number>>;
 
   abstract remove(id: Tryout['id']): Promise<void>;
+
+  abstract globalSearch(query: string): Promise<Tryout[]>;
 }

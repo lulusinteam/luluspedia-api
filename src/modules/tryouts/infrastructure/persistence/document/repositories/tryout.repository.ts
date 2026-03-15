@@ -175,4 +175,19 @@ export class TryoutDocumentRepository implements TryoutRepository {
   async remove(id: Tryout['id']): Promise<void> {
     await this.tryoutModel.deleteOne({ _id: id });
   }
+
+  async globalSearch(query: string): Promise<Tryout[]> {
+    const filter = {
+      status: 'published',
+      title: { $regex: query, $options: 'i' },
+    };
+    const entityObjects = await this.tryoutModel
+      .find(filter)
+      .populate('category')
+      .populate('cover');
+
+    return entityObjects.map(entityObject =>
+      TryoutMapper.toDomain(entityObject),
+    );
+  }
 }

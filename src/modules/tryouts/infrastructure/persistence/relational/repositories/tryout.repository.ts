@@ -295,4 +295,22 @@ export class TryoutRelationalRepository implements TryoutRepository {
   async remove(id: Tryout['id']): Promise<void> {
     await this.tryoutRepository.softDelete(id);
   }
+
+  async globalSearch(query: string): Promise<Tryout[]> {
+    const qb = this.tryoutRepository
+      .createQueryBuilder('tryouts')
+      .leftJoinAndSelect('tryouts.category', 'category')
+      .leftJoinAndSelect('tryouts.cover', 'cover')
+      .leftJoinAndSelect('tryouts.questions', 'questions')
+      .where('tryouts.status = :status', { status: 'published' })
+      .andWhere(
+        '(tryouts.title ILIKE :query OR questions.content ILIKE :query)',
+        { query: `%${query}%` },
+      )
+      .orderBy('tryouts.publishedAt', 'DESC');
+
+    const entities = await qb.getMany();
+
+    return entities.map(entity => TryoutMapper.toDomain(entity));
+  }
 }

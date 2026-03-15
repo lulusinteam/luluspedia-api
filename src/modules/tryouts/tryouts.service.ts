@@ -72,4 +72,8 @@ export class TryoutsService {
   async softDelete(id: Tryout['id']): Promise<void> {
     await this.tryoutRepository.remove(id);
   }
+
+  async globalSearch(query: string): Promise<Tryout[]> {
+    return this.tryoutRepository.globalSearch(query);
+  }
 }
