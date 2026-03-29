@@ -307,6 +307,7 @@ export class TryoutRelationalRepository implements TryoutRepository {
         '(tryouts.title ILIKE :query OR questions.content ILIKE :query)',
         { query: `%${query}%` },
       )
+      .loadRelationCountAndMap('tryouts.questionCount', 'tryouts.questions')
       .orderBy('tryouts.publishedAt', 'DESC');
 
     const entities = await qb.getMany();

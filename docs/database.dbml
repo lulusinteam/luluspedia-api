@@ -185,3 +185,13 @@ Table wishlists {
 }
 
 Ref: wishlists.user_id > users.id
+
+Table search_history {
+  id uuid [primary key]
+  query varchar
+  user_id uuid [note: 'Nullable, logged if user is authenticated']
+  created_at timestamp
+}
+
+Ref: search_history.user_id > users.id
+

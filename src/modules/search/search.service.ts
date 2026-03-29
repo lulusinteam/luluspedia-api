@@ -13,7 +13,14 @@ export class SearchService {
   ) {}
 
   async globalSearch(query: string, userId?: string) {
-    if (query && query.length > 2) {
+    if (!query) {
+      return {
+        tryouts: [],
+        courses: [],
+      };
+    }
+
+    if (query.length > 2) {
       await this.logSearch(query, userId);
     }
 
@@ -34,6 +41,8 @@ export class SearchService {
           category: tryout.category?.label,
           ratingAverage: tryout.ratingAverage,
           ratingCount: tryout.ratingCount,
+          duration: tryout.duration,
+          questionCount: tryout.questionCount,
           matchedQuestion: matchedQuestion
             ? {
                 id: matchedQuestion.id,
