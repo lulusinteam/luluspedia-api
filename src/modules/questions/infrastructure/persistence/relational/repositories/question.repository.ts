@@ -39,7 +39,6 @@ export class QuestionRelationalRepository implements QuestionRepository {
       relations: {
         options: true,
         image: true,
-        explanationImage: true,
       },
       order: {
         orderNumber: 'ASC',
@@ -56,7 +55,6 @@ export class QuestionRelationalRepository implements QuestionRepository {
       relations: {
         options: true,
         image: true,
-        explanationImage: true,
       },
     });
 

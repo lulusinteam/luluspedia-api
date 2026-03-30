@@ -14,8 +14,8 @@ export class QuestionMapper {
     domainEntity.content = raw.content;
     domainEntity.difficulty = raw.difficulty as any;
     domainEntity.points = raw.points;
-    domainEntity.explanation = raw.explanation;
     domainEntity.orderNumber = raw.orderNumber as number;
+    domainEntity.scoringType = raw.scoringType as any;
 
     if (raw.tryout) {
       domainEntity.tryout = TryoutMapper.toDomain(raw.tryout);
@@ -23,10 +23,6 @@ export class QuestionMapper {
 
     if (raw.image) {
       domainEntity.image = FileMapper.toDomain(raw.image);
-    }
-
-    if (raw.explanationImage) {
-      domainEntity.explanationImage = FileMapper.toDomain(raw.explanationImage);
     }
 
     return domainEntity;
@@ -42,8 +38,8 @@ export class QuestionMapper {
     persistenceSchema.content = domainEntity.content;
     persistenceSchema.difficulty = domainEntity.difficulty;
     persistenceSchema.points = domainEntity.points;
-    persistenceSchema.explanation = domainEntity.explanation;
     persistenceSchema.orderNumber = domainEntity.orderNumber;
+    persistenceSchema.scoringType = domainEntity.scoringType;
 
     if (domainEntity.tryout) {
       const tryout = new TryoutSchemaClass();
@@ -55,12 +51,6 @@ export class QuestionMapper {
       const image = new FileSchemaClass();
       image._id = domainEntity.image.id;
       persistenceSchema.image = image;
-    }
-
-    if (domainEntity.explanationImage) {
-      const explanationImage = new FileSchemaClass();
-      explanationImage._id = domainEntity.explanationImage.id;
-      persistenceSchema.explanationImage = explanationImage;
     }
 
     return persistenceSchema;
