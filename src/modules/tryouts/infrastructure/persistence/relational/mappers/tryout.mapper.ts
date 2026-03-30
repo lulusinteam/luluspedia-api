@@ -85,7 +85,11 @@ export class TryoutMapper {
     }
 
     if (domainEntity.cover || domainEntity.coverId) {
-      const coverId = domainEntity.coverId || (typeof domainEntity.cover === 'string' ? domainEntity.cover : (domainEntity.cover as any)?.id);
+      const coverId =
+        domainEntity.coverId ||
+        (typeof domainEntity.cover === 'string'
+          ? domainEntity.cover
+          : (domainEntity.cover as any)?.id);
       if (coverId) {
         const cover = new FileEntity();
         cover.id = coverId;

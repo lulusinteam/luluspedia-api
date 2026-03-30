@@ -42,7 +42,11 @@ export class OptionMapper {
     }
 
     if (domainEntity.image || domainEntity.imageId) {
-      const imageId = domainEntity.imageId || (typeof domainEntity.image === 'string' ? domainEntity.image : (domainEntity.image as any)?.id);
+      const imageId =
+        domainEntity.imageId ||
+        (typeof domainEntity.image === 'string'
+          ? domainEntity.image
+          : (domainEntity.image as any)?.id);
       if (imageId) {
         const image = new FileEntity();
         image.id = imageId;

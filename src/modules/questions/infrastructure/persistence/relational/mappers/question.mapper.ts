@@ -63,7 +63,11 @@ export class QuestionMapper {
     }
 
     if (domainEntity.image || domainEntity.imageId) {
-      const imageId = domainEntity.imageId || (typeof domainEntity.image === 'string' ? domainEntity.image : (domainEntity.image as any)?.id);
+      const imageId =
+        domainEntity.imageId ||
+        (typeof domainEntity.image === 'string'
+          ? domainEntity.image
+          : (domainEntity.image as any)?.id);
       if (imageId) {
         const image = new FileEntity();
         image.id = imageId;
@@ -72,7 +76,11 @@ export class QuestionMapper {
     }
 
     if (domainEntity.explanationImage || domainEntity.explanationImageId) {
-      const explanationImageId = domainEntity.explanationImageId || (typeof domainEntity.explanationImage === 'string' ? domainEntity.explanationImage : (domainEntity.explanationImage as any)?.id);
+      const explanationImageId =
+        domainEntity.explanationImageId ||
+        (typeof domainEntity.explanationImage === 'string'
+          ? domainEntity.explanationImage
+          : (domainEntity.explanationImage as any)?.id);
       if (explanationImageId) {
         const explanationImage = new FileEntity();
         explanationImage.id = explanationImageId;
