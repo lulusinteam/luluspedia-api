@@ -24,17 +24,33 @@ export class QuestionDocumentRepository implements QuestionRepository {
 
   async findAllWithPagination({
     paginationOptions,
+    tryoutId,
+    search,
   }: {
     paginationOptions: IPaginationOptions;
-  }): Promise<Question[]> {
-    const entityObjects = await this.questionModel
-      .find()
-      .skip((paginationOptions.page - 1) * paginationOptions.limit)
-      .limit(paginationOptions.limit);
+    tryoutId?: string;
+    search?: string;
+  }): Promise<[Question[], number]> {
+    const filter: any = {};
+    if (tryoutId) {
+      filter['tryout._id'] = tryoutId;
+    }
+    if (search) {
+      filter['content'] = { $regex: search, $options: 'i' };
+    }
 
-    return entityObjects.map(entityObject =>
-      QuestionMapper.toDomain(entityObject),
-    );
+    const [entityObjects, total] = await Promise.all([
+      this.questionModel
+        .find(filter)
+        .skip((paginationOptions.page - 1) * paginationOptions.limit)
+        .limit(paginationOptions.limit),
+      this.questionModel.countDocuments(filter),
+    ]);
+
+    return [
+      entityObjects.map(entityObject => QuestionMapper.toDomain(entityObject)),
+      total,
+    ];
   }
 
   async findById(id: Question['id']): Promise<NullableType<Question>> {

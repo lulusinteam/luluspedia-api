@@ -30,7 +30,6 @@ import {
 import { CreateTryoutDto } from './dto/create-tryout.dto';
 import { UpdateTryoutDto } from './dto/update-tryout.dto';
 import { FindAllTryoutsDto } from './dto/find-all-tryouts.dto';
-
 import { PaginationResponseDto } from '../../utils/dto/pagination-response.dto';
 import { pagination } from '../../utils/pagination';
 
@@ -112,14 +111,21 @@ export class TryoutsAdminController {
   async findQuestions(
     @Param('id') id: string,
     @Query() query: FindAllQuestionsDto,
-  ): Promise<Question[]> {
-    return this.questionsService.findAll({
-      paginationOptions: {
-        page: query?.page ?? 1,
-        limit: query?.limit ?? 10,
-      },
-      tryoutId: id,
-    });
+  ): Promise<PaginationResponseDto<Question>> {
+    const page = query?.page ?? 1;
+    const limit = query?.limit ?? 10;
+
+    return pagination(
+      await this.questionsService.findAll({
+        paginationOptions: {
+          page,
+          limit,
+        },
+        tryoutId: id,
+        search: query?.search,
+      }),
+      { page, limit },
+    );
   }
 
   @ApiJSendResponse(Tryout)

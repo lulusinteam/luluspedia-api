@@ -16,13 +16,16 @@ export class QuestionsService {
   async findAll({
     paginationOptions,
     tryoutId,
+    search,
   }: {
     paginationOptions: IPaginationOptions;
     tryoutId?: string;
-  }): Promise<Question[]> {
+    search?: string;
+  }): Promise<[Question[], number]> {
     return this.questionRepository.findAllWithPagination({
       paginationOptions,
       tryoutId,
+      search,
     });
   }
 

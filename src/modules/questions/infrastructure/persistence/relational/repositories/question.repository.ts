@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
+import { Repository, In, ILike } from 'typeorm';
 import { QuestionEntity } from '../entities/question.entity';
 import { NullableType } from '../../../../../../utils/types/nullable.type';
 import { Question } from '../../../../domain/question';
@@ -26,16 +26,24 @@ export class QuestionRelationalRepository implements QuestionRepository {
   async findAllWithPagination({
     paginationOptions,
     tryoutId,
+    search,
   }: {
     paginationOptions: IPaginationOptions;
     tryoutId?: string;
-  }): Promise<Question[]> {
-    const entities = await this.questionRepository.find({
+    search?: string;
+  }): Promise<[Question[], number]> {
+    const where: any = {
+      tryout: tryoutId ? { id: tryoutId } : undefined,
+    };
+
+    if (search) {
+      where.content = ILike(`%${search}%`);
+    }
+
+    const [entities, total] = await this.questionRepository.findAndCount({
       skip: (paginationOptions.page - 1) * paginationOptions.limit,
       take: paginationOptions.limit,
-      where: {
-        tryout: tryoutId ? { id: tryoutId } : undefined,
-      },
+      where,
       relations: {
         options: true,
         image: true,
@@ -46,7 +54,7 @@ export class QuestionRelationalRepository implements QuestionRepository {
       },
     });
 
-    return entities.map(entity => QuestionMapper.toDomain(entity));
+    return [entities.map(entity => QuestionMapper.toDomain(entity)), total];
   }
 
   async findById(id: Question['id']): Promise<NullableType<Question>> {

@@ -11,10 +11,12 @@ export abstract class QuestionRepository {
   abstract findAllWithPagination({
     paginationOptions,
     tryoutId,
+    search,
   }: {
     paginationOptions: IPaginationOptions;
     tryoutId?: string;
-  }): Promise<Question[]>;
+    search?: string;
+  }): Promise<[Question[], number]>;
 
   abstract findById(id: Question['id']): Promise<NullableType<Question>>;
 

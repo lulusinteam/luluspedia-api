@@ -58,12 +58,10 @@ export class TryoutMapper {
 
   static toPersistence(domainEntity: Tryout): TryoutEntity {
     const persistenceEntity = new TryoutEntity();
-    if (domainEntity.id) {
-      persistenceEntity.id = domainEntity.id;
-    }
-    persistenceEntity.createdAt = domainEntity.createdAt;
-    persistenceEntity.updatedAt = domainEntity.updatedAt;
-    persistenceEntity.title = domainEntity.title;
+     if (domainEntity.id) {
+       persistenceEntity.id = domainEntity.id;
+     }
+     persistenceEntity.title = domainEntity.title;
     persistenceEntity.description = domainEntity.description;
     persistenceEntity.isRecommended = domainEntity.isRecommended;
     persistenceEntity.duration = domainEntity.duration;
