@@ -75,15 +75,15 @@ export default registerAs<AppConfig>('app', () => {
     frontendDomainAdmin: process.env.FRONTEND_DOMAIN_ADMIN,
     backendDomain: process.env.BACKEND_DOMAIN ?? 'http://localhost',
     backendDomainAdmin:
-      process.env.BACKEND_DOMAIN_ADMIN ?? 'http://localhost:3001',
+      process.env.BACKEND_DOMAIN_ADMIN ?? 'http://localhost:3003',
     port: process.env.APP_PORT
       ? parseInt(process.env.APP_PORT, 10)
       : process.env.PORT
         ? parseInt(process.env.PORT, 10)
-        : 3000,
+        : 3002,
     adminPort: process.env.ADMIN_PORT
       ? parseInt(process.env.ADMIN_PORT, 10)
-      : 3001,
+      : 3003,
     apiPrefix: process.env.API_PREFIX || 'api',
     fallbackLanguage: process.env.APP_FALLBACK_LANGUAGE || 'id',
     headerLanguage: process.env.APP_HEADER_LANGUAGE || 'x-custom-lang',
