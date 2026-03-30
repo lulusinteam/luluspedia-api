@@ -176,6 +176,23 @@ export class TryoutDocumentRepository implements TryoutRepository {
     await this.tryoutModel.deleteOne({ _id: id });
   }
 
+  async autoPublishScheduled(): Promise<number> {
+    const result = await this.tryoutModel.updateMany(
+      {
+        status: 'scheduled',
+        scheduledAt: { $lte: new Date() },
+      },
+      {
+        $set: {
+          status: 'published',
+          publishedAt: new Date(),
+        },
+      },
+    );
+
+    return result.modifiedCount;
+  }
+
   async globalSearch(query: string): Promise<Tryout[]> {
     const filter = {
       status: 'published',

@@ -51,5 +51,7 @@ export abstract class TryoutRepository {
 
   abstract remove(id: Tryout['id']): Promise<void>;
 
+  abstract autoPublishScheduled(): Promise<number>;
+
   abstract globalSearch(query: string): Promise<Tryout[]>;
 }

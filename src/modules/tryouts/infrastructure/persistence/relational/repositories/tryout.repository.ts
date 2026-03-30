@@ -10,6 +10,7 @@ import { Tryout } from '../../../../domain/tryout';
 import { TryoutRepository } from '../../tryout.repository';
 import { TryoutMapper } from '../mappers/tryout.mapper';
 import { IPaginationOptions } from '../../../../../../utils/types/pagination-options';
+import { TryoutStatusEnum } from '../../../../tryouts.enum';
 
 @Injectable()
 export class TryoutRelationalRepository implements TryoutRepository {
@@ -33,6 +34,18 @@ export class TryoutRelationalRepository implements TryoutRepository {
           persistenceModel.category = category;
         }
       }
+    }
+
+    if (data.status) {
+      persistenceModel.status = data.status;
+    }
+
+    if (data.scheduledAt) {
+      persistenceModel.scheduledAt = new Date(data.scheduledAt);
+    }
+
+    if (data.publishedAt) {
+      persistenceModel.publishedAt = new Date(data.publishedAt);
     }
 
     const newEntity = await this.tryoutRepository.save(
@@ -111,6 +124,18 @@ export class TryoutRelationalRepository implements TryoutRepository {
           updatedPersistence.category = category;
         }
       }
+    }
+
+    if (payload.status) {
+      updatedPersistence.status = payload.status;
+    }
+
+    if (payload.scheduledAt) {
+      updatedPersistence.scheduledAt = new Date(payload.scheduledAt);
+    }
+
+    if (payload.publishedAt) {
+      updatedPersistence.publishedAt = new Date(payload.publishedAt);
     }
 
     const updatedEntity = await this.tryoutRepository.save(
@@ -294,6 +319,21 @@ export class TryoutRelationalRepository implements TryoutRepository {
 
   async remove(id: Tryout['id']): Promise<void> {
     await this.tryoutRepository.softDelete(id);
+  }
+
+  async autoPublishScheduled(): Promise<number> {
+    const result = await this.tryoutRepository
+      .createQueryBuilder()
+      .update(TryoutEntity)
+      .set({
+        status: TryoutStatusEnum.published as any,
+        publishedAt: new Date(),
+      })
+      .where('status = :scheduled', { scheduled: TryoutStatusEnum.scheduled })
+      .andWhere('scheduledAt <= :now', { now: new Date() })
+      .execute();
+
+    return result.affected ?? 0;
   }
 
   async globalSearch(query: string): Promise<Tryout[]> {

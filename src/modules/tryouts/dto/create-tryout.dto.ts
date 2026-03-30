@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
 import {
   IsBoolean,
   IsEnum,
@@ -11,6 +10,7 @@ import {
   IsArray,
   ValidateNested,
   ArrayMinSize,
+  IsDate,
 } from 'class-validator';
 import { CategoryDto } from '../../categories/dto/category.dto';
 import { FileDto } from '../../files/dto/file.dto';
@@ -78,12 +78,14 @@ export class CreateTryoutDto {
 
   @ApiProperty({ required: false })
   @IsOptional()
-  @Transform(({ value }) => new Date(value))
+  @IsDate()
+  @Type(() => Date)
   scheduledAt?: Date;
 
   @ApiProperty({ required: false })
   @IsOptional()
-  @Transform(({ value }) => new Date(value))
+  @IsDate()
+  @Type(() => Date)
   publishedAt?: Date;
 
   @ApiProperty({
