@@ -23,5 +23,13 @@
     "passScore": "Skor Lulus",
     "email": "Email",
     "password": "Kata sandi"
+  },
+
+  "custom": {
+    "category": {
+      "id": {
+        "isNotEmpty": "Kategori wajib pilih salah satu"
+      }
+    }
   }
 }

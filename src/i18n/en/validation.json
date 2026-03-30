@@ -23,5 +23,13 @@
     "passScore": "Pass Score",
     "email": "Email",
     "password": "Password"
+  },
+
+  "custom": {
+    "category": {
+      "id": {
+        "isNotEmpty": "Category is required"
+      }
+    }
   }
 }

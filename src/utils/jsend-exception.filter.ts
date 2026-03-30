@@ -70,13 +70,15 @@ export class JSendExceptionFilter implements ExceptionFilter {
         let translatedErrors = errors;
         if (i18n && errors && typeof errors === 'object') {
           // Define recursive translation function for Laravel-style bilingual errors
-          const translateValidation = (errs: any) => {
+          const translateValidation = (errs: any, parentKey: string = '') => {
             const result: any = {};
 
             for (const key in errs) {
               const val = errs[key];
-              if (typeof val === 'object') {
-                result[key] = translateValidation(val);
+              const currentPath = parentKey ? `${parentKey}.${key}` : key;
+
+              if (typeof val === 'object' && val !== null) {
+                result[key] = translateValidation(val, currentPath);
               } else if (typeof val === 'string') {
                 // Try to translate the attribute name
                 const attrKey = `validation.attributes.${key}`;
@@ -95,11 +97,22 @@ export class JSendExceptionFilter implements ExceptionFilter {
                 const validatorKey = parts[0];
                 const paramValue = parts[1];
 
-                // Try to translate the message
-                const msgKey = `validation.${validatorKey}`;
-                let msgTranslated = i18n.t(msgKey) as string;
+                // 1. Try to find a CUSTOM message for this specific path and validator
+                // e.g., validation.custom.category.id.isNotEmpty
+                const customMsgKey = `validation.custom.${currentPath}.${validatorKey}`;
+                let msgTranslated = i18n.t(customMsgKey) as string;
 
-                // Fallback: check errors.{key} or just return the key/msg
+                // 2. If no custom message, fallback to standard validator message
+                if (
+                  !msgTranslated ||
+                  typeof msgTranslated !== 'string' ||
+                  msgTranslated.startsWith('validation.custom.')
+                ) {
+                  const stdMsgKey = `validation.${validatorKey}`;
+                  msgTranslated = i18n.t(stdMsgKey) as string;
+                }
+
+                // 3. Fallback to general errors.{key} or the raw keyword
                 if (
                   !msgTranslated ||
                   typeof msgTranslated !== 'string' ||
