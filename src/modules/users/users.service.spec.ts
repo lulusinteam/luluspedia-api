@@ -5,7 +5,7 @@ import { FilesService } from '../files/files.service';
 import { AuthProvidersEnum } from '../auth/auth-providers.enum';
 import { RoleEnum } from '../roles/roles.enum';
 import { StatusEnum } from '../statuses/statuses.enum';
-import { UnprocessableEntityException } from '@nestjs/common';
+import { ApiException } from '../../utils/exceptions/api.exception';
 
 jest.mock('bcryptjs', () => ({
   genSalt: jest.fn().mockResolvedValue('salt'),
@@ -95,7 +95,7 @@ describe('UsersService', () => {
       userRepository.findByEmail.mockResolvedValue({ id: 1 });
 
       await expect(service.create(dto as any)).rejects.toBeInstanceOf(
-        UnprocessableEntityException,
+        ApiException,
       );
     });
   });
@@ -130,7 +130,7 @@ describe('UsersService', () => {
       userRepository.findByEmail.mockResolvedValue({ id: '2' });
 
       await expect(service.update(id, dto as any)).rejects.toBeInstanceOf(
-        UnprocessableEntityException,
+        ApiException,
       );
     });
   });

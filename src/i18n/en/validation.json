@@ -1,0 +1,27 @@
+{
+  "isNotEmpty": "{attribute} must be required",
+  "isString": "{attribute} must be a string",
+  "isNumber": "{attribute} must be a number",
+  "isBoolean": "{attribute} must be a boolean",
+  "isEnum": "{attribute} is invalid",
+  "isEmail": "Invalid email address",
+  "isUrl": "Invalid URL",
+  "isArray": "{attribute} must be an array",
+  "arrayMinSize": "{attribute} must contain at least {min} items",
+  "min": "{attribute} must be at least {min}",
+  "max": "{attribute} must be at most {max}",
+  "isDate": "Invalid date format",
+
+  "attributes": {
+    "title": "Title",
+    "category": "Category",
+    "description": "Description",
+    "questions": "Questions",
+    "duration": "Duration",
+    "isRecommended": "Recommended",
+    "status": "Status",
+    "passScore": "Pass Score",
+    "email": "Email",
+    "password": "Password"
+  }
+}

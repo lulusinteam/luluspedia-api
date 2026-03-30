@@ -1,11 +1,5 @@
-import {
-  ForbiddenException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-  UnprocessableEntityException,
-} from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
+import { ApiException } from '../../utils/exceptions/api.exception';
 import ms from 'ms';
 import crypto from 'crypto';
 import { randomStringGenerator } from '@nestjs/common/utils/random-string-generator.util';
@@ -49,29 +43,23 @@ export class AuthService {
     const user = await this.usersService.findByEmail(loginDto.email);
 
     if (!user) {
-      throw new UnauthorizedException({
-        status: HttpStatus.UNAUTHORIZED,
-        errors: {
-          email: 'notFound',
-        },
+      throw ApiException.unauthorized('userNotFound', {
+        email: 'userNotFound',
       });
     }
 
     if (user.provider !== AuthProvidersEnum.email) {
-      throw new UnauthorizedException({
-        status: HttpStatus.UNAUTHORIZED,
-        errors: {
+      throw ApiException.unauthorized(
+        `Login via ${user.provider} is required`,
+        {
           email: `needLoginViaProvider:${user.provider}`,
         },
-      });
+      );
     }
 
     if (!user.password) {
-      throw new UnauthorizedException({
-        status: HttpStatus.UNAUTHORIZED,
-        errors: {
-          password: 'incorrectPassword',
-        },
+      throw ApiException.unauthorized('incorrectPassword', {
+        password: 'incorrectPassword',
       });
     }
 
@@ -81,31 +69,22 @@ export class AuthService {
     );
 
     if (!isValidPassword) {
-      throw new UnauthorizedException({
-        status: HttpStatus.UNAUTHORIZED,
-        errors: {
-          password: 'incorrectPassword',
-        },
+      throw ApiException.unauthorized('incorrectPassword', {
+        password: 'incorrectPassword',
       });
     }
 
     const userRoleId = (user.role as Role)?.id ?? user.role?.id;
     if (userRoleId !== allowedRole) {
-      throw new ForbiddenException({
-        status: HttpStatus.FORBIDDEN,
-        errors: {
-          role: 'forbiddenRole',
-        },
+      throw ApiException.forbidden('forbiddenRole', {
+        role: 'forbiddenRole',
       });
     }
 
     const userStatusId = (user.status as Status)?.id ?? user.status?.id;
     if (userStatusId !== StatusEnum.active) {
-      throw new UnauthorizedException({
-        status: HttpStatus.UNAUTHORIZED,
-        errors: {
-          status: 'notActive',
-        },
+      throw ApiException.unauthorized('notActive', {
+        status: 'notActive',
       });
     }
 
@@ -182,12 +161,7 @@ export class AuthService {
     }
 
     if (!user) {
-      throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
-        errors: {
-          user: 'userNotFound',
-        },
-      });
+      throw ApiException.validation({ user: 'userNotFound' });
     }
 
     const hash = crypto
@@ -267,11 +241,8 @@ export class AuthService {
 
       userId = jwtData.confirmEmailUserId;
     } catch {
-      throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
-        errors: {
-          hash: `invalidHash`,
-        },
+      throw ApiException.validation({
+        hash: 'invalidHash',
       });
     }
 
@@ -281,10 +252,7 @@ export class AuthService {
       !user ||
       user?.status?.id?.toString() !== StatusEnum.inactive.toString()
     ) {
-      throw new NotFoundException({
-        status: HttpStatus.NOT_FOUND,
-        error: `notFound`,
-      });
+      throw ApiException.notFound('invalidUser');
     }
 
     user.status = {
@@ -311,21 +279,15 @@ export class AuthService {
       userId = jwtData.confirmEmailUserId;
       newEmail = jwtData.newEmail;
     } catch {
-      throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
-        errors: {
-          hash: `invalidHash`,
-        },
+      throw ApiException.validation({
+        hash: 'invalidHash',
       });
     }
 
     const user = await this.usersService.findById(userId);
 
     if (!user) {
-      throw new NotFoundException({
-        status: HttpStatus.NOT_FOUND,
-        error: `notFound`,
-      });
+      throw ApiException.notFound();
     }
 
     user.email = newEmail;
@@ -340,12 +302,7 @@ export class AuthService {
     const user = await this.usersService.findByEmail(email);
 
     if (!user) {
-      throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
-        errors: {
-          email: 'emailNotExists',
-        },
-      });
+      throw ApiException.validation({ email: 'emailNotExists' });
     }
 
     const tokenExpiresIn = this.configService.getOrThrow('auth.forgotExpires', {
@@ -389,23 +346,15 @@ export class AuthService {
 
       userId = jwtData.forgotUserId;
     } catch {
-      throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
-        errors: {
-          hash: `invalidHash`,
-        },
+      throw ApiException.validation({
+        hash: 'invalidHash',
       });
     }
 
     const user = await this.usersService.findById(userId);
 
     if (!user) {
-      throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
-        errors: {
-          hash: `notFound`,
-        },
-      });
+      throw ApiException.validation({ hash: 'notFound' });
     }
 
     user.password = password;
@@ -428,31 +377,16 @@ export class AuthService {
     const currentUser = await this.usersService.findById(userJwtPayload.id);
 
     if (!currentUser) {
-      throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
-        errors: {
-          user: 'userNotFound',
-        },
-      });
+      throw ApiException.validation({ user: 'userNotFound' });
     }
 
     if (userDto.password) {
       if (!userDto.oldPassword) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            oldPassword: 'missingOldPassword',
-          },
-        });
+        throw ApiException.validation({ oldPassword: 'missingOldPassword' });
       }
 
       if (!currentUser.password) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            oldPassword: 'incorrectOldPassword',
-          },
-        });
+        throw ApiException.validation({ oldPassword: 'incorrectOldPassword' });
       }
 
       const isValidOldPassword = await bcrypt.compare(
@@ -461,12 +395,7 @@ export class AuthService {
       );
 
       if (!isValidOldPassword) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            oldPassword: 'incorrectOldPassword',
-          },
-        });
+        throw ApiException.validation({ oldPassword: 'incorrectOldPassword' });
       } else {
         await this.sessionService.deleteByUserIdWithExclude({
           userId: currentUser.id,
@@ -479,12 +408,7 @@ export class AuthService {
       const userByEmail = await this.usersService.findByEmail(userDto.email);
 
       if (userByEmail && userByEmail.id !== currentUser.id) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            email: 'emailExists',
-          },
-        });
+        throw ApiException.validation({ email: 'emailExists' });
       }
 
       const hash = await this.jwtService.signAsync(
@@ -524,11 +448,11 @@ export class AuthService {
     const session = await this.sessionService.findById(data.sessionId);
 
     if (!session) {
-      throw new UnauthorizedException();
+      throw ApiException.unauthorized();
     }
 
     if (session.hash !== data.hash) {
-      throw new UnauthorizedException();
+      throw ApiException.unauthorized();
     }
 
     const hash = crypto
@@ -539,7 +463,7 @@ export class AuthService {
     const user = await this.usersService.findById(session.user.id);
 
     if (!user?.role) {
-      throw new UnauthorizedException();
+      throw ApiException.unauthorized();
     }
 
     await this.sessionService.update(session.id, {

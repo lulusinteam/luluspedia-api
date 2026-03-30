@@ -1,8 +1,5 @@
-import {
-  HttpStatus,
-  Injectable,
-  UnprocessableEntityException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { ApiException } from '../../../../../utils/exceptions/api.exception';
 import { FileRepository } from '../../persistence/file.repository';
 import { FileType } from '../../../domain/file';
 
@@ -12,11 +9,8 @@ export class FilesS3Service {
 
   async create(file: Express.MulterS3.File): Promise<{ file: FileType }> {
     if (!file) {
-      throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
-        errors: {
-          file: 'selectFile',
-        },
+      throw ApiException.validation({
+        file: 'selectFile',
       });
     }
 

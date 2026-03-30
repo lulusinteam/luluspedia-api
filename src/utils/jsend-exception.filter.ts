@@ -4,84 +4,192 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
+  Logger,
 } from '@nestjs/common';
+import { I18nContext } from 'nestjs-i18n';
 import { Request, Response } from 'express';
+import { JSONResponse } from './json-response';
 
 @Catch()
 export class JSendExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(JSendExceptionFilter.name);
+
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
-    const startTime = Date.now();
+    const startTime = (request as any).startTime || Date.now();
 
-    let status = HttpStatus.INTERNAL_SERVER_ERROR;
+    const status =
+      exception instanceof HttpException
+        ? exception.getStatus()
+        : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    // Create meta object with required information
-    const endpoint = request.originalUrl;
-    const time = new Date().toISOString();
     const responseTime = Date.now() - startTime;
+    const i18n = I18nContext.current(host);
     const meta: any = {
-      endpoint,
-      time,
+      endpoint: request.originalUrl,
+      time: new Date().toISOString(),
       response_time: `${responseTime}ms`,
+      lang: i18n?.lang || 'none',
     };
 
     let responseBody: any;
 
     if (exception instanceof HttpException) {
-      status = exception.getStatus();
       const errorResponse: any = exception.getResponse();
+      const i18n = I18nContext.current(host);
 
-      // For standard NestJS 400 Bad Request (Validation errors)
-      if (status === HttpStatus.BAD_REQUEST) {
-        responseBody = {
-          status: 'fail',
-          data: {
-            message:
-              typeof errorResponse === 'string'
-                ? errorResponse
-                : errorResponse.message || 'Validation failed',
-            errors: errorResponse.errors || undefined,
+      let message =
+        typeof errorResponse === 'string'
+          ? errorResponse
+          : errorResponse.message || exception.message || 'errors.server';
+
+      // Attempt to translate the main message if it looks like a key
+      if (i18n && typeof message === 'string') {
+        const translated = i18n.t(
+          message.includes('.') ? message : `errors.${message}`,
+        );
+        // If translation is the same as key, it might not be a key, but for our error keys it usually works
+        if (
+          typeof translated === 'string' &&
+          translated !== message &&
+          !translated.startsWith('errors.')
+        ) {
+          message = translated;
+        }
+      }
+
+      // For client errors (4xx), use the fail status
+      if (status >= 400 && status < 500) {
+        // Extract errors object if it exists (for validation errors)
+        const errors =
+          typeof errorResponse === 'object' ? errorResponse.errors : undefined;
+
+        // Translate validation errors if they exist
+        let translatedErrors = errors;
+        if (i18n && errors && typeof errors === 'object') {
+          // Define recursive translation function for Laravel-style bilingual errors
+          const translateValidation = (errs: any) => {
+            const result: any = {};
+
+            for (const key in errs) {
+              const val = errs[key];
+              if (typeof val === 'object') {
+                result[key] = translateValidation(val);
+              } else if (typeof val === 'string') {
+                // Try to translate the attribute name
+                const attrKey = `validation.attributes.${key}`;
+                let attrTranslated = i18n.t(attrKey) as string;
+                // Fallback: use key and capitalize
+                if (
+                  !attrTranslated ||
+                  typeof attrTranslated !== 'string' ||
+                  attrTranslated.startsWith('validation.attributes.')
+                ) {
+                  attrTranslated = key.charAt(0).toUpperCase() + key.slice(1);
+                }
+
+                // Handle parameterized translations (e.g., 'min:1')
+                const parts = val.split(':');
+                const validatorKey = parts[0];
+                const paramValue = parts[1];
+
+                // Try to translate the message
+                const msgKey = `validation.${validatorKey}`;
+                let msgTranslated = i18n.t(msgKey) as string;
+
+                // Fallback: check errors.{key} or just return the key/msg
+                if (
+                  !msgTranslated ||
+                  typeof msgTranslated !== 'string' ||
+                  msgTranslated.startsWith('validation.')
+                ) {
+                  // Final fallback to any possible existing key or the value itself
+                  msgTranslated = i18n.t(`errors.${val}`) as string;
+                  if (
+                    !msgTranslated ||
+                    typeof msgTranslated !== 'string' ||
+                    msgTranslated.startsWith('errors.')
+                  ) {
+                    msgTranslated = val;
+                  }
+                }
+
+                // Replace placeholders
+                if (typeof msgTranslated === 'string') {
+                  let finalMsg: string = msgTranslated;
+                  finalMsg = finalMsg.replace('{attribute}', attrTranslated);
+                  if (paramValue) {
+                    // Replace min/max based on validator key
+                    if (
+                      validatorKey === 'min' ||
+                      validatorKey === 'arrayMinSize'
+                    ) {
+                      finalMsg = finalMsg.replace('{min}', paramValue);
+                    } else if (validatorKey === 'max') {
+                      finalMsg = finalMsg.replace('{max}', paramValue);
+                    }
+                  }
+                  msgTranslated = finalMsg;
+                }
+
+                result[key] = msgTranslated;
+              } else {
+                result[key] = val;
+              }
+            }
+            return result;
+          };
+
+          translatedErrors = translateValidation(errors);
+        }
+
+        responseBody = JSONResponse.fail(
+          translatedErrors || message,
+          status,
+          meta,
+        );
+
+        // Standardize the final structure to match docs (fail status have 'data' with errors/message)
+        if (typeof errors === 'undefined' && typeof message === 'string') {
+          responseBody.data = {
+            message,
+            statusCode: status,
             error: errorResponse.error || 'Bad Request',
-            statusCode: status,
-          },
-          meta,
-        };
-      } else if (status >= 400 && status < 500) {
-        // Client errors (4xx) are mapped to "fail" status
-        responseBody = {
-          status: 'fail',
-          data: {
-            message:
-              typeof errorResponse === 'string'
-                ? errorResponse
-                : errorResponse.message || 'Client error',
-            error: errorResponse.error || 'Fail',
-            statusCode: status,
-          },
-          meta,
-        };
+          };
+        }
       } else {
-        // Server errors (5xx) are mapped to "error" status
-        responseBody = {
-          status: 'error',
-          message:
-            typeof errorResponse === 'string'
-              ? errorResponse
-              : errorResponse.message || 'Server error',
-          code: status,
-          meta,
-        };
+        // For server errors (5xx), use the error status
+        responseBody = JSONResponse.error(message, status, meta);
+
+        // Log server errors
+        this.logger.error(
+          `${request.method} ${request.url} - ${status} - ${message}`,
+          (exception as Error).stack,
+        );
       }
     } else {
-      // For any other unexpected errors
-      responseBody = {
-        status: 'error',
-        message: (exception as any)?.message || 'Internal server error',
-        code: status,
-        meta,
-      };
+      // For any other unexpected errors (e.g., database errors, type errors)
+      const i18n = I18nContext.current(host);
+      let message = (exception as any)?.message || 'Internal server error';
+
+      if (i18n) {
+        const translatedMessage = i18n.t('errors.server');
+        if (
+          typeof translatedMessage === 'string' &&
+          !translatedMessage.startsWith('errors.')
+        ) {
+          message = translatedMessage;
+        }
+      }
+
+      responseBody = JSONResponse.error(message, status, meta);
+
+      this.logger.error(
+        `${request.method} ${request.url} - ${status} - ${message}`,
+        (exception as Error).stack,
+      );
     }
 
     response.status(status).json(responseBody);

@@ -75,13 +75,13 @@ export class TryoutMapper {
     persistenceEntity.scheduledAt = domainEntity.scheduledAt;
     persistenceEntity.publishedAt = domainEntity.publishedAt;
 
-    if (domainEntity.category) {
+    if (domainEntity.category && domainEntity.category.id) {
       const category = new CategoryEntity();
       category.id = domainEntity.category.id;
       persistenceEntity.category = category;
     }
 
-    if (domainEntity.cover) {
+    if (domainEntity.cover && domainEntity.cover.id) {
       const cover = new FileEntity();
       cover.id = domainEntity.cover.id;
       persistenceEntity.cover = cover;

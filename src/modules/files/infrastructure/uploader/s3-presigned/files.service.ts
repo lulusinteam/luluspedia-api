@@ -1,9 +1,5 @@
-import {
-  HttpStatus,
-  Injectable,
-  PayloadTooLargeException,
-  UnprocessableEntityException,
-} from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
+import { ApiException } from '../../../../../utils/exceptions/api.exception';
 import { FileRepository } from '../../persistence/file.repository';
 
 import { FileUploadDto } from './dto/file.dto';
@@ -39,20 +35,14 @@ export class FilesS3PresignedService {
     file: FileUploadDto,
   ): Promise<{ file: FileType; uploadSignedUrl: string }> {
     if (!file) {
-      throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
-        errors: {
-          file: 'selectFile',
-        },
+      throw ApiException.validation({
+        file: 'selectFile',
       });
     }
 
     if (!file.fileName.match(/\.(jpg|jpeg|png|gif)$/i)) {
-      throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
-        errors: {
-          file: `cantUploadFileType`,
-        },
+      throw ApiException.validation({
+        file: 'cantUploadFileType',
       });
     }
 
@@ -62,11 +52,11 @@ export class FilesS3PresignedService {
         infer: true,
       }) || 0)
     ) {
-      throw new PayloadTooLargeException({
-        statusCode: HttpStatus.PAYLOAD_TOO_LARGE,
-        error: 'Payload Too Large',
-        message: 'File too large',
-      });
+      throw ApiException.fail(
+        'File too large',
+        undefined,
+        HttpStatus.PAYLOAD_TOO_LARGE,
+      );
     }
 
     const key = `${randomStringGenerator()}.${file.fileName.split('.').pop()?.toLowerCase()}`;

@@ -1,8 +1,5 @@
-import {
-  HttpStatus,
-  Injectable,
-  UnprocessableEntityException,
-} from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
+import { ApiException } from '../../utils/exceptions/api.exception';
 import { CreateUserDto } from './dto/create-user.dto';
 import { NullableType } from '../../utils/types/nullable.type';
 import { FilterUserDto, SortUserDto } from './dto/query-user.dto';
@@ -44,12 +41,7 @@ export class UsersService {
         createUserDto.email,
       );
       if (userObject) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            email: 'emailAlreadyExists',
-          },
-        });
+        throw ApiException.validation({ email: 'emailAlreadyExists' });
       }
       email = createUserDto.email;
     }
@@ -61,12 +53,7 @@ export class UsersService {
         createUserDto.photo.id,
       );
       if (!fileObject) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            photo: 'imageNotExists',
-          },
-        });
+        throw ApiException.validation({ photo: 'imageNotExists' });
       }
       photo = fileObject;
     } else if (createUserDto.photo === null) {
@@ -80,12 +67,7 @@ export class UsersService {
         .map(String)
         .includes(String(createUserDto.role.id));
       if (!roleObject) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            role: 'roleNotExists',
-          },
-        });
+        throw ApiException.validation({ role: 'roleNotExists' });
       }
 
       role = {
@@ -100,12 +82,7 @@ export class UsersService {
         .map(String)
         .includes(String(createUserDto.status.id));
       if (!statusObject) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            status: 'statusNotExists',
-          },
-        });
+        throw ApiException.validation({ status: 'statusNotExists' });
       }
 
       status = {
@@ -195,12 +172,7 @@ export class UsersService {
       );
 
       if (userObject && userObject.id !== id) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            email: 'emailAlreadyExists',
-          },
-        });
+        throw ApiException.validation({ email: 'emailAlreadyExists' });
       }
 
       email = updateUserDto.email;
@@ -215,12 +187,7 @@ export class UsersService {
         updateUserDto.photo.id,
       );
       if (!fileObject) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            photo: 'imageNotExists',
-          },
-        });
+        throw ApiException.validation({ photo: 'imageNotExists' });
       }
       photo = fileObject;
     } else if (updateUserDto.photo === null) {
@@ -234,12 +201,7 @@ export class UsersService {
         .map(String)
         .includes(String(updateUserDto.role.id));
       if (!roleObject) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            role: 'roleNotExists',
-          },
-        });
+        throw ApiException.validation({ role: 'roleNotExists' });
       }
 
       role = {
@@ -254,12 +216,7 @@ export class UsersService {
         .map(String)
         .includes(String(updateUserDto.status.id));
       if (!statusObject) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            status: 'statusNotExists',
-          },
-        });
+        throw ApiException.validation({ status: 'statusNotExists' });
       }
 
       status = {

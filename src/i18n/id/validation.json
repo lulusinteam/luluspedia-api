@@ -1,0 +1,27 @@
+{
+  "isNotEmpty": "{attribute} tidak boleh kosong",
+  "isString": "{attribute} harus berupa string",
+  "isNumber": "{attribute} harus berupa angka",
+  "isBoolean": "{attribute} harus berupa boolean",
+  "isEnum": "{attribute} tidak valid",
+  "isEmail": "Alamat email tidak valid",
+  "isUrl": "URL tidak valid",
+  "isArray": "{attribute} harus berupa array",
+  "arrayMinSize": "{attribute} minimal berisi {min} item",
+  "min": "{attribute} minimal bernilai {min}",
+  "max": "{attribute} maksimal bernilai {max}",
+  "isDate": "Format tanggal tidak valid",
+
+  "attributes": {
+    "title": "Judul",
+    "category": "Kategori",
+    "description": "Deskripsi",
+    "questions": "Pertanyaan",
+    "duration": "Durasi",
+    "isRecommended": "Direkomendasikan",
+    "status": "Status",
+    "passScore": "Skor Lulus",
+    "email": "Email",
+    "password": "Kata sandi"
+  }
+}

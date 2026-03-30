@@ -8,12 +8,14 @@ import {
   IsOptional,
   IsString,
   Min,
+  IsArray,
+  ValidateNested,
+  ArrayMinSize,
 } from 'class-validator';
-import { Category } from '../../categories/domain/category';
+import { CategoryDto } from '../../categories/dto/category.dto';
 import { FileDto } from '../../files/dto/file.dto';
 import { TryoutStatusEnum } from '../tryouts.enum';
 import { CreateQuestionDto } from '../../questions/dto/create-question.dto';
-import { IsArray, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateTryoutDto {
@@ -22,9 +24,11 @@ export class CreateTryoutDto {
   @IsNotEmpty()
   title: string;
 
-  @ApiProperty({ type: () => Category })
+  @ApiProperty({ type: () => CategoryDto })
   @IsNotEmpty()
-  category: Category;
+  @ValidateNested()
+  @Type(() => CategoryDto)
+  category: CategoryDto;
 
   @ApiProperty()
   @IsString()
@@ -85,11 +89,11 @@ export class CreateTryoutDto {
   @ApiProperty({
     type: () => CreateQuestionDto,
     isArray: true,
-    required: false,
   })
-  @IsOptional()
+  @IsNotEmpty()
   @IsArray()
+  @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => CreateQuestionDto)
-  questions?: CreateQuestionDto[];
+  questions: CreateQuestionDto[];
 }

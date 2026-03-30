@@ -1,8 +1,5 @@
-import {
-  HttpStatus,
-  Injectable,
-  UnprocessableEntityException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { ApiException } from '../../../../../utils/exceptions/api.exception';
 import { ConfigService } from '@nestjs/config';
 
 import { FileRepository } from '../../persistence/file.repository';
@@ -18,11 +15,8 @@ export class FilesLocalService {
 
   async create(file: Express.Multer.File): Promise<{ file: FileType }> {
     if (!file) {
-      throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
-        errors: {
-          file: 'selectFile',
-        },
+      throw ApiException.validation({
+        file: 'selectFile',
       });
     }
 

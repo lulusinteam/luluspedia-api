@@ -7,6 +7,7 @@ import {
 import { Request } from 'express';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { JSONResponse } from './json-response';
 
 @Injectable()
 export class JSendInterceptor implements NestInterceptor {
@@ -14,6 +15,7 @@ export class JSendInterceptor implements NestInterceptor {
     const request = context.switchToHttp().getRequest<Request>();
     const startTime = Date.now();
     const endpoint = request.originalUrl;
+    (request as any).startTime = startTime; // Store to be used by exception filter if needed
 
     return next.handle().pipe(
       map(data => {
@@ -38,9 +40,6 @@ export class JSendInterceptor implements NestInterceptor {
         ) {
           const { data: items, ...paginationInfo } = data;
 
-          // Map camelCase to snake_case for hasNextPage if needed by docs,
-          // or just keep as is if consensus is camelCase.
-          // The docs say "has_next_page".
           const paginationMeta = {
             page: paginationInfo.page,
             limit: paginationInfo.limit,
@@ -49,17 +48,13 @@ export class JSendInterceptor implements NestInterceptor {
             has_next_page: paginationInfo.hasNextPage || false,
           };
 
-          return {
-            status: 'success',
-            data: items,
-            meta: {
-              ...meta,
-              pagination: paginationMeta,
-            },
-          };
+          return JSONResponse.success(items, {
+            ...meta,
+            pagination: paginationMeta,
+          });
         }
 
-        // Logic for other paginated structures if any
+        // Logic for cases where meta/pagination is already provided
         if (
           data &&
           typeof data === 'object' &&
@@ -69,23 +64,13 @@ export class JSendInterceptor implements NestInterceptor {
           typeof data.meta === 'object' &&
           'pagination' in data.meta
         ) {
-          const paginationMeta = data.meta.pagination;
-
-          return {
-            status: 'success',
-            data: data.data,
-            meta: {
-              ...meta,
-              pagination: paginationMeta,
-            },
-          };
+          return JSONResponse.success(data.data, {
+            ...meta,
+            pagination: data.meta.pagination,
+          });
         }
 
-        return {
-          status: 'success',
-          data: data || {},
-          meta,
-        };
+        return JSONResponse.success(data, meta);
       }),
     );
   }

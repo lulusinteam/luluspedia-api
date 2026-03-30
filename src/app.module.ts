@@ -16,7 +16,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthAppleModule } from './modules/auth-apple/auth-apple.module';
 import { AuthFacebookModule } from './modules/auth-facebook/auth-facebook.module';
 import { AuthGoogleModule } from './modules/auth-google/auth-google.module';
-import { HeaderResolver, I18nModule } from 'nestjs-i18n';
+import {
+  AcceptLanguageResolver,
+  HeaderResolver,
+  I18nModule,
+} from 'nestjs-i18n';
 import { TypeOrmConfigService } from './database/typeorm-config.service';
 import { MailModule } from './modules/mail/mail.module';
 import { HomeModule } from './modules/home/home.module';
@@ -86,6 +90,7 @@ const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
           },
           inject: [ConfigService],
         },
+        AcceptLanguageResolver,
       ],
       imports: [ConfigModule],
       inject: [ConfigService],
