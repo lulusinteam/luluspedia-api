@@ -39,6 +39,11 @@ export class CreateTryoutDto {
   @IsOptional()
   cover?: FileDto | null;
 
+  @ApiProperty({ type: String, required: false })
+  @IsOptional()
+  @IsString()
+  coverId?: string | null;
+
   @ApiProperty({ required: false })
   @IsOptional()
   @IsBoolean()

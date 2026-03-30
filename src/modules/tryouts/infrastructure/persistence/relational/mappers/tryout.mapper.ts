@@ -30,6 +30,8 @@ export class TryoutMapper {
 
     if (raw.cover) {
       domainEntity.cover = FileMapper.toDomain(raw.cover);
+    } else {
+      domainEntity.cover = null;
     }
 
     if (raw.questions && Array.isArray(raw.questions)) {
@@ -37,8 +39,11 @@ export class TryoutMapper {
         QuestionMapper.toDomain(question),
       );
       domainEntity.questionCount = raw.questions.length;
-    } else if (raw.questionCount !== undefined) {
-      domainEntity.questionCount = Number(raw.questionCount);
+    } else {
+      domainEntity.questions = [];
+      if (raw.questionCount !== undefined) {
+        domainEntity.questionCount = Number(raw.questionCount);
+      }
     }
 
     if (raw.ratingAverage !== undefined) {
@@ -79,10 +84,13 @@ export class TryoutMapper {
       persistenceEntity.category = category;
     }
 
-    if (domainEntity.cover && domainEntity.cover.id) {
-      const cover = new FileEntity();
-      cover.id = domainEntity.cover.id;
-      persistenceEntity.cover = cover;
+    if (domainEntity.cover || domainEntity.coverId) {
+      const coverId = domainEntity.coverId || (typeof domainEntity.cover === 'string' ? domainEntity.cover : (domainEntity.cover as any)?.id);
+      if (coverId) {
+        const cover = new FileEntity();
+        cover.id = coverId;
+        persistenceEntity.cover = cover;
+      }
     }
 
     if (domainEntity.questions) {

@@ -17,10 +17,12 @@ export class QuestionRelationalRepository implements QuestionRepository {
 
   async create(data: Question): Promise<Question> {
     const persistenceModel = QuestionMapper.toPersistence(data);
-    const newEntity = await this.questionRepository.save(
+    const savedEntity = await this.questionRepository.save(
       this.questionRepository.create(persistenceModel),
     );
-    return QuestionMapper.toDomain(newEntity);
+
+    const finalEntity = await this.findById(savedEntity.id);
+    return finalEntity!;
   }
 
   async findAllWithPagination({
@@ -45,8 +47,11 @@ export class QuestionRelationalRepository implements QuestionRepository {
       take: paginationOptions.limit,
       where,
       relations: {
-        options: true,
+        options: {
+          image: true,
+        },
         image: true,
+        explanationImage: true,
       },
       order: {
         orderNumber: 'ASC',
@@ -61,8 +66,11 @@ export class QuestionRelationalRepository implements QuestionRepository {
     const entity = await this.questionRepository.findOne({
       where: { id },
       relations: {
-        options: true,
+        options: {
+          image: true,
+        },
         image: true,
+        explanationImage: true,
       },
     });
 
@@ -72,6 +80,13 @@ export class QuestionRelationalRepository implements QuestionRepository {
   async findByIds(ids: Question['id'][]): Promise<Question[]> {
     const entities = await this.questionRepository.find({
       where: { id: In(ids) },
+      relations: {
+        options: {
+          image: true,
+        },
+        image: true,
+        explanationImage: true,
+      },
     });
 
     return entities.map(entity => QuestionMapper.toDomain(entity));
@@ -98,7 +113,8 @@ export class QuestionRelationalRepository implements QuestionRepository {
       ),
     );
 
-    return QuestionMapper.toDomain(updatedEntity);
+    const finalEntity = await this.findById(updatedEntity.id);
+    return finalEntity!;
   }
 
   async remove(id: Question['id']): Promise<void> {

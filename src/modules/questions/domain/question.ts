@@ -25,6 +25,18 @@ export class Question {
   @ApiProperty({ type: () => FileType, required: false, nullable: true })
   image: FileType | null;
 
+  @ApiProperty({ type: String, required: false, nullable: true })
+  imageId?: string | null;
+
+  @ApiProperty({ type: String, required: false, nullable: true })
+  explanation: string | null;
+
+  @ApiProperty({ type: () => FileType, required: false, nullable: true })
+  explanationImage: FileType | null;
+
+  @ApiProperty({ type: String, required: false, nullable: true })
+  explanationImageId?: string | null;
+
   @ApiProperty({ enum: DifficultyEnum })
   difficulty: DifficultyEnum;
 

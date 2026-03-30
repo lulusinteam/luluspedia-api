@@ -72,6 +72,10 @@ export class TryoutRelationalRepository implements TryoutRepository {
     const entities = await this.tryoutRepository.find({
       skip: (paginationOptions.page - 1) * paginationOptions.limit,
       take: paginationOptions.limit,
+      relations: {
+        category: true,
+        cover: true,
+      },
     });
 
     return entities.map(entity => TryoutMapper.toDomain(entity));
@@ -92,6 +96,10 @@ export class TryoutRelationalRepository implements TryoutRepository {
   async findByIds(ids: Tryout['id'][]): Promise<Tryout[]> {
     const entities = await this.tryoutRepository.find({
       where: { id: In(ids) },
+      relations: {
+        category: true,
+        cover: true,
+      },
     });
 
     return entities.map(entity => TryoutMapper.toDomain(entity));
@@ -113,6 +121,7 @@ export class TryoutRelationalRepository implements TryoutRepository {
       ...TryoutMapper.toDomain(entity),
       ...payload,
     });
+    updatedPersistence.id = id;
 
     // If category is provided by slug instead of UUID
     if (payload.category && payload.category.id) {

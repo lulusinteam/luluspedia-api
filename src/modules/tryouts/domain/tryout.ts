@@ -21,6 +21,9 @@ export class Tryout {
   @ApiProperty({ type: () => FileType, nullable: true })
   cover: FileType | null;
 
+  @ApiProperty({ type: String, required: false, nullable: true })
+  coverId?: string | null;
+
   @ApiProperty()
   isRecommended: boolean;
 

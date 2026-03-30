@@ -24,6 +24,11 @@ export class CreateOptionDto {
   @IsOptional()
   image?: FileDto | null;
 
+  @ApiProperty({ type: String, required: false })
+  @IsOptional()
+  @IsString()
+  imageId?: string | null;
+
   @ApiProperty({ default: false })
   @IsBoolean()
   @IsOptional()

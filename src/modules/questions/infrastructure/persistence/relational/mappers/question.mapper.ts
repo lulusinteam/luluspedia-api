@@ -14,12 +14,21 @@ export class QuestionMapper {
     domainEntity.updatedAt = raw.updatedAt;
     domainEntity.orderNumber = raw.orderNumber;
     domainEntity.content = raw.content;
+    domainEntity.explanation = raw.explanation;
     domainEntity.points = raw.points;
     domainEntity.difficulty = raw.difficulty;
     domainEntity.scoringType = raw.scoringType;
 
     if (raw.image) {
       domainEntity.image = FileMapper.toDomain(raw.image);
+    } else {
+      domainEntity.image = null;
+    }
+
+    if (raw.explanationImage) {
+      domainEntity.explanationImage = FileMapper.toDomain(raw.explanationImage);
+    } else {
+      domainEntity.explanationImage = null;
     }
 
     if (raw.options) {
@@ -40,6 +49,7 @@ export class QuestionMapper {
 
     persistenceEntity.orderNumber = domainEntity.orderNumber || 1;
     persistenceEntity.content = domainEntity.content;
+    persistenceEntity.explanation = domainEntity.explanation ?? null;
     persistenceEntity.points = domainEntity.points || 0;
     persistenceEntity.difficulty =
       domainEntity.difficulty || DifficultyEnum.medium;
@@ -52,10 +62,22 @@ export class QuestionMapper {
       persistenceEntity.tryout = tryout;
     }
 
-    if (domainEntity.image) {
-      const image = new FileEntity();
-      image.id = domainEntity.image.id;
-      persistenceEntity.image = image;
+    if (domainEntity.image || domainEntity.imageId) {
+      const imageId = domainEntity.imageId || (typeof domainEntity.image === 'string' ? domainEntity.image : (domainEntity.image as any)?.id);
+      if (imageId) {
+        const image = new FileEntity();
+        image.id = imageId;
+        persistenceEntity.image = image;
+      }
+    }
+
+    if (domainEntity.explanationImage || domainEntity.explanationImageId) {
+      const explanationImageId = domainEntity.explanationImageId || (typeof domainEntity.explanationImage === 'string' ? domainEntity.explanationImage : (domainEntity.explanationImage as any)?.id);
+      if (explanationImageId) {
+        const explanationImage = new FileEntity();
+        explanationImage.id = explanationImageId;
+        persistenceEntity.explanationImage = explanationImage;
+      }
     }
 
     if (domainEntity.options) {

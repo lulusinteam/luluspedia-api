@@ -23,27 +23,29 @@ export class FileType {
   })
   @Transform(
     ({ value }) => {
-      if ((fileConfig() as FileConfig).driver === FileDriver.LOCAL) {
+      const config = fileConfig() as FileConfig;
+      if (!value) return value;
+      if (value.indexOf('http') === 0) return value;
+
+      if (config.driver === FileDriver.LOCAL) {
         return (appConfig() as AppConfig).backendDomain + value;
-      } else if (
-        [FileDriver.S3_PRESIGNED, FileDriver.S3].includes(
-          (fileConfig() as FileConfig).driver,
-        )
-      ) {
+      } else if (config.driver === FileDriver.S3_PRESIGNED) {
         const s3 = new S3Client({
-          region: (fileConfig() as FileConfig).awsS3Region ?? '',
+          region: config.awsS3Region ?? '',
           credentials: {
-            accessKeyId: (fileConfig() as FileConfig).accessKeyId ?? '',
-            secretAccessKey: (fileConfig() as FileConfig).secretAccessKey ?? '',
+            accessKeyId: config.accessKeyId ?? '',
+            secretAccessKey: config.secretAccessKey ?? '',
           },
         });
 
         const command = new GetObjectCommand({
-          Bucket: (fileConfig() as FileConfig).awsDefaultS3Bucket ?? '',
+          Bucket: config.awsDefaultS3Bucket ?? '',
           Key: value,
         });
 
         return getSignedUrl(s3, command, { expiresIn: 3600 });
+      } else if (config.driver === FileDriver.S3) {
+        return `https://${config.awsDefaultS3Bucket}.s3.${config.awsS3Region}.amazonaws.com/${value}`;
       }
 
       return value;

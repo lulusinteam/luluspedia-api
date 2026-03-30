@@ -30,9 +30,28 @@ export class CreateQuestionDto {
   @IsNotEmpty()
   content: string;
 
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  explanation?: string | null;
+
   @ApiProperty({ type: () => FileDto, required: false })
   @IsOptional()
   image?: FileDto | null;
+
+  @ApiProperty({ type: String, required: false })
+  @IsOptional()
+  @IsString()
+  imageId?: string | null;
+
+  @ApiProperty({ type: () => FileDto, required: false })
+  @IsOptional()
+  explanationImage?: FileDto | null;
+
+  @ApiProperty({ type: String, required: false })
+  @IsOptional()
+  @IsString()
+  explanationImageId?: string | null;
 
   @ApiProperty({
     enum: DifficultyEnum,

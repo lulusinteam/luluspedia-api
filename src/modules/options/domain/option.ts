@@ -17,6 +17,9 @@ export class Option {
   @ApiProperty({ type: () => FileType, required: false, nullable: true })
   image: FileType | null;
 
+  @ApiProperty({ type: String, required: false, nullable: true })
+  imageId?: string | null;
+
   @ApiProperty()
   isCorrect: boolean;
 

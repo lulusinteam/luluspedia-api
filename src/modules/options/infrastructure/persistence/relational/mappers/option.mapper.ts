@@ -17,6 +17,8 @@ export class OptionMapper {
 
     if (raw.image) {
       domainEntity.image = FileMapper.toDomain(raw.image);
+    } else {
+      domainEntity.image = null;
     }
 
     return domainEntity;
@@ -24,7 +26,6 @@ export class OptionMapper {
 
   static toPersistence(domainEntity: Option): OptionEntity {
     const persistenceEntity = new OptionEntity();
-
     if (domainEntity.id && this.isUUID(domainEntity.id)) {
       persistenceEntity.id = domainEntity.id;
     }
@@ -40,10 +41,13 @@ export class OptionMapper {
       persistenceEntity.question = question;
     }
 
-    if (domainEntity.image) {
-      const image = new FileEntity();
-      image.id = domainEntity.image.id;
-      persistenceEntity.image = image;
+    if (domainEntity.image || domainEntity.imageId) {
+      const imageId = domainEntity.imageId || (typeof domainEntity.image === 'string' ? domainEntity.image : (domainEntity.image as any)?.id);
+      if (imageId) {
+        const image = new FileEntity();
+        image.id = imageId;
+        persistenceEntity.image = image;
+      }
     }
 
     return persistenceEntity;

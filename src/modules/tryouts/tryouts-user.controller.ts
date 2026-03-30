@@ -6,15 +6,20 @@ import {
   HttpStatus,
   HttpCode,
   Request,
+  Param,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { Tryout } from './domain/tryout';
 import { TryoutsService } from './tryouts.service';
-import { ApiJSendPaginatedResponse } from '../../utils/swagger-jsend.decorator';
+import {
+  ApiJSendResponse,
+  ApiJSendPaginatedResponse,
+} from '../../utils/swagger-jsend.decorator';
 import { FindUserTryoutsDto } from './dto/find-user-tryouts.dto';
 import { PaginationResponseDto } from '../../utils/dto/pagination-response.dto';
 import { pagination } from '../../utils/pagination';
+import { NullableType } from '../../utils/types/nullable.type';
 
 @ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'))
@@ -52,5 +57,12 @@ export class TryoutsUserController {
       }),
       { page, limit },
     );
+  }
+
+  @ApiJSendResponse(Tryout)
+  @Get(':id')
+  @HttpCode(HttpStatus.OK)
+  findOne(@Param('id') id: Tryout['id']): Promise<NullableType<Tryout>> {
+    return this.tryoutsService.findOne(id);
   }
 }

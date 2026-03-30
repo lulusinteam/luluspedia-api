@@ -37,9 +37,16 @@ export class QuestionEntity extends EntityRelationalHelper {
   @Column({ type: 'text' })
   content: string;
 
+  @Column({ type: 'text', nullable: true })
+  explanation: string | null;
+
   @ManyToOne(() => FileEntity, { nullable: true })
   @JoinColumn({ name: 'image_id' })
   image: FileEntity | null;
+
+  @ManyToOne(() => FileEntity, { nullable: true })
+  @JoinColumn({ name: 'explanation_image_id' })
+  explanationImage: FileEntity | null;
 
   @Column({
     type: 'enum',
