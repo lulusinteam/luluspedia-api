@@ -3,3 +3,8 @@ export enum DifficultyEnum {
   medium = 'medium',
   hard = 'hard',
 }
+
+export enum ScoringTypeEnum {
+  point = 'point',
+  weight = 'weight',
+}

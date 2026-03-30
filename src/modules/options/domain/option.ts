@@ -21,6 +21,9 @@ export class Option {
   isCorrect: boolean;
 
   @ApiProperty()
+  weight: number;
+
+  @ApiProperty()
   orderNumber?: number | null;
 
   @ApiProperty()

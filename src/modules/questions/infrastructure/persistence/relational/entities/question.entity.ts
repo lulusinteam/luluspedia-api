@@ -13,7 +13,7 @@ import { OptionEntity } from '../../../../../options/infrastructure/persistence/
 import { EntityRelationalHelper } from '../../../../../../utils/relational-entity-helper';
 import { TryoutEntity } from '../../../../../tryouts/infrastructure/persistence/relational/entities/tryout.entity';
 import { FileEntity } from '../../../../../files/infrastructure/persistence/relational/entities/file.entity';
-import { DifficultyEnum } from '../../../../questions.enum';
+import { DifficultyEnum, ScoringTypeEnum } from '../../../../questions.enum';
 
 @Entity({
   name: 'questions',
@@ -37,16 +37,9 @@ export class QuestionEntity extends EntityRelationalHelper {
   @Column({ type: 'text' })
   content: string;
 
-  @Column({ type: 'text', nullable: true })
-  explanation: string;
-
   @ManyToOne(() => FileEntity, { nullable: true })
   @JoinColumn({ name: 'image_id' })
   image: FileEntity | null;
-
-  @ManyToOne(() => FileEntity, { nullable: true })
-  @JoinColumn({ name: 'explanation_image_id' })
-  explanationImage: FileEntity | null;
 
   @Column({
     type: 'enum',
@@ -54,6 +47,13 @@ export class QuestionEntity extends EntityRelationalHelper {
     default: DifficultyEnum.medium,
   })
   difficulty: DifficultyEnum;
+
+  @Column({
+    type: 'enum',
+    enum: ScoringTypeEnum,
+    default: ScoringTypeEnum.point,
+  })
+  scoringType: ScoringTypeEnum;
 
   @Column({ type: 'int', default: 0 })
   points: number;

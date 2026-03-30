@@ -12,6 +12,7 @@ export class OptionMapper {
     domainEntity.updatedAt = raw.updatedAt;
     domainEntity.content = raw.content;
     domainEntity.isCorrect = raw.isCorrect;
+    domainEntity.weight = raw.weight;
     domainEntity.orderNumber = raw.orderNumber;
 
     if (raw.image) {
@@ -30,6 +31,7 @@ export class OptionMapper {
 
     persistenceEntity.content = domainEntity.content;
     persistenceEntity.isCorrect = domainEntity.isCorrect;
+    persistenceEntity.weight = domainEntity.weight || 0;
     persistenceEntity.orderNumber = domainEntity.orderNumber;
 
     if (domainEntity.question) {

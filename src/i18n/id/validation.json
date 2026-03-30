@@ -22,7 +22,9 @@
     "status": "Status",
     "passScore": "Skor Lulus",
     "email": "Email",
-    "password": "Kata sandi"
+    "password": "Kata sandi",
+    "scoringType": "Tipe Penilaian",
+    "weight": "Bobot"
   },
 
   "custom": {

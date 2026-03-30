@@ -12,7 +12,7 @@ import {
 import { Type } from 'class-transformer';
 import { Tryout } from '../../tryouts/domain/tryout';
 import { FileDto } from '../../files/dto/file.dto';
-import { DifficultyEnum } from '../questions.enum';
+import { DifficultyEnum, ScoringTypeEnum } from '../questions.enum';
 import { CreateOptionDto } from '../../options/dto/create-option.dto';
 
 export class CreateQuestionDto {
@@ -30,18 +30,9 @@ export class CreateQuestionDto {
   @IsNotEmpty()
   content: string;
 
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsString()
-  explanation?: string;
-
   @ApiProperty({ type: () => FileDto, required: false })
   @IsOptional()
   image?: FileDto | null;
-
-  @ApiProperty({ type: () => FileDto, required: false })
-  @IsOptional()
-  explanationImage?: FileDto | null;
 
   @ApiProperty({
     enum: DifficultyEnum,
@@ -50,6 +41,14 @@ export class CreateQuestionDto {
   @IsEnum(DifficultyEnum)
   @IsOptional()
   difficulty?: DifficultyEnum;
+
+  @ApiProperty({
+    enum: ScoringTypeEnum,
+    default: ScoringTypeEnum.point,
+  })
+  @IsEnum(ScoringTypeEnum)
+  @IsOptional()
+  scoringType?: ScoringTypeEnum;
 
   @ApiProperty({ required: false, default: 0 })
   @IsOptional()

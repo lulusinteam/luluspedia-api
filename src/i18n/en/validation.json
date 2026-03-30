@@ -22,7 +22,9 @@
     "status": "Status",
     "passScore": "Pass Score",
     "email": "Email",
-    "password": "Password"
+    "password": "Password",
+    "scoringType": "Scoring Type",
+    "weight": "Weight"
   },
 
   "custom": {

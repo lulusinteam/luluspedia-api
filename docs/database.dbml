@@ -74,6 +74,11 @@ Table tryouts {
   deleted_at timestamp
 }
 
+Enum scoring_type_enum {
+  point
+  weight
+}
+
 Enum difficulty_enum {
   easy
   medium
@@ -85,10 +90,9 @@ Table questions {
   tryout_id uuid [note: 'Reference to tryouts']
   order_number integer [note: 'Sequence of the question, starts from 1']
   content text
-  explanation text [note: 'Detailed explanation shown if show_explanation is true']
   image_id uuid [note: 'Optional reference to files, nullable']
-  explanation_image_id uuid [note: 'Optional explanation image, nullable']
   difficulty difficulty_enum
+  scoring_type scoring_type_enum [default: 'point']
   points integer [default: 0]
   created_at timestamp
   updated_at timestamp
@@ -99,6 +103,9 @@ Table options {
   id uuid [primary key]
   question_id uuid [note: 'Reference to questions']
   content text
+  image_id uuid [note: 'Reference to files, nullable']
+  order_number integer [note: 'Sequence of the option']
+  weight integer [default: 0]
   is_correct boolean [default: false]
   created_at timestamp
   updated_at timestamp
@@ -142,8 +149,8 @@ Ref: tryouts.category_id > categories.id
 Ref: tryouts.cover_id > files.id
 Ref: questions.tryout_id > tryouts.id
 Ref: questions.image_id > files.id
-Ref: questions.explanation_image_id > files.id
 Ref: options.question_id > questions.id
+Ref: options.image_id > files.id
 Ref: user_tryouts.user_id > users.id
 Ref: user_tryouts.tryout_id > tryouts.id
 Ref: user_answers.user_tryout_id > user_tryouts.id

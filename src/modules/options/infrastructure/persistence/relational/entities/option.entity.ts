@@ -33,6 +33,9 @@ export class OptionEntity extends EntityRelationalHelper {
   @Column({ type: 'boolean', name: 'is_correct', default: false })
   isCorrect: boolean;
 
+  @Column({ type: 'int', default: 0 })
+  weight: number;
+
   @Column({ type: 'int', name: 'order_number', nullable: true })
   orderNumber?: number | null;
 

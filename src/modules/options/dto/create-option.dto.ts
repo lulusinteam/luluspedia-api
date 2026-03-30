@@ -5,6 +5,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  Min,
 } from 'class-validator';
 import { Question } from '../../questions/domain/question';
 import { FileDto } from '../../files/dto/file.dto';
@@ -27,6 +28,12 @@ export class CreateOptionDto {
   @IsBoolean()
   @IsOptional()
   isCorrect?: boolean;
+
+  @ApiProperty({ required: false, default: 0 })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  weight?: number;
 
   @ApiProperty({ required: false })
   @IsOptional()

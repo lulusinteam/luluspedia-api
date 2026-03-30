@@ -4,7 +4,7 @@ import { FileEntity } from '../../../../../files/infrastructure/persistence/rela
 import { FileMapper } from '../../../../../files/infrastructure/persistence/relational/mappers/file.mapper';
 import { OptionMapper } from '../../../../../options/infrastructure/persistence/relational/mappers/option.mapper';
 import { QuestionEntity } from '../entities/question.entity';
-import { DifficultyEnum } from '../../../../questions.enum';
+import { DifficultyEnum, ScoringTypeEnum } from '../../../../questions.enum';
 
 export class QuestionMapper {
   static toDomain(raw: QuestionEntity): Question {
@@ -14,16 +14,12 @@ export class QuestionMapper {
     domainEntity.updatedAt = raw.updatedAt;
     domainEntity.orderNumber = raw.orderNumber;
     domainEntity.content = raw.content;
-    domainEntity.explanation = raw.explanation;
     domainEntity.points = raw.points;
     domainEntity.difficulty = raw.difficulty;
+    domainEntity.scoringType = raw.scoringType;
 
     if (raw.image) {
       domainEntity.image = FileMapper.toDomain(raw.image);
-    }
-
-    if (raw.explanationImage) {
-      domainEntity.explanationImage = FileMapper.toDomain(raw.explanationImage);
     }
 
     if (raw.options) {
@@ -44,10 +40,11 @@ export class QuestionMapper {
 
     persistenceEntity.orderNumber = domainEntity.orderNumber || 1;
     persistenceEntity.content = domainEntity.content;
-    persistenceEntity.explanation = domainEntity.explanation;
     persistenceEntity.points = domainEntity.points || 0;
     persistenceEntity.difficulty =
       domainEntity.difficulty || DifficultyEnum.medium;
+    persistenceEntity.scoringType =
+      domainEntity.scoringType || ScoringTypeEnum.point;
 
     if (domainEntity.tryout) {
       const tryout = new TryoutEntity();
@@ -59,12 +56,6 @@ export class QuestionMapper {
       const image = new FileEntity();
       image.id = domainEntity.image.id;
       persistenceEntity.image = image;
-    }
-
-    if (domainEntity.explanationImage) {
-      const explanationImage = new FileEntity();
-      explanationImage.id = domainEntity.explanationImage.id;
-      persistenceEntity.explanationImage = explanationImage;
     }
 
     if (domainEntity.options) {

@@ -19,14 +19,14 @@ export class SearchHistoryEntity extends EntityRelationalHelper {
   @Column()
   query: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, name: 'user_id' })
   userId: string | null;
 
   @ManyToOne(() => UserEntity, {
     nullable: true,
     onDelete: 'SET NULL',
   })
-  @JoinColumn({ name: 'userId' })
+  @JoinColumn({ name: 'user_id' })
   user: UserEntity | null;
 
   @CreateDateColumn()

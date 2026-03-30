@@ -7,6 +7,7 @@ export const createOptionFactory = (
   return {
     content: faker.lorem.sentence(),
     isCorrect: false, // Default to false, seeder modifies exactly one per question
+    weight: 0,
     orderNumber: 1,
     createdAt: new Date(),
     updatedAt: new Date(),
