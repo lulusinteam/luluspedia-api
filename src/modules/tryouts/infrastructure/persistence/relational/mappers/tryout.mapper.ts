@@ -39,11 +39,8 @@ export class TryoutMapper {
         QuestionMapper.toDomain(question),
       );
       domainEntity.questionCount = raw.questions.length;
-    } else {
-      domainEntity.questions = [];
-      if (raw.questionCount !== undefined) {
-        domainEntity.questionCount = Number(raw.questionCount);
-      }
+    } else if (raw.questionCount !== undefined) {
+      domainEntity.questionCount = Number(raw.questionCount);
     }
 
     if (raw.ratingAverage !== undefined) {
