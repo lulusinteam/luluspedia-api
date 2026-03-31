@@ -24,5 +24,9 @@ export abstract class UserTryoutRepository {
     payload: Partial<UserTryout>,
   ): Promise<UserTryout | null>;
 
+  abstract findInProgressAttemptByUserId(
+    userId: string,
+  ): Promise<NullableType<UserTryout>>;
+
   abstract remove(id: UserTryout['id']): Promise<void>;
 }

@@ -6,14 +6,20 @@ import {
   HttpStatus,
   HttpCode,
   Request,
+  Post,
+  Body,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { UserTryoutsService } from './user-tryouts.service';
 import { FindMyAttemptsDto } from './dto/find-my-attempts.dto';
+import { StartAttemptDto } from './dto/start-attempt.dto';
 import { PaginationResponseDto } from '../../utils/dto/pagination-response.dto';
 import { pagination } from '../../utils/pagination';
-import { ApiJSendPaginatedResponse } from '../../utils/swagger-jsend.decorator';
+import {
+  ApiJSendResponse,
+  ApiJSendPaginatedResponse,
+} from '../../utils/swagger-jsend.decorator';
 
 import { UserTryoutResponseDto } from './dto/user-tryout-response.dto';
 import { UserTryoutMapper } from './infrastructure/persistence/relational/mappers/user-tryout.mapper';
@@ -27,6 +33,21 @@ import { UserTryoutMapper } from './infrastructure/persistence/relational/mapper
 })
 export class UserTryoutsController {
   constructor(private readonly userTryoutsService: UserTryoutsService) {}
+
+  @ApiJSendResponse(UserTryoutResponseDto)
+  @Post('start-attempt')
+  @HttpCode(HttpStatus.CREATED)
+  async startAttempt(
+    @Request() request,
+    @Body() startAttemptDto: StartAttemptDto,
+  ): Promise<UserTryoutResponseDto> {
+    const result = await this.userTryoutsService.startAttempt(
+      request.user.id,
+      startAttemptDto.tryoutId,
+    );
+
+    return UserTryoutMapper.toResponseDto(result);
+  }
 
   @ApiJSendPaginatedResponse(UserTryoutResponseDto)
   @Get('my-attempts')

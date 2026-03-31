@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserTryoutEntity } from '../entities/user-tryout.entity';
 import { UserTryoutRepository } from '../../user-tryout.repository';
-import { UserTryout } from '../../../../domain/user-tryout';
+import { UserTryout, UserTryoutStatusEnum } from '../../../../domain/user-tryout';
 import { UserTryoutMapper } from '../mappers/user-tryout.mapper';
 import { IPaginationOptions } from '../../../../../../utils/types/pagination-options';
 import { NullableType } from '../../../../../../utils/types/nullable.type';
@@ -90,6 +90,19 @@ export class UserTryoutRelationalRepository implements UserTryoutRepository {
     );
 
     return UserTryoutMapper.toDomain(updatedEntity);
+  }
+
+  async findInProgressAttemptByUserId(
+    userId: string,
+  ): Promise<NullableType<UserTryout>> {
+    const entity = await this.repository.findOne({
+      where: {
+        user: { id: userId },
+        status: UserTryoutStatusEnum.inProgress,
+      },
+    });
+
+    return entity ? UserTryoutMapper.toDomain(entity) : null;
   }
 
   async remove(id: UserTryout['id']): Promise<void> {
