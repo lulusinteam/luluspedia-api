@@ -10,6 +10,7 @@ import {
   Query,
   HttpStatus,
   HttpCode,
+  Request,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
 import { Roles } from '../roles/roles.decorator';
@@ -96,8 +97,11 @@ export class TryoutsAdminController {
     type: String,
     required: true,
   })
-  findOne(@Param('id') id: Tryout['id']): Promise<NullableType<Tryout>> {
-    return this.tryoutsService.findOne(id);
+  findOne(
+    @Param('id') id: Tryout['id'],
+    @Request() request,
+  ): Promise<NullableType<Tryout>> {
+    return this.tryoutsService.findOneUser(id, request.user?.id);
   }
 
   @ApiJSendPaginatedResponse(Question)

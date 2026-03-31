@@ -16,6 +16,11 @@ export abstract class TryoutRepository {
 
   abstract findById(id: Tryout['id']): Promise<NullableType<Tryout>>;
 
+  abstract findByIdUser(
+    id: Tryout['id'],
+    userId: string,
+  ): Promise<NullableType<Tryout>>;
+
   abstract findByIds(ids: Tryout['id'][]): Promise<Tryout[]>;
 
   abstract update(

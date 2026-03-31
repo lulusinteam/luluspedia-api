@@ -62,7 +62,10 @@ export class TryoutsUserController {
   @ApiJSendResponse(Tryout)
   @Get(':id')
   @HttpCode(HttpStatus.OK)
-  findOne(@Param('id') id: Tryout['id']): Promise<NullableType<Tryout>> {
-    return this.tryoutsService.findOne(id);
+  findOne(
+    @Request() request,
+    @Param('id') id: Tryout['id'],
+  ): Promise<NullableType<Tryout>> {
+    return this.tryoutsService.findOneUser(id, request.user.id);
   }
 }

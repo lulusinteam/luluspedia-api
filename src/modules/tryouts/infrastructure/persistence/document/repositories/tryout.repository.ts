@@ -51,6 +51,28 @@ export class TryoutDocumentRepository implements TryoutRepository {
     return entityObject ? TryoutMapper.toDomain(entityObject) : null;
   }
 
+  async findByIdUser(
+    id: Tryout['id'],
+    _userId: string,
+  ): Promise<NullableType<Tryout>> {
+    const entityObject = await this.tryoutModel
+      .findById(id)
+      .populate('category')
+      .populate('cover');
+
+    if (!entityObject) {
+      return null;
+    }
+
+    const domain = TryoutMapper.toDomain(entityObject);
+    void _userId;
+    domain.isWishlist = false; // Placeholder for document implementation
+    domain.ratingAverage = 0;
+    domain.ratingCount = 0;
+
+    return domain;
+  }
+
   async findByIds(ids: Tryout['id'][]): Promise<Tryout[]> {
     const entityObjects = await this.tryoutModel.find({ _id: { $in: ids } });
     return entityObjects.map(entityObject =>

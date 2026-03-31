@@ -62,6 +62,13 @@ export class TryoutsService {
     return this.tryoutRepository.findById(id);
   }
 
+  async findOneUser(
+    id: Tryout['id'],
+    userId: string,
+  ): Promise<NullableType<Tryout>> {
+    return this.tryoutRepository.findByIdUser(id, userId);
+  }
+
   async update(
     id: Tryout['id'],
     updateTryoutDto: UpdateTryoutDto,

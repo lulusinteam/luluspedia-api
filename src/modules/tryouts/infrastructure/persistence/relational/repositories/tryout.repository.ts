@@ -93,6 +93,62 @@ export class TryoutRelationalRepository implements TryoutRepository {
     return entity ? TryoutMapper.toDomain(entity) : null;
   }
 
+  async findByIdUser(
+    id: Tryout['id'],
+    userId: string,
+  ): Promise<NullableType<Tryout>> {
+    const query = this.tryoutRepository
+      .createQueryBuilder('tryouts')
+      .leftJoinAndSelect('tryouts.category', 'category')
+      .leftJoinAndSelect('tryouts.cover', 'cover')
+      // Aggregate ratings
+      .leftJoin(
+        qb =>
+          qb
+            .select('rateable_id')
+            .addSelect('AVG(score)', 'avgScore')
+            .addSelect('COUNT(id)', 'countScore')
+            .from(RatingEntity, 'ratings')
+            .where('rateable_type = :type', { type: 'tryouts' })
+            .groupBy('rateable_id'),
+        'ratings_agg',
+        'ratings_agg.rateable_id = tryouts.id',
+      )
+      .addSelect('COALESCE(ratings_agg."avgScore", 0)', 'tryouts_ratingAverage')
+      .addSelect('COALESCE(ratings_agg."countScore", 0)', 'tryouts_ratingCount')
+      // Count questions
+      .loadRelationCountAndMap('tryouts.questionCount', 'tryouts.questions')
+      .leftJoin(
+        WishlistEntity,
+        'wishlist',
+        'wishlist.wishlistable_id = tryouts.id AND wishlist.wishlistable_type = :wType AND wishlist.user_id = :userId',
+        { wType: 'tryouts', userId },
+      )
+      .addSelect(
+        'CASE WHEN wishlist.id IS NOT NULL THEN true ELSE false END',
+        'tryouts_isWishlist',
+      )
+      .where('tryouts.id = :id', { id });
+
+    const { entities, raw } = await query.getRawAndEntities();
+    const entity = entities[0];
+
+    if (entity) {
+      const rawData = raw[0];
+      // Manually map virtual columns from raw results
+      entity.isWishlist =
+        rawData.tryouts_isWishlist === true ||
+        rawData.tryouts_isWishlist === 'true' ||
+        rawData.tryouts_isWishlist === 1 ||
+        rawData.tryouts_isWishlist === '1';
+      entity.ratingAverage = Number(rawData.tryouts_ratingAverage || 0);
+      entity.ratingCount = Number(rawData.tryouts_ratingCount || 0);
+      // questionCount is mapped by loadRelationCountAndMap, but can also be from raw if needed
+    }
+
+    return entity ? TryoutMapper.toDomain(entity) : null;
+  }
+
   async findByIds(ids: Tryout['id'][]): Promise<Tryout[]> {
     const entities = await this.tryoutRepository.find({
       where: { id: In(ids) },
@@ -312,15 +368,23 @@ export class TryoutRelationalRepository implements TryoutRepository {
       .take(paginationOptions.limit)
       .orderBy('tryouts.publishedAt', 'DESC');
 
-    const [entities, count] = await query.getManyAndCount();
+    const { entities, raw } = await query.getRawAndEntities();
+    const count = await query.getCount();
 
     return [
-      entities.map(entity => {
-        const domain = TryoutMapper.toDomain(entity);
-        // Map the raw aggregated values back to the domain object
-        // TypeORM query builder with getManyAndCount maps aliased columns starting with the table alias prefix
-        // to the entity object if the entity has those properties.
-        return domain;
+      entities.map((entity, index) => {
+        const rawData = raw[index];
+        // Manually map virtual columns from raw results
+        entity.isWishlist =
+          rawData.tryouts_isWishlist === true ||
+          rawData.tryouts_isWishlist === 'true' ||
+          rawData.tryouts_isWishlist === 1 ||
+          rawData.tryouts_isWishlist === '1';
+        entity.ratingAverage = Number(rawData.tryouts_ratingAverage || 0);
+        entity.ratingCount = Number(rawData.tryouts_ratingCount || 0);
+        entity.questionCount = Number(rawData.tryouts_questionCount || 0);
+
+        return TryoutMapper.toDomain(entity);
       }),
       count,
     ];
