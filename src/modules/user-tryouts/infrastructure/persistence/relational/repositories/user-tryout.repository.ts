@@ -41,16 +41,17 @@ export class UserTryoutRelationalRepository implements UserTryoutRepository {
         'user_tryout.endTime',
         'user_tryout.totalScore',
         'user_tryout.status',
+        'user_tryout.createdAt',
         'tryout.id',
         'tryout.passScore',
       ])
-      .where('user_tryout.user_id = :userId', { userId });
+      .where('user_tryout.user = :userId', { userId });
 
     if (tryoutId) {
-      query.andWhere('user_tryout.tryout_id = :tryoutId', { tryoutId });
+      query.andWhere('user_tryout.tryout = :tryoutId', { tryoutId });
     }
 
-    query.orderBy('user_tryout.created_at', 'DESC');
+    query.orderBy('user_tryout.createdAt', 'DESC');
 
     const [entities, count] = await query
       .skip((paginationOptions.page - 1) * paginationOptions.limit)
