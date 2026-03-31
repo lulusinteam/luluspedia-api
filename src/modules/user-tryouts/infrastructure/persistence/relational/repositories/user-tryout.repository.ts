@@ -3,7 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserTryoutEntity } from '../entities/user-tryout.entity';
 import { UserTryoutRepository } from '../../user-tryout.repository';
-import { UserTryout, UserTryoutStatusEnum } from '../../../../domain/user-tryout';
+import {
+  UserTryout,
+  UserTryoutStatusEnum,
+} from '../../../../domain/user-tryout';
 import { UserTryoutMapper } from '../mappers/user-tryout.mapper';
 import { IPaginationOptions } from '../../../../../../utils/types/pagination-options';
 import { NullableType } from '../../../../../../utils/types/nullable.type';
