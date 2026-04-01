@@ -1,6 +1,7 @@
+import { UserTryoutResponseDto, UserTryoutQuestionResponseDto, UserTryoutOptionResponseDto } from '../../../../dto/user-tryout-response.dto';
+import { seededShuffle } from '../../../../../../utils/seeded-shuffle';
 import { UserTryout } from '../../../../domain/user-tryout';
 import { UserTryoutEntity } from '../entities/user-tryout.entity';
-import { UserTryoutResponseDto } from '../../../../dto/user-tryout-response.dto';
 import { UserMapper } from '../../../../../users/infrastructure/persistence/relational/mappers/user.mapper';
 import { TryoutMapper } from '../../../../../tryouts/infrastructure/persistence/relational/mappers/tryout.mapper';
 
@@ -65,7 +66,34 @@ export class UserTryoutMapper {
     dto.totalScore = domain.totalScore;
     dto.isPassed = domain.isPassed ?? false;
     dto.durationInSeconds = domain.durationInSeconds ?? 0;
+    dto.tryoutId = domain.tryout?.id ?? '';
+    dto.tryoutTitle = domain.tryout?.title ?? '';
+
+    if (domain.tryout?.questions) {
+      dto.questions = domain.tryout.questions.map(q => {
+        const questionDto = new UserTryoutQuestionResponseDto();
+        questionDto.id = q.id;
+        questionDto.orderNumber = q.orderNumber;
+        questionDto.content = q.content;
+        questionDto.image = q.image?.path || null;
+
+        if (q.options) {
+          // SEEDED SHUFFLE: Use attempt ID (domain.id) as seed
+          const shuffledOptions = seededShuffle(q.options, domain.id);
+          questionDto.options = shuffledOptions.map((opt: any) => {
+            const optDto = new UserTryoutOptionResponseDto();
+            optDto.id = opt.id;
+            optDto.content = opt.content;
+            optDto.image = opt.image?.path || null;
+            return optDto;
+          });
+        }
+
+        return questionDto;
+      });
+    }
 
     return dto;
   }
 }
+

@@ -49,6 +49,17 @@ export class UserTryoutsController {
     return UserTryoutMapper.toResponseDto(result);
   }
 
+  @ApiJSendResponse(UserTryoutResponseDto)
+  @Get('active-attempt')
+  @HttpCode(HttpStatus.OK)
+  async findActiveAttempt(@Request() request): Promise<UserTryoutResponseDto | null> {
+    const result = await this.userTryoutsService.findActiveAttempt(
+      request.user.id,
+    );
+
+    return result ? UserTryoutMapper.toResponseDto(result) : null;
+  }
+
   @ApiJSendPaginatedResponse(UserTryoutResponseDto)
   @Get('my-attempts')
   @HttpCode(HttpStatus.OK)

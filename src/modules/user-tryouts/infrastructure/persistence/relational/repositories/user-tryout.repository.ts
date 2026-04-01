@@ -20,10 +20,22 @@ export class UserTryoutRelationalRepository implements UserTryoutRepository {
 
   async create(data: UserTryout): Promise<UserTryout> {
     const persistenceModel = UserTryoutMapper.toPersistence(data);
-    const newEntity = await this.repository.save(
+    const newEntity = (await this.repository.save(
       this.repository.create(persistenceModel),
-    );
-    return UserTryoutMapper.toDomain(newEntity);
+    )) as UserTryoutEntity;
+
+    const reloaded = await this.repository
+      .createQueryBuilder('user_tryout')
+      .leftJoinAndSelect('user_tryout.tryout', 'tryout')
+      .leftJoinAndSelect('tryout.questions', 'questions')
+      .leftJoinAndSelect('questions.options', 'options')
+      .leftJoinAndSelect('questions.image', 'questionImage')
+      .leftJoinAndSelect('options.image', 'optionImage')
+      .where('user_tryout.id = :id', { id: newEntity.id })
+      .orderBy('questions.orderNumber', 'ASC')
+      .getOne();
+
+    return UserTryoutMapper.toDomain(reloaded!);
   }
 
   async findAll({
@@ -98,12 +110,19 @@ export class UserTryoutRelationalRepository implements UserTryoutRepository {
   async findInProgressAttemptByUserId(
     userId: string,
   ): Promise<NullableType<UserTryout>> {
-    const entity = await this.repository.findOne({
-      where: {
-        user: { id: userId },
+    const entity = await this.repository
+      .createQueryBuilder('user_tryout')
+      .leftJoinAndSelect('user_tryout.tryout', 'tryout')
+      .leftJoinAndSelect('tryout.questions', 'questions')
+      .leftJoinAndSelect('questions.options', 'options')
+      .leftJoinAndSelect('questions.image', 'questionImage')
+      .leftJoinAndSelect('options.image', 'optionImage')
+      .where('user_tryout.user = :userId', { userId })
+      .andWhere('user_tryout.status = :status', {
         status: UserTryoutStatusEnum.inProgress,
-      },
-    });
+      })
+      .orderBy('questions.orderNumber', 'ASC')
+      .getOne();
 
     return entity ? UserTryoutMapper.toDomain(entity) : null;
   }

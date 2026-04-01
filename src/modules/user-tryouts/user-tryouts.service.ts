@@ -34,6 +34,10 @@ export class UserTryoutsService {
     });
   }
 
+  async findActiveAttempt(userId: string): Promise<UserTryout | null> {
+    return this.userTryoutRepository.findInProgressAttemptByUserId(userId);
+  }
+
   async findAllMyAttempts({
     paginationOptions,
     userId,
