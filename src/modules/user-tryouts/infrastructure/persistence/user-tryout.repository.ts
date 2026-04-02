@@ -28,5 +28,15 @@ export abstract class UserTryoutRepository {
     userId: string,
   ): Promise<NullableType<UserTryout>>;
 
+  abstract saveAnswer(data: {
+    userTryoutId: string;
+    questionId: string;
+    optionId: string;
+  }): Promise<void>;
+
+  abstract getAnswersByAttemptId(userTryoutId: string): Promise<any[]>;
+
+  abstract findExpiredAttempts(): Promise<UserTryout[]>;
+
   abstract remove(id: UserTryout['id']): Promise<void>;
 }

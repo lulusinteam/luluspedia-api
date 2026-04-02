@@ -31,7 +31,7 @@ export class Tryout {
   duration: number;
 
   @ApiProperty()
-  isShuffled: boolean;
+  shuffleOptions: boolean;
 
   @ApiProperty()
   showResult: boolean;

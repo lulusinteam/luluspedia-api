@@ -34,7 +34,7 @@ export class TryoutSchemaClass extends EntityDocumentHelper {
   duration: number;
 
   @Prop({ type: Boolean, default: false })
-  isShuffled: boolean;
+  shuffleOptions: boolean;
 
   @Prop({ type: Boolean, default: true })
   showResult: boolean;

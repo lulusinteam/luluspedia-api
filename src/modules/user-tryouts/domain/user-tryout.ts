@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Tryout } from '../../tryouts/domain/tryout';
 import { User } from '../../users/domain/user';
+import { UserAnswer } from './user-answer';
 
 export enum UserTryoutStatusEnum {
   inProgress = 'in_progress',
@@ -46,4 +47,8 @@ export class UserTryout {
 
   @ApiProperty()
   deletedAt: Date;
+
+  // Answers associated with this tryout attempt
+  @ApiProperty({ type: () => UserAnswer, isArray: true, required: false })
+  answers?: UserAnswer[];
 }

@@ -116,8 +116,15 @@ export class TryoutRelationalRepository implements TryoutRepository {
       )
       .addSelect('COALESCE(ratings_agg."avgScore", 0)', 'tryouts_ratingAverage')
       .addSelect('COALESCE(ratings_agg."countScore", 0)', 'tryouts_ratingCount')
-      // Count questions
-      .loadRelationCountAndMap('tryouts.questionCount', 'tryouts.questions')
+      // Count questions using subquery for reliability
+      .addSelect(
+        subQuery =>
+          subQuery
+            .select('COUNT(q.id)', 'count')
+            .from('questions', 'q')
+            .where('q.tryout_id = tryouts.id'),
+        'tryouts_questionCount',
+      )
       .leftJoin(
         WishlistEntity,
         'wishlist',
@@ -143,7 +150,7 @@ export class TryoutRelationalRepository implements TryoutRepository {
         rawData.tryouts_isWishlist === '1';
       entity.ratingAverage = Number(rawData.tryouts_ratingAverage || 0);
       entity.ratingCount = Number(rawData.tryouts_ratingCount || 0);
-      // questionCount is mapped by loadRelationCountAndMap, but can also be from raw if needed
+      entity.questionCount = Number(rawData.tryouts_questionCount || 0);
     }
 
     return entity ? TryoutMapper.toDomain(entity) : null;
@@ -238,7 +245,14 @@ export class TryoutRelationalRepository implements TryoutRepository {
       .createQueryBuilder('tryouts')
       .leftJoinAndSelect('tryouts.category', 'category')
       .leftJoinAndSelect('tryouts.cover', 'cover')
-      .loadRelationCountAndMap('tryouts.questionCount', 'tryouts.questions');
+      .addSelect(
+        subQuery =>
+          subQuery
+            .select('COUNT(q.id)', 'count')
+            .from('questions', 'q')
+            .where('q.tryout_id = tryouts.id'),
+        'tryouts_questionCount',
+      );
 
     if (search) {
       query.andWhere('tryouts.title ILIKE :search', { search: `%${search}%` });
@@ -253,10 +267,15 @@ export class TryoutRelationalRepository implements TryoutRepository {
       .take(paginationOptions.limit)
       .orderBy('tryouts.updatedAt', 'DESC');
 
-    const [entities, count] = await query.getManyAndCount();
+    const { entities, raw } = await query.getRawAndEntities();
+    const count = await query.getCount();
 
     return [
-      entities.map(entity => TryoutMapper.toDomain(entity)) as (Tryout & {
+      entities.map((entity, index) => {
+        const rawData = raw[index];
+        entity.questionCount = Number(rawData.tryouts_questionCount || 0);
+        return TryoutMapper.toDomain(entity);
+      }) as (Tryout & {
         questionCount: number;
       })[],
       count,
@@ -323,8 +342,15 @@ export class TryoutRelationalRepository implements TryoutRepository {
       )
       .addSelect('COALESCE(ratings_agg."avgScore", 0)', 'tryouts_ratingAverage')
       .addSelect('COALESCE(ratings_agg."countScore", 0)', 'tryouts_ratingCount')
-      // Count questions
-      .loadRelationCountAndMap('tryouts.questionCount', 'tryouts.questions');
+      // Count questions using subquery for reliability
+      .addSelect(
+        subQuery =>
+          subQuery
+            .select('COUNT(q.id)', 'count')
+            .from('questions', 'q')
+            .where('q.tryout_id = tryouts.id'),
+        'tryouts_questionCount',
+      );
 
     // Only published tryouts for users
     query.andWhere('tryouts.status = :status', { status: 'published' });

@@ -24,6 +24,9 @@ export class UserTryoutQuestionResponseDto {
   @ApiProperty({ nullable: true })
   image?: string | null;
 
+  @ApiProperty({ nullable: true })
+  selectedOptionId?: string | null;
+
   @ApiProperty({ type: [UserTryoutOptionResponseDto] })
   options: UserTryoutOptionResponseDto[];
 }
@@ -41,14 +44,22 @@ export class UserTryoutResponseDto {
   @ApiProperty()
   isPassed: boolean;
 
-  @ApiProperty()
-  durationInSeconds: number;
+  @ApiProperty({
+    description: 'Total duration allowed for this tryout in minutes',
+  })
+  tryoutDuration: number;
+
+  @ApiProperty({ description: 'Total duration allowed in seconds' })
+  totalDurationInSeconds: number;
 
   @ApiProperty()
   tryoutId: string;
 
   @ApiProperty()
   tryoutTitle: string;
+
+  @ApiProperty()
+  status: string;
 
   @ApiProperty({ type: [UserTryoutQuestionResponseDto], required: false })
   questions?: UserTryoutQuestionResponseDto[];

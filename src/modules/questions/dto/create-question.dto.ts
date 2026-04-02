@@ -5,14 +5,13 @@ import {
   IsNumber,
   IsOptional,
   IsString,
-  Min,
   IsArray,
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { Tryout } from '../../tryouts/domain/tryout';
 import { FileDto } from '../../files/dto/file.dto';
-import { DifficultyEnum, ScoringTypeEnum } from '../questions.enum';
+import { DifficultyEnum } from '../questions.enum';
 import { CreateOptionDto } from '../../options/dto/create-option.dto';
 
 export class CreateQuestionDto {
@@ -60,20 +59,6 @@ export class CreateQuestionDto {
   @IsEnum(DifficultyEnum)
   @IsOptional()
   difficulty?: DifficultyEnum;
-
-  @ApiProperty({
-    enum: ScoringTypeEnum,
-    default: ScoringTypeEnum.point,
-  })
-  @IsEnum(ScoringTypeEnum)
-  @IsOptional()
-  scoringType?: ScoringTypeEnum;
-
-  @ApiProperty({ required: false, default: 0 })
-  @IsOptional()
-  @IsNumber()
-  @Min(0)
-  points?: number;
 
   @ApiProperty({ type: () => CreateOptionDto, isArray: true, required: false })
   @IsOptional()

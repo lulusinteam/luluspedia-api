@@ -15,8 +15,14 @@ export class TryoutMapper {
     domainEntity.title = raw.title;
     domainEntity.description = raw.description;
     domainEntity.isRecommended = raw.isRecommended;
-    domainEntity.duration = raw.duration;
-    domainEntity.isShuffled = raw.isShuffled;
+    domainEntity.duration =
+      raw.duration ??
+      (raw as any).tryouts_duration ??
+      (raw as any).tryout_duration;
+    domainEntity.shuffleOptions =
+      raw.shuffleOptions ??
+      (raw as any).isShuffled ??
+      (raw as any).shuffle_options;
     domainEntity.showResult = raw.showResult;
     domainEntity.showExplanation = raw.showExplanation;
     domainEntity.passScore = raw.passScore;
@@ -39,8 +45,16 @@ export class TryoutMapper {
         QuestionMapper.toDomain(question),
       );
       domainEntity.questionCount = raw.questions.length;
-    } else if (raw.questionCount !== undefined) {
-      domainEntity.questionCount = Number(raw.questionCount);
+    } else if (
+      raw.questionCount !== undefined ||
+      (raw as any).tryout_questionCount !== undefined ||
+      (raw as any).tryouts_questionCount !== undefined
+    ) {
+      domainEntity.questionCount = Number(
+        raw.questionCount ??
+          (raw as any).tryout_questionCount ??
+          (raw as any).tryouts_questionCount,
+      );
     }
 
     if (raw.ratingAverage !== undefined) {
@@ -67,7 +81,7 @@ export class TryoutMapper {
     persistenceEntity.description = domainEntity.description;
     persistenceEntity.isRecommended = domainEntity.isRecommended;
     persistenceEntity.duration = domainEntity.duration;
-    persistenceEntity.isShuffled = domainEntity.isShuffled;
+    persistenceEntity.shuffleOptions = domainEntity.shuffleOptions;
     persistenceEntity.showResult = domainEntity.showResult;
     persistenceEntity.showExplanation = domainEntity.showExplanation;
     persistenceEntity.passScore = domainEntity.passScore;

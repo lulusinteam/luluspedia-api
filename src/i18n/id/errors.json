@@ -20,5 +20,8 @@
   "missingOldPassword": "Kata sandi lama wajib diisi",
   "incorrectOldPassword": "Kata sandi lama salah",
   "emailExists": "Alamat email sudah terdaftar",
-  "invalidUser": "Pengguna tidak valid atau status tidak aktif"
+  "invalidUser": "Pengguna tidak valid atau status tidak aktif",
+  "activeAttemptExists": "Anda masih memiliki pengerjaan yang sedang berjalan. Harap selesaikan terlebih dahulu.",
+  "attemptNotFound": "Sesi pengerjaan tidak ditemukan",
+  "attemptAlreadyFinished": "Sesi pengerjaan sudah selesai atau waktu sudah habis"
 }

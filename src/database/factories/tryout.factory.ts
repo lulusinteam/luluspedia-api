@@ -10,7 +10,7 @@ export const createTryoutFactory = (
     description: faker.lorem.paragraph(),
     isRecommended: faker.datatype.boolean(),
     duration: faker.helpers.arrayElement([60, 90, 120]),
-    isShuffled: faker.datatype.boolean(),
+    shuffleOptions: faker.datatype.boolean(),
     showResult: faker.datatype.boolean(),
     showExplanation: faker.datatype.boolean(),
     passScore: faker.number.int({ min: 50, max: 90 }),

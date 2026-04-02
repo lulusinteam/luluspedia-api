@@ -3,7 +3,7 @@ import { now, HydratedDocument } from 'mongoose';
 import { EntityDocumentHelper } from '../../../../../../utils/document-entity-helper';
 import { TryoutSchemaClass } from '../../../../../tryouts/infrastructure/persistence/document/entities/tryout.schema';
 import { FileSchemaClass } from '../../../../../files/infrastructure/persistence/document/entities/file.schema';
-import { DifficultyEnum, ScoringTypeEnum } from '../../../../questions.enum';
+import { DifficultyEnum } from '../../../../questions.enum';
 
 export type QuestionSchemaDocument = HydratedDocument<QuestionSchemaClass>;
 
@@ -30,16 +30,6 @@ export class QuestionSchemaClass extends EntityDocumentHelper {
     default: DifficultyEnum.medium,
   })
   difficulty: string;
-
-  @Prop({
-    type: String,
-    enum: ScoringTypeEnum,
-    default: ScoringTypeEnum.point,
-  })
-  scoringType: string;
-
-  @Prop({ type: Number, default: 0 })
-  points: number;
 
   @Prop({ type: Number })
   orderNumber?: number | null;

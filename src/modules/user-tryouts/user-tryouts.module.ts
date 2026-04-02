@@ -6,6 +6,8 @@ import { DocumentUserTryoutPersistenceModule } from './infrastructure/persistenc
 import { DatabaseConfig } from '../../database/config/database-config.type';
 import databaseConfig from '../../database/config/database.config';
 
+import { UserTryoutSchedulingService } from './tasks/user-tryout-scheduling.service';
+
 const infrastructurePersistenceModule = (databaseConfig() as DatabaseConfig)
   .isDocumentDatabase
   ? DocumentUserTryoutPersistenceModule
@@ -14,7 +16,7 @@ const infrastructurePersistenceModule = (databaseConfig() as DatabaseConfig)
 @Module({
   imports: [infrastructurePersistenceModule],
   controllers: [UserTryoutsController],
-  providers: [UserTryoutsService],
+  providers: [UserTryoutsService, UserTryoutSchedulingService],
   exports: [UserTryoutsService, infrastructurePersistenceModule],
 })
 export class UserTryoutsModule {}

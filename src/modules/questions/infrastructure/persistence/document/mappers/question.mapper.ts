@@ -13,9 +13,7 @@ export class QuestionMapper {
     domainEntity.updatedAt = raw.updatedAt;
     domainEntity.content = raw.content;
     domainEntity.difficulty = raw.difficulty as any;
-    domainEntity.points = raw.points;
     domainEntity.orderNumber = raw.orderNumber as number;
-    domainEntity.scoringType = raw.scoringType as any;
 
     if (raw.tryout) {
       domainEntity.tryout = TryoutMapper.toDomain(raw.tryout);
@@ -37,9 +35,7 @@ export class QuestionMapper {
     persistenceSchema.updatedAt = domainEntity.updatedAt;
     persistenceSchema.content = domainEntity.content;
     persistenceSchema.difficulty = domainEntity.difficulty;
-    persistenceSchema.points = domainEntity.points;
     persistenceSchema.orderNumber = domainEntity.orderNumber;
-    persistenceSchema.scoringType = domainEntity.scoringType;
 
     if (domainEntity.tryout) {
       const tryout = new TryoutSchemaClass();

@@ -4,7 +4,7 @@ export type JSendStatus = 'success' | 'fail' | 'error';
 
 export interface JSendResponse<T = any> {
   status: JSendStatus;
-  data?: T;
+  data: T | null;
   message?: string;
   code?: number;
   meta: {
@@ -20,7 +20,7 @@ export class JSONResponse {
   static success<T>(data: T, meta: any = {}): JSendResponse<T> {
     return {
       status: 'success',
-      data: data || ({} as T), // Ensure data is at least an empty object for JSend compliance
+      data: data ?? null,
       meta: {
         endpoint: '',
         time: new Date().toISOString(),
@@ -65,6 +65,7 @@ export class JSONResponse {
   ): JSendResponse {
     return {
       status: 'error',
+      data: null,
       message: message || 'Internal server error',
       code,
       meta: {

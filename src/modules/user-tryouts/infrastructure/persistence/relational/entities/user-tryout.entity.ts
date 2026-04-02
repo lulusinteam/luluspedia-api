@@ -7,11 +7,13 @@ import {
   ManyToOne,
   JoinColumn,
   DeleteDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../../utils/relational-entity-helper';
 import { UserEntity } from '../../../../../users/infrastructure/persistence/relational/entities/user.entity';
 import { TryoutEntity } from '../../../../../tryouts/infrastructure/persistence/relational/entities/tryout.entity';
 import { UserTryoutStatusEnum } from '../../../../domain/user-tryout';
+import { UserAnswerEntity } from './user-answer.entity';
 
 @Entity({
   name: 'user_tryouts',
@@ -19,6 +21,9 @@ import { UserTryoutStatusEnum } from '../../../../domain/user-tryout';
 export class UserTryoutEntity extends EntityRelationalHelper {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @OneToMany(() => UserAnswerEntity, userAnswer => userAnswer.userTryout)
+  userAnswers: UserAnswerEntity[];
 
   @ManyToOne(() => UserEntity)
   @JoinColumn({ name: 'user_id' })

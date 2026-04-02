@@ -58,7 +58,7 @@ export class CreateTryoutDto {
   @ApiProperty({ required: false })
   @IsOptional()
   @IsBoolean()
-  isShuffled?: boolean;
+  shuffleOptions?: boolean;
 
   @ApiProperty({ required: false })
   @IsOptional()

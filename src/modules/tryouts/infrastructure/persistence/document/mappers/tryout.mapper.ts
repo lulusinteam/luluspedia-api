@@ -15,7 +15,7 @@ export class TryoutMapper {
     domainEntity.description = raw.description;
     domainEntity.isRecommended = raw.isRecommended;
     domainEntity.duration = raw.duration;
-    domainEntity.isShuffled = raw.isShuffled;
+    domainEntity.shuffleOptions = raw.shuffleOptions;
     domainEntity.showResult = raw.showResult;
     domainEntity.showExplanation = raw.showExplanation;
     domainEntity.passScore = raw.passScore;
@@ -45,7 +45,7 @@ export class TryoutMapper {
     persistenceSchema.description = domainEntity.description;
     persistenceSchema.isRecommended = domainEntity.isRecommended;
     persistenceSchema.duration = domainEntity.duration;
-    persistenceSchema.isShuffled = domainEntity.isShuffled;
+    persistenceSchema.shuffleOptions = domainEntity.shuffleOptions;
     persistenceSchema.showResult = domainEntity.showResult;
     persistenceSchema.showExplanation = domainEntity.showExplanation;
     persistenceSchema.passScore = domainEntity.passScore;

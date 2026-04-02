@@ -62,7 +62,7 @@ Table tryouts {
   cover_id uuid [note: 'Reference to files']
   is_recommended boolean [default: false]
   duration integer [note: 'Duration in minutes']
-  is_shuffled boolean [default: false]
+  shuffle_options boolean [default: false]
   show_result boolean [default: true]
   show_explanation boolean [default: true]
   pass_score integer [default: 0]
@@ -91,6 +91,8 @@ Table questions {
   order_number integer [note: 'Sequence of the question, starts from 1']
   content text
   image_id uuid [note: 'Optional reference to files, nullable']
+  explanation text [note: 'Discussion/Explanation of the answer']
+  explanation_image_id uuid [note: 'Optional image for explanation']
   difficulty difficulty_enum
   scoring_type scoring_type_enum [default: 'point']
   points integer [default: 0]
@@ -135,10 +137,13 @@ Table user_answers {
   id uuid [primary key]
   user_tryout_id uuid
   question_id uuid
-  selected_option_id uuid [note: 'Nullable if user didnt answer']
-  is_correct boolean [note: 'Cached for performance']
-  points_earned integer [default: 0, note: 'Points from question if correct']
+  option_id uuid [note: 'The option selected by the user']
   created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    (user_tryout_id, question_id) [unique]
+  }
 }
 
 Ref: users.photo_id - files.id
@@ -155,7 +160,7 @@ Ref: user_tryouts.user_id > users.id
 Ref: user_tryouts.tryout_id > tryouts.id
 Ref: user_answers.user_tryout_id > user_tryouts.id
 Ref: user_answers.question_id > questions.id
-Ref: user_answers.selected_option_id > options.id
+Ref: user_answers.option_id > options.id
 
 Table ratings {
   id uuid [primary key]

@@ -20,5 +20,8 @@
   "missingOldPassword": "Old password is required",
   "incorrectOldPassword": "Incorrect old password",
   "emailExists": "Email already registered to another user",
-  "invalidUser": "Invalid user or inactive status"
+  "invalidUser": "Invalid user or inactive status",
+  "activeAttemptExists": "You still have an in-progress tryout. Please finish it first.",
+  "attemptNotFound": "Tryout session not found",
+  "attemptAlreadyFinished": "Tryout session has already been completed or expired"
 }

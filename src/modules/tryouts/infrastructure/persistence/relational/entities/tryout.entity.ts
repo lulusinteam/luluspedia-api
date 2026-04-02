@@ -47,8 +47,8 @@ export class TryoutEntity extends EntityRelationalHelper {
   @Column({ type: 'int' })
   duration: number;
 
-  @Column({ type: 'boolean', default: false })
-  isShuffled: boolean;
+  @Column({ type: 'boolean', name: 'isShuffled', default: false })
+  shuffleOptions: boolean;
 
   @Column({ type: 'boolean', name: 'show_result', default: true })
   showResult: boolean;
