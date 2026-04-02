@@ -13,7 +13,7 @@ import { OptionEntity } from '../../../../../options/infrastructure/persistence/
 import { EntityRelationalHelper } from '../../../../../../utils/relational-entity-helper';
 import { TryoutEntity } from '../../../../../tryouts/infrastructure/persistence/relational/entities/tryout.entity';
 import { FileEntity } from '../../../../../files/infrastructure/persistence/relational/entities/file.entity';
-import { DifficultyEnum } from '../../../../questions.enum';
+import { DifficultyEnum, ScoringTypeEnum } from '../../../../questions.enum';
 
 @Entity({
   name: 'questions',
@@ -22,7 +22,7 @@ export class QuestionEntity extends EntityRelationalHelper {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @OneToMany(() => OptionEntity, option => option.question, {
+  @OneToMany(() => OptionEntity, (option) => option.question, {
     cascade: true,
   })
   options: OptionEntity[];
@@ -54,6 +54,14 @@ export class QuestionEntity extends EntityRelationalHelper {
     default: DifficultyEnum.medium,
   })
   difficulty: DifficultyEnum;
+
+  @Column({
+    type: 'enum',
+    enum: ScoringTypeEnum,
+    default: ScoringTypeEnum.point,
+    name: 'scoringType',
+  })
+  scoringType: ScoringTypeEnum;
 
   @CreateDateColumn()
   createdAt: Date;

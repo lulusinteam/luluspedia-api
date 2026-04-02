@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Tryout } from '../../tryouts/domain/tryout';
 import { FileType } from '../../files/domain/file';
-import { DifficultyEnum } from '../questions.enum';
+import { DifficultyEnum, ScoringTypeEnum } from '../questions.enum';
 import { Option } from '../../options/domain/option';
 
 export class Question {
@@ -39,6 +39,9 @@ export class Question {
 
   @ApiProperty({ enum: DifficultyEnum })
   difficulty: DifficultyEnum;
+
+  @ApiProperty({ enum: ScoringTypeEnum })
+  scoringType: ScoringTypeEnum;
 
   @ApiProperty()
   createdAt: Date;

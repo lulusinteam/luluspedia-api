@@ -26,6 +26,9 @@ export class UserTryoutResultQuestionDto {
   @ApiProperty({ required: false, nullable: true })
   correctOptionId?: string | null;
 
+  @ApiProperty({ enum: ['point', 'weight'] })
+  scoringType: 'point' | 'weight';
+
   @ApiProperty({ enum: ['correct', 'incorrect', 'unanswered'] })
   status: 'correct' | 'incorrect' | 'unanswered';
 

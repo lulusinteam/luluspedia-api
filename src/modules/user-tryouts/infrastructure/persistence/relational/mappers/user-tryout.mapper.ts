@@ -103,6 +103,7 @@ export class UserTryoutMapper {
         questionDto.orderNumber = q.orderNumber;
         questionDto.content = q.content;
         questionDto.image = getFileUrl(q.image?.path);
+        questionDto.scoringType = q.scoringType || 'point';
         questionDto.selectedOptionId = qId ? answerMap.get(qId) || null : null;
 
         if (q.options) {
@@ -174,6 +175,7 @@ export class UserTryoutMapper {
         qDto.image = getFileUrl(q.image?.path);
         qDto.explanation = q.explanation;
         qDto.explanationImage = getFileUrl(q.explanationImage?.path);
+        qDto.scoringType = q.scoringType;
 
         // Map selectedOptionId from matched answer
         qDto.selectedOptionId = userAns?.option?.id || null;

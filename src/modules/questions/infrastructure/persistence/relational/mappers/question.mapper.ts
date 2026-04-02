@@ -4,7 +4,7 @@ import { FileEntity } from '../../../../../files/infrastructure/persistence/rela
 import { FileMapper } from '../../../../../files/infrastructure/persistence/relational/mappers/file.mapper';
 import { OptionMapper } from '../../../../../options/infrastructure/persistence/relational/mappers/option.mapper';
 import { QuestionEntity } from '../entities/question.entity';
-import { DifficultyEnum } from '../../../../questions.enum';
+import { DifficultyEnum, ScoringTypeEnum } from '../../../../questions.enum';
 
 export class QuestionMapper {
   static toDomain(raw: QuestionEntity): Question {
@@ -16,6 +16,7 @@ export class QuestionMapper {
     domainEntity.content = raw.content;
     domainEntity.explanation = raw.explanation;
     domainEntity.difficulty = raw.difficulty;
+    domainEntity.scoringType = raw.scoringType;
 
     if (raw.image) {
       domainEntity.image = FileMapper.toDomain(raw.image);
@@ -50,6 +51,8 @@ export class QuestionMapper {
     persistenceEntity.explanation = domainEntity.explanation ?? null;
     persistenceEntity.difficulty =
       domainEntity.difficulty || DifficultyEnum.medium;
+    persistenceEntity.scoringType =
+      domainEntity.scoringType || ScoringTypeEnum.point;
 
     if (domainEntity.tryout) {
       const tryout = new TryoutEntity();

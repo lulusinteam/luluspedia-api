@@ -24,6 +24,9 @@ export class UserTryoutQuestionResponseDto {
   @ApiProperty({ nullable: true })
   image?: string | null;
 
+  @ApiProperty({ enum: ['point', 'weight'] })
+  scoringType: 'point' | 'weight';
+
   @ApiProperty({ nullable: true })
   selectedOptionId?: string | null;
 

@@ -1,5 +1,8 @@
 import fileConfig from '../modules/files/config/file.config';
-import { FileConfig, FileDriver } from '../modules/files/config/file-config.type';
+import {
+  FileConfig,
+  FileDriver,
+} from '../modules/files/config/file-config.type';
 import appConfig from '../config/app.config';
 import { AppConfig } from '../config/app-config.type';
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
@@ -10,7 +13,7 @@ export const getFileUrl = (path: string | null | undefined): any => {
   if (path.indexOf('http') === 0) return path;
 
   const config = fileConfig() as FileConfig;
-  
+
   if (config.driver === FileDriver.LOCAL) {
     const backend = (appConfig() as AppConfig).backendDomain;
     return backend + (path.startsWith('/') ? '' : '/') + path;
