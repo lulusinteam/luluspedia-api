@@ -14,6 +14,7 @@ import { UserMapper } from '../../../../../users/infrastructure/persistence/rela
 import { TryoutMapper } from '../../../../../tryouts/infrastructure/persistence/relational/mappers/tryout.mapper';
 
 import { UserAnswerMapper } from './user-answer.mapper';
+import { getFileUrl } from '../../../../../../utils/file-utils';
 
 export class UserTryoutMapper {
   static toDomain(raw: UserTryoutEntity): UserTryout {
@@ -101,7 +102,7 @@ export class UserTryoutMapper {
         questionDto.id = q.id;
         questionDto.orderNumber = q.orderNumber;
         questionDto.content = q.content;
-        questionDto.image = q.image?.path || null;
+        questionDto.image = getFileUrl(q.image?.path);
         questionDto.selectedOptionId = qId ? answerMap.get(qId) || null : null;
 
         if (q.options) {
@@ -114,7 +115,7 @@ export class UserTryoutMapper {
             const optDto = new UserTryoutOptionResponseDto();
             optDto.id = opt.id;
             optDto.content = opt.content;
-            optDto.image = opt.image?.path || null;
+            optDto.image = getFileUrl(opt.image?.path);
             return optDto;
           });
         }
@@ -170,9 +171,9 @@ export class UserTryoutMapper {
         qDto.id = q.id;
         qDto.orderNumber = q.orderNumber;
         qDto.content = q.content;
-        qDto.image = q.image?.path || null;
+        qDto.image = getFileUrl(q.image?.path);
         qDto.explanation = q.explanation;
-        qDto.explanationImage = q.explanationImage?.path || null;
+        qDto.explanationImage = getFileUrl(q.explanationImage?.path);
 
         // Map selectedOptionId from matched answer
         qDto.selectedOptionId = userAns?.option?.id || null;
@@ -195,7 +196,7 @@ export class UserTryoutMapper {
           qDto.options = q.options.map(opt => ({
             id: opt.id,
             content: opt.content,
-            image: opt.image?.path || null,
+            image: getFileUrl(opt.image?.path),
             isCorrect: opt.isCorrect,
             weight: opt.weight || 0,
           }));
