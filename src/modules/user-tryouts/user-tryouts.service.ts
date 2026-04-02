@@ -106,7 +106,8 @@ export class UserTryoutsService {
     const answers =
       await this.userTryoutRepository.getAnswersByAttemptId(userTryoutId);
 
-    const totalQuestions = userTryout.tryout.questionCount || answers.length || 1;
+    const totalQuestions =
+      userTryout.tryout.questionCount || answers.length || 1;
     const totalScore = this.calculateScore(answers, totalQuestions);
 
     const updated = await this.userTryoutRepository.update(userTryoutId, {
@@ -132,7 +133,8 @@ export class UserTryoutsService {
     const answers =
       await this.userTryoutRepository.getAnswersByAttemptId(userTryoutId);
 
-    const totalQuestions = userTryout.tryout.questionCount || answers.length || 1;
+    const totalQuestions =
+      userTryout.tryout.questionCount || answers.length || 1;
     const totalScore = this.calculateScore(answers, totalQuestions);
 
     await this.userTryoutRepository.update(userTryoutId, {
@@ -147,7 +149,10 @@ export class UserTryoutsService {
    * Formula: Score Per Question = 100 / totalQuestions.
    * Total Score = Sum of [ (Achieved / MaxPossibleForQuestion) * ScorePerQuestion ]
    */
-  private calculateScore(answers: UserAnswer[], totalQuestions: number): number {
+  private calculateScore(
+    answers: UserAnswer[],
+    totalQuestions: number,
+  ): number {
     const questionValue = 100 / totalQuestions;
     let finalScore = 0;
 
@@ -162,7 +167,7 @@ export class UserTryoutsService {
             (max, opt) => Math.max(max, opt.weight || 0),
             0,
           ) || 0;
-        
+
         if (maxWeight > 0) {
           questionRatio = (ans.option.weight || 0) / maxWeight;
         }
