@@ -11,6 +11,7 @@ import { ApiException } from '../../utils/exceptions/api.exception';
 import { UserTryoutStatusEnum } from './domain/user-tryout';
 import { User } from '../users/domain/user';
 import { Tryout } from '../tryouts/domain/tryout';
+import { UserAnswer } from './domain/user-answer';
 
 @Injectable()
 export class UserTryoutsService {
@@ -105,22 +106,8 @@ export class UserTryoutsService {
     const answers =
       await this.userTryoutRepository.getAnswersByAttemptId(userTryoutId);
 
-    // Calculate score: Sum of points for TIU/TWK and raw weights for TKP
-    let totalScore = 0;
-
-    for (const ans of answers) {
-      if (!ans.question || !ans.option) continue;
-
-      if (ans.question.scoringType === 'weight') {
-        // For weight type (e.g. TKP), add option weight directly
-        totalScore += ans.option.weight || 0;
-      } else {
-        // For point type (e.g. TIU/TWK), add question points if correct
-        if (ans.option.isCorrect) {
-          totalScore += ans.question.points || 5;
-        }
-      }
-    }
+    const totalQuestions = userTryout.tryout.questionCount || answers.length || 1;
+    const totalScore = this.calculateScore(answers, totalQuestions);
 
     const updated = await this.userTryoutRepository.update(userTryoutId, {
       status: UserTryoutStatusEnum.completed,
@@ -137,35 +124,59 @@ export class UserTryoutsService {
       return;
     }
 
-    // Calculate score
     const userTryout = await this.userTryoutRepository.findById(userTryoutId);
     if (!userTryout || !userTryout.tryout) {
-      return; // If not found, skip scoring
+      return;
     }
 
     const answers =
       await this.userTryoutRepository.getAnswersByAttemptId(userTryoutId);
 
-    // Calculate score: Sum of points or weights
-    let totalScore = 0;
-
-    for (const ans of answers) {
-      if (!ans.question || !ans.option) continue;
-
-      if (ans.question.scoringType === 'weight') {
-        totalScore += ans.option.weight || 0;
-      } else {
-        if (ans.option.isCorrect) {
-          totalScore += ans.question.points || 5;
-        }
-      }
-    }
+    const totalQuestions = userTryout.tryout.questionCount || answers.length || 1;
+    const totalScore = this.calculateScore(answers, totalQuestions);
 
     await this.userTryoutRepository.update(userTryoutId, {
       status: UserTryoutStatusEnum.completed,
       endTime: new Date(),
       totalScore,
     });
+  }
+
+  /**
+   * DRY: Logic to calculate score based on points or weights normalized to 100.
+   * Formula: Score Per Question = 100 / totalQuestions.
+   * Total Score = Sum of [ (Achieved / MaxPossibleForQuestion) * ScorePerQuestion ]
+   */
+  private calculateScore(answers: UserAnswer[], totalQuestions: number): number {
+    const questionValue = 100 / totalQuestions;
+    let finalScore = 0;
+
+    for (const ans of answers) {
+      if (!ans.question || !ans.option) continue;
+
+      let questionRatio = 0;
+
+      if (ans.question.scoringType === 'weight') {
+        const maxWeight =
+          ans.question.options?.reduce(
+            (max, opt) => Math.max(max, opt.weight || 0),
+            0,
+          ) || 0;
+        
+        if (maxWeight > 0) {
+          questionRatio = (ans.option.weight || 0) / maxWeight;
+        }
+      } else {
+        // Point type (e.g. TIU/TWK)
+        if (ans.option.isCorrect) {
+          questionRatio = 1;
+        }
+      }
+
+      finalScore += questionRatio * questionValue;
+    }
+
+    return Math.round(finalScore);
   }
 
   async findAllMyAttempts({

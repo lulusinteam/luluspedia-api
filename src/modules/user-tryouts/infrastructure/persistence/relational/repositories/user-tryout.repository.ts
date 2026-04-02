@@ -121,7 +121,7 @@ export class UserTryoutRelationalRepository implements UserTryoutRepository {
 
     if (!entity) return null;
 
-    const updatedEntity = await this.repository.save(
+    await this.repository.save(
       this.repository.create(
         UserTryoutMapper.toPersistence({
           ...UserTryoutMapper.toDomain(entity),
@@ -130,7 +130,8 @@ export class UserTryoutRelationalRepository implements UserTryoutRepository {
       ),
     );
 
-    return UserTryoutMapper.toDomain(updatedEntity);
+    // Reload with relations to ensure mapper can calculate derived fields like isPassed
+    return this.findById(id);
   }
 
   async findInProgressAttemptByUserId(
@@ -182,6 +183,7 @@ export class UserTryoutRelationalRepository implements UserTryoutRepository {
       .createQueryBuilder('answer')
       .leftJoinAndSelect('answer.question', 'question')
       .leftJoinAndSelect('answer.option', 'option')
+      .leftJoinAndSelect('question.options', 'questionOptions') // IMPORTANT: Join options to get max possible score
       .leftJoinAndSelect('question.image', 'questionImage')
       .leftJoinAndSelect('option.image', 'optionImage')
       .where('answer.user_tryout_id = :userTryoutId', { userTryoutId })
