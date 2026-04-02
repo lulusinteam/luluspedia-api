@@ -105,30 +105,22 @@ export class UserTryoutsService {
     const answers =
       await this.userTryoutRepository.getAnswersByAttemptId(userTryoutId);
 
-    // Get total questions for this tryout
-    const totalQuestions = userTryout.tryout.questionCount || 0;
-    const questionValue = totalQuestions > 0 ? 100 / totalQuestions : 0;
-
-    let rawScore = 0;
+    // Calculate score: Sum of points for TIU/TWK and raw weights for TKP
+    let totalScore = 0;
 
     for (const ans of answers) {
-      if (ans.option && ans.option.isCorrect) {
-        // Full point for correct answer
-        rawScore += questionValue;
-      } else if (ans.option && ans.option.weight) {
-        // Proportional scoring for weighted options
-        const totalWeight =
-          ans.question?.options?.reduce(
-            (sum, opt) => sum + (opt.weight || 0),
-            0,
-          ) || 0;
-        if (totalWeight > 0) {
-          rawScore += (ans.option.weight / totalWeight) * questionValue;
+      if (!ans.question || !ans.option) continue;
+
+      if (ans.question.scoringType === 'weight') {
+        // For weight type (e.g. TKP), add option weight directly
+        totalScore += ans.option.weight || 0;
+      } else {
+        // For point type (e.g. TIU/TWK), add question points if correct
+        if (ans.option.isCorrect) {
+          totalScore += ans.question.points || 5;
         }
       }
     }
-
-    const totalScore = Math.round(rawScore);
 
     const updated = await this.userTryoutRepository.update(userTryoutId, {
       status: UserTryoutStatusEnum.completed,
@@ -154,30 +146,20 @@ export class UserTryoutsService {
     const answers =
       await this.userTryoutRepository.getAnswersByAttemptId(userTryoutId);
 
-    // Get total questions for this tryout
-    const totalQuestions = userTryout.tryout.questionCount || 0;
-    const questionValue = totalQuestions > 0 ? 100 / totalQuestions : 0;
-
-    let rawScore = 0;
+    // Calculate score: Sum of points or weights
+    let totalScore = 0;
 
     for (const ans of answers) {
-      if (ans.option && ans.option.isCorrect) {
-        // Full point for correct answer
-        rawScore += questionValue;
-      } else if (ans.option && ans.option.weight) {
-        // Proportional scoring for weighted options
-        const totalWeight =
-          ans.question?.options?.reduce(
-            (sum, opt) => sum + (opt.weight || 0),
-            0,
-          ) || 0;
-        if (totalWeight > 0) {
-          rawScore += (ans.option.weight / totalWeight) * questionValue;
+      if (!ans.question || !ans.option) continue;
+
+      if (ans.question.scoringType === 'weight') {
+        totalScore += ans.option.weight || 0;
+      } else {
+        if (ans.option.isCorrect) {
+          totalScore += ans.question.points || 5;
         }
       }
     }
-
-    const totalScore = Math.round(rawScore);
 
     await this.userTryoutRepository.update(userTryoutId, {
       status: UserTryoutStatusEnum.completed,

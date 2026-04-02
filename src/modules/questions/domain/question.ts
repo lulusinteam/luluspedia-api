@@ -43,7 +43,7 @@ export class Question {
   @ApiProperty({ enum: ScoringTypeEnum })
   scoringType: ScoringTypeEnum;
 
-  @ApiProperty()
+  @ApiProperty({ default: 0 })
   points: number;
 
   @ApiProperty()
