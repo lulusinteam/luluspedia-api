@@ -44,6 +44,9 @@ export class Question {
   scoringType: ScoringTypeEnum;
 
   @ApiProperty()
+  points: number;
+
+  @ApiProperty()
   createdAt: Date;
 
   @ApiProperty()

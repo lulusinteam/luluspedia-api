@@ -22,7 +22,7 @@ export class QuestionEntity extends EntityRelationalHelper {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @OneToMany(() => OptionEntity, (option) => option.question, {
+  @OneToMany(() => OptionEntity, option => option.question, {
     cascade: true,
   })
   options: OptionEntity[];
@@ -62,6 +62,9 @@ export class QuestionEntity extends EntityRelationalHelper {
     name: 'scoringType',
   })
   scoringType: ScoringTypeEnum;
+
+  @Column({ type: 'int', default: 0 })
+  points: number;
 
   @CreateDateColumn()
   createdAt: Date;
