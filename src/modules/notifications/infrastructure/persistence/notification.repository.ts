@@ -15,7 +15,7 @@ export abstract class NotificationRepository {
   }: {
     userId: User['id'];
     paginationOptions: IPaginationOptions;
-  }): Promise<Notification[]>;
+  }): Promise<[Notification[], number]>;
 
   abstract countUnreadByUserId(userId: User['id']): Promise<number>;
 

@@ -14,8 +14,9 @@ import {
 import { ApiBearerAuth, ApiTags, ApiQuery } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { NotificationsService } from './services/notifications.service';
-import { JSONResponse } from '../../utils/json-response';
-import { infinityPagination } from '../../utils/infinity-pagination';
+import { pagination } from '../../utils/pagination';
+import { PaginationResponseDto } from '../../utils/dto/pagination-response.dto';
+import { Notification } from './domain/notification';
 
 @ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'))
@@ -35,39 +36,30 @@ export class NotificationsController {
     @Request() request,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
-  ) {
-    if (limit > 50) {
-      limit = 50;
-    }
+  ): Promise<PaginationResponseDto<Notification>> {
+    const finalLimit = limit > 50 ? 50 : limit;
 
-    const data = await this.service.findAllWithPagination(request.user.id, {
-      page,
-      limit,
-    });
-
-    return JSONResponse.success({
-      data: infinityPagination(data, { page, limit }),
-      meta: {},
-    });
+    return pagination(
+      await this.service.findAllWithPagination(request.user.id, {
+        page,
+        limit: finalLimit,
+      }),
+      { page, limit: finalLimit },
+    );
   }
 
   @Get('unread-count')
   @HttpCode(HttpStatus.OK)
   async getUnreadCount(@Request() request) {
     const count = await this.service.getUnreadCount(request.user.id);
-    return JSONResponse.success({
-      data: { count },
-      meta: {},
-    });
+    return { count };
   }
 
   @Post(':id/mark-read')
   @HttpCode(HttpStatus.OK)
   async markRead(@Request() request, @Param('id') id: string) {
     await this.service.markRead(request.user.id, id);
-    return JSONResponse.success({
-      data: { success: true },
-      meta: {},
-    });
+    return { success: true };
   }
 }
+

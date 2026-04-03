@@ -74,7 +74,7 @@ export class NotificationsService {
   async findAllWithPagination(
     userId: string,
     paginationOptions: IPaginationOptions,
-  ): Promise<Notification[]> {
+  ): Promise<[Notification[], number]> {
     return this.notificationRepository.findManyWithPagination({
       userId,
       paginationOptions,
@@ -94,7 +94,8 @@ export class NotificationsService {
     score: number,
   ): Promise<void> {
     await this.notifyUser(userId, 'tryout-result', {
-      title: tryoutTitle,
+      title: 'Hasil Tryout Sudah Keluar',
+      tryout: tryoutTitle,
       user: userFullName,
       score,
     });
@@ -107,6 +108,7 @@ export class NotificationsService {
     comment: string,
   ): Promise<void> {
     await this.notify('new-review', {
+      title: 'New Review Received',
       user: userName,
       tryout: tryoutTitle,
       rating,
@@ -120,20 +122,27 @@ export class NotificationsService {
     email: string,
   ): Promise<void> {
     await this.notifyUser(userId, 'user-registered', {
+      title: 'Selamat Datang di Luluspedia',
       user: userFullName,
       email,
     });
   }
 
   async notifyAuthLogin(userId: string, userEmail: string): Promise<void> {
-    await this.notifyUser(userId, 'auth-login', { email: userEmail });
+    await this.notifyUser(userId, 'auth-login', {
+      title: 'Keamanan: Login Berhasil',
+      email: userEmail,
+    });
   }
 
   async notifyAuthPasswordReset(
     userId: string,
     userEmail: string,
   ): Promise<void> {
-    await this.notifyUser(userId, 'auth-password-reset', { email: userEmail });
+    await this.notifyUser(userId, 'auth-password-reset', {
+      title: 'Keamanan: Password Diubah',
+      email: userEmail,
+    });
   }
 
   async notifyWishlistAdded(
@@ -142,8 +151,10 @@ export class NotificationsService {
     tryoutTitle: string,
   ): Promise<void> {
     await this.notifyUser(userId, 'wishlist-added', {
+      title: 'Tryout Masuk Wishlist',
       user: userFullName,
       tryout: tryoutTitle,
     });
   }
 }
+

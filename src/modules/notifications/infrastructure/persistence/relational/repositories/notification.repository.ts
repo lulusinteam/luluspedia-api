@@ -43,8 +43,8 @@ export class NotificationRelationalRepository
   }: {
     userId: User['id'];
     paginationOptions: IPaginationOptions;
-  }): Promise<Notification[]> {
-    const entities = await this.repository.find({
+  }): Promise<[Notification[], number]> {
+    const [entities, total] = await this.repository.findAndCount({
       skip: (paginationOptions.page - 1) * paginationOptions.limit,
       take: paginationOptions.limit,
       where: {
@@ -57,7 +57,7 @@ export class NotificationRelationalRepository
       },
     });
 
-    return entities.map(entity => NotificationMapper.toDomain(entity));
+    return [entities.map(entity => NotificationMapper.toDomain(entity)), total];
   }
 
   async countUnreadByUserId(userId: User['id']): Promise<number> {
@@ -77,3 +77,4 @@ export class NotificationRelationalRepository
     await this.repository.update({ user: { id: userId } }, { isRead: true });
   }
 }
+
