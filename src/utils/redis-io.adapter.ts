@@ -7,9 +7,7 @@ export class RedisIoAdapter extends IoAdapter {
   private adapterConstructor: ReturnType<typeof createAdapter>;
 
   connectToRedis(): void {
-    const url =
-      process.env.REDIS_URL ||
-      `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`;
+    const url = process.env.REDIS_URL || 'redis://localhost:6379';
 
     console.log(
       `[RedisIoAdapter] Connecting to Redis at: ${url.split('@')[1] || url}`,
