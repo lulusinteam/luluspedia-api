@@ -64,7 +64,7 @@ async function bootstrapAdmin() {
   SwaggerModule.setup('docs', app, document);
 
   const adminPort = configService.getOrThrow('app.adminPort', { infer: true });
-  await app.listen(adminPort);
+  await app.listen(adminPort, '0.0.0.0');
 
   console.log(`🛡️  Admin API running on: http://localhost:${adminPort}`);
   console.log(`📋 Admin Swagger docs:    http://localhost:${adminPort}/docs`);

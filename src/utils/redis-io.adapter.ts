@@ -7,7 +7,10 @@ export class RedisIoAdapter extends IoAdapter {
   private adapterConstructor: ReturnType<typeof createAdapter>;
 
   connectToRedis(): void {
-    const redisUrl = process.env.WORKER_HOST || 'redis://localhost:6379';
+    const redisUrl =
+      process.env.REDIS_URL ||
+      process.env.WORKER_HOST ||
+      'redis://localhost:6379';
     const pubClient = new Redis(redisUrl);
     const subClient = pubClient.duplicate();
 
