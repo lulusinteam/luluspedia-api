@@ -26,6 +26,8 @@ import { User } from '../users/domain/user';
 import { Role } from '../roles/domain/role';
 import { Status } from '../statuses/domain/status';
 
+import { NotificationsService } from '../notifications/services/notifications.service';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -34,6 +36,7 @@ export class AuthService {
     private sessionService: SessionService,
     private mailService: MailService,
     private configService: ConfigService<AllConfigType>,
+    private notificationsService: NotificationsService,
   ) {}
 
   async validateLogin(
@@ -104,6 +107,11 @@ export class AuthService {
       sessionId: session.id,
       hash,
     });
+
+    // Notify login
+    await this.notificationsService
+      .notifyAuthLogin(user.id, user.email || 'User')
+      .catch(e => console.error('Notification error:', e));
 
     return {
       refreshToken,
@@ -184,6 +192,11 @@ export class AuthService {
       sessionId: session.id,
       hash,
     });
+
+    // Notify login
+    await this.notificationsService
+      .notifyAuthLogin(user.id, user.email || 'User')
+      .catch(e => console.error('Notification error:', e));
 
     return {
       refreshToken,
@@ -364,6 +377,11 @@ export class AuthService {
     });
 
     await this.usersService.update(user.id, user);
+
+    // Notify password reset
+    await this.notificationsService
+      .notifyAuthPasswordReset(user.id, user.email || 'User')
+      .catch(e => console.error('Notification error:', e));
   }
 
   async me(userJwtPayload: JwtPayloadType): Promise<NullableType<User>> {
@@ -380,6 +398,7 @@ export class AuthService {
       throw ApiException.validation({ user: 'userNotFound' });
     }
 
+    let passwordChanged = false;
     if (userDto.password) {
       if (!userDto.oldPassword) {
         throw ApiException.validation({ oldPassword: 'missingOldPassword' });
@@ -397,6 +416,7 @@ export class AuthService {
       if (!isValidOldPassword) {
         throw ApiException.validation({ oldPassword: 'incorrectOldPassword' });
       } else {
+        passwordChanged = true;
         await this.sessionService.deleteByUserIdWithExclude({
           userId: currentUser.id,
           excludeSessionId: userJwtPayload.sessionId,
@@ -438,6 +458,12 @@ export class AuthService {
     delete userDto.oldPassword;
 
     await this.usersService.update(userJwtPayload.id, userDto);
+
+    if (passwordChanged) {
+      await this.notificationsService
+        .notifyAuthPasswordReset(currentUser.id, currentUser.email || 'User')
+        .catch(e => console.error('Notification error:', e));
+    }
 
     return this.usersService.findById(userJwtPayload.id);
   }

@@ -13,9 +13,14 @@ import { User } from '../users/domain/user';
 import { Tryout } from '../tryouts/domain/tryout';
 import { UserAnswer } from './domain/user-answer';
 
+import { NotificationsService } from '../notifications/services/notifications.service';
+
 @Injectable()
 export class UserTryoutsService {
-  constructor(private readonly userTryoutRepository: UserTryoutRepository) {}
+  constructor(
+    private readonly userTryoutRepository: UserTryoutRepository,
+    private readonly notificationsService: NotificationsService,
+  ) {}
 
   async startAttempt(userId: string, tryoutId: string): Promise<UserTryout> {
     // Check if user has any in-progress attempt
@@ -110,6 +115,16 @@ export class UserTryoutsService {
       userTryout.tryout.questionCount || answers.length || 1;
     const totalScore = this.calculateScore(answers, totalQuestions);
 
+    // Notify result
+    this.notificationsService
+      .notifyTryoutResult(
+        userTryout.user!.id,
+        userTryout.tryout.title || 'Untitled Tryout',
+        `${userTryout.user?.firstName || 'User'} ${userTryout.user?.lastName || ''}`,
+        totalScore,
+      )
+      .catch(e => console.error('Notification error:', e));
+
     const updated = await this.userTryoutRepository.update(userTryoutId, {
       status: UserTryoutStatusEnum.completed,
       endTime: new Date(),
@@ -136,6 +151,16 @@ export class UserTryoutsService {
     const totalQuestions =
       userTryout.tryout.questionCount || answers.length || 1;
     const totalScore = this.calculateScore(answers, totalQuestions);
+
+    // Notify result
+    this.notificationsService
+      .notifyTryoutResult(
+        userTryout.user!.id,
+        userTryout.tryout.title || 'Untitled Tryout',
+        `${userTryout.user?.firstName || 'User'} ${userTryout.user?.lastName || ''}`,
+        totalScore,
+      )
+      .catch(e => console.error('Notification error:', e));
 
     await this.userTryoutRepository.update(userTryoutId, {
       status: UserTryoutStatusEnum.completed,

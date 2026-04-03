@@ -6,9 +6,15 @@ import { IPaginationOptions } from '../../utils/types/pagination-options';
 import { UpdateTryoutDto } from './dto/update-tryout.dto';
 import { NullableType } from '../../utils/types/nullable.type';
 
+import { NotificationsService } from '../notifications/services/notifications.service';
+import { TryoutStatusEnum } from './tryouts.enum';
+
 @Injectable()
 export class TryoutsService {
-  constructor(private readonly tryoutRepository: TryoutRepository) {}
+  constructor(
+    private readonly tryoutRepository: TryoutRepository,
+    private readonly notificationsService: NotificationsService,
+  ) {}
 
   async create(createTryoutDto: CreateTryoutDto): Promise<Tryout> {
     return this.tryoutRepository.create({
@@ -73,7 +79,15 @@ export class TryoutsService {
     id: Tryout['id'],
     updateTryoutDto: UpdateTryoutDto,
   ): Promise<Tryout | null> {
-    return this.tryoutRepository.update(id, updateTryoutDto);
+    const updated = await this.tryoutRepository.update(id, updateTryoutDto);
+
+    if (updated && updateTryoutDto.status === TryoutStatusEnum.published) {
+      this.notificationsService
+        .notifyTryoutPublished(updated.title || 'Untitled Tryout')
+        .catch(e => console.error('Notification error:', e));
+    }
+
+    return updated;
   }
 
   async softDelete(id: Tryout['id']): Promise<void> {

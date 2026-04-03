@@ -6,6 +6,7 @@ import { AuthProvidersEnum } from '../auth/auth-providers.enum';
 import { RoleEnum } from '../roles/roles.enum';
 import { StatusEnum } from '../statuses/statuses.enum';
 import { ApiException } from '../../utils/exceptions/api.exception';
+import { NotificationsService } from '../notifications/services/notifications.service';
 
 jest.mock('bcryptjs', () => ({
   genSalt: jest.fn().mockResolvedValue('salt'),
@@ -31,6 +32,10 @@ describe('UsersService', () => {
     findById: jest.fn(),
   };
 
+  const notificationsService = {
+    notifyUserRegistered: jest.fn().mockResolvedValue(undefined),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -42,6 +47,10 @@ describe('UsersService', () => {
         {
           provide: FilesService,
           useValue: filesService,
+        },
+        {
+          provide: NotificationsService,
+          useValue: notificationsService,
         },
       ],
     }).compile();
@@ -64,6 +73,8 @@ describe('UsersService', () => {
       const createdUser = {
         id: 1,
         email: dto.email,
+        firstName: dto.firstName,
+        lastName: dto.lastName,
       };
 
       userRepository.findByEmail.mockResolvedValue(null);
@@ -82,6 +93,7 @@ describe('UsersService', () => {
           provider: AuthProvidersEnum.email,
         }),
       );
+      expect(notificationsService.notifyUserRegistered).toHaveBeenCalled();
       expect(result).toEqual(createdUser);
     });
 

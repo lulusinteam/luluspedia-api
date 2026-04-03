@@ -16,11 +16,14 @@ import { Role } from '../roles/domain/role';
 import { Status } from '../statuses/domain/status';
 import { UpdateUserDto } from './dto/update-user.dto';
 
+import { NotificationsService } from '../notifications/services/notifications.service';
+
 @Injectable()
 export class UsersService {
   constructor(
     private readonly usersRepository: UserRepository,
     private readonly filesService: FilesService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
@@ -90,7 +93,7 @@ export class UsersService {
       };
     }
 
-    return this.usersRepository.create({
+    const user = await this.usersRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
       firstName: createUserDto.firstName,
@@ -103,6 +106,17 @@ export class UsersService {
       provider: createUserDto.provider ?? AuthProvidersEnum.email,
       socialId: createUserDto.socialId,
     });
+
+    // Notify registration
+    this.notificationsService
+      .notifyUserRegistered(
+        user.id,
+        `${user.firstName || 'User'} ${user.lastName || ''}`,
+        user.email || 'No Email',
+      )
+      .catch(e => console.error('Notification error:', e));
+
+    return user;
   }
 
   findManyWithPagination({

@@ -41,6 +41,7 @@ import { WishlistsModule } from './modules/wishlists/wishlists.module';
 import { TryoutsUserController } from './modules/tryouts/tryouts-user.controller';
 import { SearchModule } from './modules/search/search.module';
 import { UserTryoutsModule } from './modules/user-tryouts/user-tryouts.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
 // <database-block>
 const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
@@ -116,6 +117,7 @@ const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
     HomeModule,
     SearchModule,
     UserTryoutsModule,
+    NotificationsModule,
   ],
   controllers: [TryoutsUserController],
 })
