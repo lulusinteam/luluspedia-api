@@ -4,6 +4,8 @@ import { NotificationTemplateService } from './notification-template.service';
 import { NotificationsGateway } from '../gateways/notifications.gateway';
 import { NotificationRepository } from '../infrastructure/persistence/notification.repository';
 import { User } from '../../users/domain/user';
+import { IPaginationOptions } from '../../../utils/types/pagination-options';
+import { Notification } from '../domain/notification';
 
 @Injectable()
 export class NotificationsService {
@@ -64,6 +66,19 @@ export class NotificationsService {
    */
   async getUnreadCount(userId: string): Promise<number> {
     return this.notificationRepository.countUnreadByUserId(userId);
+  }
+
+  /**
+   * Get all notifications for a user (paginated)
+   */
+  async findAllWithPagination(
+    userId: string,
+    paginationOptions: IPaginationOptions,
+  ): Promise<Notification[]> {
+    return this.notificationRepository.findManyWithPagination({
+      userId,
+      paginationOptions,
+    });
   }
 
   // --- Convenience methods (Updated to include User ID for unread count logic if applicable) ---

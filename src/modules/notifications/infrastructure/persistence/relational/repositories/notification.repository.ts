@@ -6,6 +6,7 @@ import { NotificationMapper } from '../mappers/notification.mapper';
 import { Notification } from '../../../../domain/notification';
 import { NotificationRepository } from '../../notification.repository';
 import { User } from '../../../../../users/domain/user';
+import { IPaginationOptions } from '../../../../../../utils/types/pagination-options';
 
 @Injectable()
 export class NotificationRelationalRepository
@@ -34,6 +35,29 @@ export class NotificationRelationalRepository
       order: { createdAt: 'DESC' },
     });
     return entities.map(item => NotificationMapper.toDomain(item));
+  }
+
+  async findManyWithPagination({
+    userId,
+    paginationOptions,
+  }: {
+    userId: User['id'];
+    paginationOptions: IPaginationOptions;
+  }): Promise<Notification[]> {
+    const entities = await this.repository.find({
+      skip: (paginationOptions.page - 1) * paginationOptions.limit,
+      take: paginationOptions.limit,
+      where: {
+        user: {
+          id: userId as string,
+        },
+      },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+
+    return entities.map(entity => NotificationMapper.toDomain(entity));
   }
 
   async countUnreadByUserId(userId: User['id']): Promise<number> {

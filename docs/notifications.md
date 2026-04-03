@@ -7,7 +7,34 @@ Standardized system for managing user notifications via Webhooks (Discord/Slack)
 ## 1. REST API
 All endpoints are available under the `/v1/notifications` prefix.
 
-### 1.1 Get Unread Count
+### 1.1 Get All Notifications (Paginated)
+Fetch all notifications for the logged-in user.
+- **Endpoint**: `GET /api/v1/notifications`
+- **Auth**: Bearer Token (JWT)
+- **Queries**:
+  - `page` (default: 1)
+  - `limit` (default: 10, max: 50)
+- **Response**:
+```json
+{
+  "status": "success",
+  "data": {
+    "data": [
+      {
+        "id": "uuid",
+        "title": "Tryout Selesai",
+        "message": "Hasil tryout SKD CPNS 2024 sudah keluar.",
+        "isRead": false,
+        "createdAt": "2026-04-03T10:00:00.000Z"
+      }
+    ],
+    "hasNextPage": false
+  },
+  "meta": {}
+}
+```
+
+### 1.2 Get Unread Count
 Fetch the current number of unread notifications for the logged-in user.
 - **Endpoint**: `GET /api/v1/notifications/unread-count`
 - **Auth**: Bearer Token (JWT)
@@ -22,7 +49,7 @@ Fetch the current number of unread notifications for the logged-in user.
 }
 ```
 
-### 1.2 Mark as Read
+### 1.3 Mark as Read
 Mark a specific notification as read.
 - **Endpoint**: `POST /api/v1/notifications/:id/mark-read`
 - **Auth**: Bearer Token (JWT)

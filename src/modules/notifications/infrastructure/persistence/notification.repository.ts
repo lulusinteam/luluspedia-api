@@ -1,5 +1,6 @@
 import { Notification } from '../../domain/notification';
 import { User } from '../../../users/domain/user';
+import { IPaginationOptions } from '../../../../utils/types/pagination-options';
 
 export abstract class NotificationRepository {
   abstract create(
@@ -7,6 +8,14 @@ export abstract class NotificationRepository {
   ): Promise<Notification>;
 
   abstract findManyByUserId(userId: User['id']): Promise<Notification[]>;
+
+  abstract findManyWithPagination({
+    userId,
+    paginationOptions,
+  }: {
+    userId: User['id'];
+    paginationOptions: IPaginationOptions;
+  }): Promise<Notification[]>;
 
   abstract countUnreadByUserId(userId: User['id']): Promise<number>;
 
