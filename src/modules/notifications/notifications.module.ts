@@ -7,6 +7,7 @@ import { NotificationsService } from './services/notifications.service';
 import { NotificationsGateway } from './gateways/notifications.gateway';
 import { RelationalNotificationPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
 import { AllConfigType } from '../../config/config.type';
+import { NotificationsController } from './notifications.controller';
 
 @Global()
 @Module({
@@ -21,6 +22,7 @@ import { AllConfigType } from '../../config/config.type';
       inject: [ConfigService],
     }),
   ],
+  controllers: [NotificationsController],
   providers: [
     WebhookService,
     NotificationTemplateService,

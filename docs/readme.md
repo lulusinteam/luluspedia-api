@@ -10,6 +10,7 @@
 - [Command Line Interface](cli.md)
 - [Database](database.md)
 - [Auth](auth.md)
+- [Notifications](notifications.md)
 - [Serialization](serialization.md)
 - [File uploading](file-uploading.md)
 - [JSend Response Format](jsend-response-format.md)
