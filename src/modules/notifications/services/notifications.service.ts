@@ -6,6 +6,8 @@ import { NotificationRepository } from '../infrastructure/persistence/notificati
 import { User } from '../../users/domain/user';
 import { IPaginationOptions } from '../../../utils/types/pagination-options';
 import { Notification } from '../domain/notification';
+import { UserRepository } from '../../users/infrastructure/persistence/user.repository';
+import { MailService } from '../../mail/mail.service';
 
 @Injectable()
 export class NotificationsService {
@@ -14,6 +16,8 @@ export class NotificationsService {
     private readonly templateService: NotificationTemplateService,
     private readonly gateway: NotificationsGateway,
     private readonly notificationRepository: NotificationRepository,
+    private readonly userRepository: UserRepository,
+    private readonly mailService: MailService,
   ) {}
 
   /**
@@ -25,6 +29,9 @@ export class NotificationsService {
     context: any,
   ): Promise<void> {
     const message = this.templateService.render(templateName, context);
+    console.log(
+      `DEBUG: Sending notification to user ${userId}, template: ${templateName}`,
+    );
 
     // Save to database for persistence and unread count tracking
     await this.notificationRepository.create({
@@ -38,10 +45,43 @@ export class NotificationsService {
     const count = await this.notificationRepository.countUnreadByUserId(userId);
     this.gateway.emitUnreadCount(userId, count);
 
+    // Also send via email (MailDev)
+    try {
+      const user = await this.userRepository.findById(userId);
+      if (user?.email) {
+        await this.mailService.sendNotification(user.email, {
+          title: context.title || 'Notification',
+          message: message,
+        });
+      }
+    } catch (e) {
+      console.error(
+        `ERROR: Failed to send email notification to user ${userId}:`,
+        e.message,
+      );
+    }
+
     // Also send via webhook (generic platform alert)
     await this.webhookService.send({
       content: message,
     });
+  }
+
+  /**
+   * Notify all registered users
+   */
+  async notifyAllUsers(templateName: string, context: any): Promise<void> {
+    console.log(`DEBUG: Broadcasting ${templateName} to all users`);
+    // For now, let's just fetch some users or use a loop.
+    const users = await this.userRepository.findManyWithPagination({
+      paginationOptions: { page: 1, limit: 1000 }, // Simple limit for now
+    });
+
+    console.log(`DEBUG: Found ${users.length} users for broadcast`);
+
+    for (const user of users) {
+      await this.notifyUser(user.id as string, templateName, context);
+    }
   }
 
   // Broad platform-wide notification (Admin-focused, no unread count per user here)
@@ -81,10 +121,17 @@ export class NotificationsService {
     });
   }
 
-  // --- Convenience methods (Updated to include User ID for unread count logic if applicable) ---
+  // --- Convenience methods ---
 
   async notifyTryoutPublished(tryoutTitle: string): Promise<void> {
+    console.log(`DEBUG: notifyTryoutPublished called for ${tryoutTitle}`);
+    // Notify via Webhook
     await this.notify('tryout-published', { title: tryoutTitle });
+
+    // Also notify all users in their unread count list
+    await this.notifyAllUsers('tryout-published', {
+      title: tryoutTitle,
+    }).catch(e => console.error('Broadcast notification error:', e));
   }
 
   async notifyTryoutResult(

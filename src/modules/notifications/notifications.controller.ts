@@ -17,7 +17,10 @@ import { NotificationsService } from './services/notifications.service';
 import { pagination } from '../../utils/pagination';
 import { PaginationResponseDto } from '../../utils/dto/pagination-response.dto';
 import { Notification } from './domain/notification';
-import { ApiJSendResponse, ApiJSendPaginatedResponse } from '../../utils/swagger-jsend.decorator';
+import {
+  ApiJSendResponse,
+  ApiJSendPaginatedResponse,
+} from '../../utils/swagger-jsend.decorator';
 
 @ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'))
@@ -61,7 +64,10 @@ export class NotificationsController {
   @ApiJSendResponse(Object)
   @Post(':id/mark-read')
   @HttpCode(HttpStatus.OK)
-  async markRead(@Request() request, @Param('id') id: string): Promise<{ success: boolean }> {
+  async markRead(
+    @Request() request,
+    @Param('id') id: string,
+  ): Promise<{ success: boolean }> {
     await this.service.markRead(request.user.id, id);
     return { success: true };
   }

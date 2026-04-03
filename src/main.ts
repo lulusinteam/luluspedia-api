@@ -14,6 +14,7 @@ import { AllConfigType } from './config/config.type';
 import { ResolvePromisesInterceptor } from './utils/serializer.interceptor';
 import { JSendInterceptor } from './utils/jsend.interceptor';
 import { JSendExceptionFilter } from './utils/jsend-exception.filter';
+import { RedisIoAdapter } from './utils/redis-io.adapter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
@@ -42,6 +43,11 @@ async function bootstrap() {
 
   // Apply global exception filter for JSend formatted error responses
   app.useGlobalFilters(new JSendExceptionFilter());
+
+  // Socket.io Redis adapter for multi-process synchronization
+  const redisIoAdapter = new RedisIoAdapter(app);
+  redisIoAdapter.connectToRedis();
+  app.useWebSocketAdapter(redisIoAdapter);
 
   const options = new DocumentBuilder()
     .setTitle('API')

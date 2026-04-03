@@ -24,11 +24,10 @@ services:
     ports:
       - 8080:8080
 
-  # Uncomment to use redis
-  # redis:
-  #   image: redis:7-alpine
-  #   ports:
-  #     - 6379:6379
+  redis:
+    image: redis:7-alpine
+    ports:
+      - 6379:6379
 
   # User API — handles register, login (user only), forgot-password, etc.
   api:
@@ -41,6 +40,7 @@ services:
       - .env
     depends_on:
       - postgres
+      - redis
 
   # Admin API — handles login (admin only), separate port & swagger
   api-admin:
@@ -54,6 +54,7 @@ services:
       - .env
     depends_on:
       - postgres
+      - redis
       - api   # Pastikan User API (yang run migration) sudah up duluan
 
 volumes:

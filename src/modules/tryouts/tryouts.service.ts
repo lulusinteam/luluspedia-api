@@ -17,9 +17,18 @@ export class TryoutsService {
   ) {}
 
   async create(createTryoutDto: CreateTryoutDto): Promise<Tryout> {
-    return this.tryoutRepository.create({
+    const tryout = await this.tryoutRepository.create({
       ...createTryoutDto,
     } as Tryout);
+
+    // Notify if created with published status
+    if (tryout && tryout.status === TryoutStatusEnum.published) {
+      this.notificationsService
+        .notifyTryoutPublished(tryout.title || 'Untitled Tryout')
+        .catch(e => console.error('Notification error (Create):', e));
+    }
+
+    return tryout;
   }
 
   async findAllAdmin({
@@ -79,12 +88,19 @@ export class TryoutsService {
     id: Tryout['id'],
     updateTryoutDto: UpdateTryoutDto,
   ): Promise<Tryout | null> {
+    const tryoutBeforeUpdate = await this.tryoutRepository.findById(id);
     const updated = await this.tryoutRepository.update(id, updateTryoutDto);
 
+    // Trigger notification ONLY if it becomes published (from other state)
+    // OR if someone explicitly sets status to published in the request
     if (updated && updateTryoutDto.status === TryoutStatusEnum.published) {
-      this.notificationsService
-        .notifyTryoutPublished(updated.title || 'Untitled Tryout')
-        .catch(e => console.error('Notification error:', e));
+      // Check if it was already published to avoid double notification
+      if (tryoutBeforeUpdate?.status !== TryoutStatusEnum.published) {
+        console.log(`DEBUG: Publishing tryout ${id}, triggering broadcast`);
+        this.notificationsService
+          .notifyTryoutPublished(updated.title || 'Untitled Tryout')
+          .catch(e => console.error('Notification error (Update):', e));
+      }
     }
 
     return updated;

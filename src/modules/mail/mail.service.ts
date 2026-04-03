@@ -47,6 +47,7 @@ export class MailService {
           infer: true,
         }),
         'src',
+        'modules',
         'mail',
         'mail-templates',
         'activation.hbs',
@@ -101,6 +102,7 @@ export class MailService {
           infer: true,
         }),
         'src',
+        'modules',
         'mail',
         'mail-templates',
         'reset-password.hbs',
@@ -153,6 +155,7 @@ export class MailService {
           infer: true,
         }),
         'src',
+        'modules',
         'mail',
         'mail-templates',
         'confirm-new-email.hbs',
@@ -166,6 +169,32 @@ export class MailService {
         text1,
         text2,
         text3,
+      },
+    });
+  }
+
+  async sendNotification(
+    to: string,
+    data: { title: string; message: string },
+  ): Promise<void> {
+    await this.mailerService.sendMail({
+      to,
+      subject: data.title,
+      templatePath: path.join(
+        this.configService.getOrThrow('app.workingDirectory', {
+          infer: true,
+        }),
+        'src',
+        'modules',
+        'mail',
+        'mail-templates',
+        'notification.hbs',
+      ),
+      context: {
+        title: data.title,
+        message: data.message,
+        app_name: this.configService.get('app.name', { infer: true }),
+        year: new Date().getFullYear(),
       },
     });
   }
