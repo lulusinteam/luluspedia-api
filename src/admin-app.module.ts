@@ -28,6 +28,7 @@ import { FilesModule } from './modules/files/files.module';
 import { UsersModule } from './modules/users/users.module';
 import { TryoutsAdminController } from './modules/tryouts/tryouts-admin.controller';
 import { UsersAdminController } from './modules/users/users-admin.controller';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
 // <database-block>
 const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
@@ -93,6 +94,7 @@ const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
     MailerModule,
     FilesModule,
     UsersModule,
+    NotificationsModule,
   ],
   controllers: [
     TryoutsAdminController,
