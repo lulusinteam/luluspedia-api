@@ -7,9 +7,13 @@ export class RedisIoAdapter extends IoAdapter {
   private adapterConstructor: ReturnType<typeof createAdapter>;
 
   connectToRedis(): void {
-    const url = process.env.REDIS_URL || `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`;
-    
-    console.log(`[RedisIoAdapter] Connecting to Redis at: ${url.split('@')[1] || url}`);
+    const url =
+      process.env.REDIS_URL ||
+      `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`;
+
+    console.log(
+      `[RedisIoAdapter] Connecting to Redis at: ${url.split('@')[1] || url}`,
+    );
 
     const pubClient = new Redis(url, {
       maxRetriesPerRequest: null,
@@ -21,11 +25,11 @@ export class RedisIoAdapter extends IoAdapter {
 
     const subClient = pubClient.duplicate();
 
-    pubClient.on('error', (err) => {
+    pubClient.on('error', err => {
       console.error('[RedisIoAdapter] PubClient Error:', err.message);
     });
 
-    subClient.on('error', (err) => {
+    subClient.on('error', err => {
       console.error('[RedisIoAdapter] SubClient Error:', err.message);
     });
 
