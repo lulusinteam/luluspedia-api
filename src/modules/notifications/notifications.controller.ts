@@ -17,6 +17,7 @@ import { NotificationsService } from './services/notifications.service';
 import { pagination } from '../../utils/pagination';
 import { PaginationResponseDto } from '../../utils/dto/pagination-response.dto';
 import { Notification } from './domain/notification';
+import { ApiJSendResponse, ApiJSendPaginatedResponse } from '../../utils/swagger-jsend.decorator';
 
 @ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'))
@@ -28,6 +29,7 @@ import { Notification } from './domain/notification';
 export class NotificationsController {
   constructor(private readonly service: NotificationsService) {}
 
+  @ApiJSendPaginatedResponse(Notification)
   @Get()
   @HttpCode(HttpStatus.OK)
   @ApiQuery({ name: 'page', required: false, type: Number })
@@ -48,18 +50,19 @@ export class NotificationsController {
     );
   }
 
+  @ApiJSendResponse(Object)
   @Get('unread-count')
   @HttpCode(HttpStatus.OK)
-  async getUnreadCount(@Request() request) {
+  async getUnreadCount(@Request() request): Promise<{ count: number }> {
     const count = await this.service.getUnreadCount(request.user.id);
     return { count };
   }
 
+  @ApiJSendResponse(Object)
   @Post(':id/mark-read')
   @HttpCode(HttpStatus.OK)
-  async markRead(@Request() request, @Param('id') id: string) {
+  async markRead(@Request() request, @Param('id') id: string): Promise<{ success: boolean }> {
     await this.service.markRead(request.user.id, id);
     return { success: true };
   }
 }
-

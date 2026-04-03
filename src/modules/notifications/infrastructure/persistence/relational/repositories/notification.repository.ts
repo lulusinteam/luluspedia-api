@@ -77,4 +77,3 @@ export class NotificationRelationalRepository
     await this.repository.update({ user: { id: userId } }, { isRead: true });
   }
 }
-
