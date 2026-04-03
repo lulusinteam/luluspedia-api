@@ -33,7 +33,7 @@
     "start:dev:admin": "set ADMIN_PORT=3003&& nest start --watch --entryFile main-admin",
     "start:swc": "nest start -b swc -w",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
+    "start:prod": "npm run migration:run:prod && npm run seed:run:relational:prod && node dist/main",
     "start:prod:admin": "node dist/main-admin",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
     "test": "jest",
