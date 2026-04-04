@@ -133,13 +133,13 @@ async function bootstrap() {
 
   let documentAdmin = SwaggerModule.createDocument(app, optionsAdmin, {
     include: [
+      RolesModule,
       AdminAuthModule,
       TryoutsAdminModule,
       UsersModule,
       QuestionsModule,
       NotificationsModule,
       FilesModule,
-      RolesModule,
     ],
   });
   documentAdmin = filterByTag(documentAdmin, 'Admin');

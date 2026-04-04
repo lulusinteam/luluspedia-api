@@ -13,7 +13,6 @@ import {
 } from 'class-validator';
 import { FileDto } from '../../files/dto/file.dto';
 import { RoleDto } from '../../roles/dto/role.dto';
-import { StatusDto } from '../../statuses/dto/status.dto';
 import { lowerCaseTransformer } from '../../../utils/transformers/lower-case.transformer';
 
 export class CreateUserDto {
@@ -47,9 +46,4 @@ export class CreateUserDto {
   @IsOptional()
   @Type(() => RoleDto)
   role?: RoleDto | null;
-
-  @ApiPropertyOptional({ type: StatusDto })
-  @IsOptional()
-  @Type(() => StatusDto)
-  status?: StatusDto;
 }

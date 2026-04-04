@@ -29,6 +29,8 @@ import { UsersModule } from './modules/users/users.module';
 import { TryoutsAdminController } from './modules/tryouts/tryouts-admin.controller';
 import { UsersAdminController } from './modules/users/users-admin.controller';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { RolesModule } from './modules/roles/roles.module';
+import { RolesAdminController } from './modules/roles/roles-admin.controller';
 
 // <database-block>
 const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
@@ -95,11 +97,13 @@ const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
     FilesModule,
     UsersModule,
     NotificationsModule,
+    RolesModule,
   ],
   controllers: [
     TryoutsAdminController,
     UsersAdminController,
     QuestionsAdminController,
+    RolesAdminController,
   ],
 })
 export class AdminAppModule {}

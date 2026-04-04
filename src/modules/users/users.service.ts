@@ -78,18 +78,20 @@ export class UsersService {
       };
     }
 
-    let status: Status | undefined = undefined;
+    let status: Status | undefined = {
+      id: StatusEnum.active,
+    };
 
-    if (createUserDto.status?.id) {
+    if ((createUserDto as any).status?.id) {
       const statusObject = Object.values(StatusEnum)
         .map(String)
-        .includes(String(createUserDto.status.id));
+        .includes(String((createUserDto as any).status.id));
       if (!statusObject) {
         throw ApiException.validation({ status: 'statusNotExists' });
       }
 
       status = {
-        id: createUserDto.status.id,
+        id: (createUserDto as any).status.id,
       };
     }
 
@@ -225,16 +227,16 @@ export class UsersService {
 
     let status: Status | undefined = undefined;
 
-    if (updateUserDto.status?.id) {
+    if ((updateUserDto as any).status?.id) {
       const statusObject = Object.values(StatusEnum)
         .map(String)
-        .includes(String(updateUserDto.status.id));
+        .includes(String((updateUserDto as any).status.id));
       if (!statusObject) {
         throw ApiException.validation({ status: 'statusNotExists' });
       }
 
       status = {
-        id: updateUserDto.status.id,
+        id: (updateUserDto as any).status.id,
       };
     }
 
