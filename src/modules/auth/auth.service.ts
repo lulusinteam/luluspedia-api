@@ -78,6 +78,13 @@ export class AuthService {
     }
 
     const userRoleId = (user.role as Role)?.id ?? user.role?.id;
+    console.log('--- DEBUG LOGIN ---');
+    console.log('User Email:', loginDto.email);
+    console.log('User Role ID (DB):', userRoleId);
+    console.log('Allowed Role ID (Param):', allowedRole);
+    console.log('Match?', userRoleId === allowedRole);
+    console.log('-------------------');
+
     if (userRoleId !== allowedRole) {
       throw ApiException.forbidden('forbiddenRole', {
         role: 'forbiddenRole',

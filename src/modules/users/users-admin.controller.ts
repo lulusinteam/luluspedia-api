@@ -1,12 +1,10 @@
 import {
-  Controller,
   Get,
   Post,
   Body,
   Patch,
   Param,
   Delete,
-  UseGuards,
   Query,
   HttpStatus,
   HttpCode,
@@ -14,32 +12,21 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
-import { Roles } from '../roles/roles.decorator';
-import { RoleEnum } from '../roles/roles.enum';
-import { AuthGuard } from '@nestjs/passport';
-
+import { ApiParam } from '@nestjs/swagger';
 import { InfinityPaginationResponseDto } from '../../utils/dto/infinity-pagination-response.dto';
 import { NullableType } from '../../utils/types/nullable.type';
 import { QueryUserDto } from './dto/query-user.dto';
 import { User } from './domain/user';
 import { UsersService } from './users.service';
-import { RolesGuard } from '../roles/roles.guard';
 import { infinityPagination } from '../../utils/infinity-pagination';
 import {
   ApiJSendResponse,
   ApiJSendPaginatedResponse,
 } from '../../utils/swagger-jsend.decorator';
 import { DeleteUserResponseDto } from './dto/delete-user-response.dto';
+import { AdminController } from '../../utils/decorators/api-controllers.decorator';
 
-@ApiBearerAuth()
-@Roles(RoleEnum.admin)
-@UseGuards(AuthGuard('jwt'), RolesGuard)
-@ApiTags('Admin | Users')
-@Controller({
-  path: 'users',
-  version: '1',
-})
+@AdminController('users')
 export class UsersAdminController {
   constructor(private readonly usersService: UsersService) {}
 

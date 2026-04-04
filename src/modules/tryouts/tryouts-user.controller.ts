@@ -1,14 +1,12 @@
 import {
-  Controller,
   Get,
-  UseGuards,
-  Query,
   HttpStatus,
   HttpCode,
   Request,
   Param,
+  Query,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { Tryout } from './domain/tryout';
 import { TryoutsService } from './tryouts.service';
@@ -20,14 +18,10 @@ import { FindUserTryoutsDto } from './dto/find-user-tryouts.dto';
 import { PaginationResponseDto } from '../../utils/dto/pagination-response.dto';
 import { pagination } from '../../utils/pagination';
 import { NullableType } from '../../utils/types/nullable.type';
+import { UserController } from '../../utils/decorators/api-controllers.decorator';
 
-@ApiBearerAuth()
+@UserController('tryouts')
 @UseGuards(AuthGuard('jwt'))
-@ApiTags('User | Tryouts')
-@Controller({
-  path: 'tryouts',
-  version: '1',
-})
 export class TryoutsUserController {
   constructor(private readonly tryoutsService: TryoutsService) {}
 

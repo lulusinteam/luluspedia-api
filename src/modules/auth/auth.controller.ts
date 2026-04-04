@@ -1,6 +1,5 @@
 import {
   Body,
-  Controller,
   Get,
   HttpCode,
   HttpStatus,
@@ -12,7 +11,6 @@ import {
   SerializeOptions,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthEmailLoginDto } from './dto/auth-email-login.dto';
 import { AuthForgotPasswordDto } from './dto/auth-forgot-password.dto';
 import { AuthConfirmEmailDto } from './dto/auth-confirm-email.dto';
@@ -26,18 +24,13 @@ import { User } from '../users/domain/user';
 import { RefreshResponseDto } from './dto/refresh-response.dto';
 import { ApiJSendResponse } from '../../utils/swagger-jsend.decorator';
 import { RoleEnum } from '../roles/roles.enum';
+import { UserController } from '../../utils/decorators/api-controllers.decorator';
 
-@ApiTags('Auth')
-@Controller({
-  path: 'auth',
-  version: '1',
-})
+@UserController('auth')
 export class AuthController {
   constructor(private readonly service: AuthService) {}
 
-  @SerializeOptions({
-    groups: ['me'],
-  })
+  @SerializeOptions({ groups: ['me'] })
   @Post('email/login')
   @ApiJSendResponse(LoginResponseDto)
   @HttpCode(HttpStatus.OK)
@@ -84,25 +77,18 @@ export class AuthController {
     );
   }
 
-  @ApiBearerAuth()
-  @SerializeOptions({
-    groups: ['me'],
-  })
+  @SerializeOptions({ groups: ['me'] })
   @Get('me')
   @UseGuards(AuthGuard('jwt'))
   @ApiJSendResponse(User)
-  @HttpCode(HttpStatus.OK)
   public me(@Request() request): Promise<NullableType<User>> {
     return this.service.me(request.user);
   }
 
-  @ApiBearerAuth()
-  @ApiJSendResponse(RefreshResponseDto)
-  @SerializeOptions({
-    groups: ['me'],
-  })
+  @SerializeOptions({ groups: ['me'] })
   @Post('refresh')
   @UseGuards(AuthGuard('jwt-refresh'))
+  @ApiJSendResponse(RefreshResponseDto)
   @HttpCode(HttpStatus.OK)
   public refresh(@Request() request): Promise<RefreshResponseDto> {
     return this.service.refreshToken({
@@ -111,23 +97,16 @@ export class AuthController {
     });
   }
 
-  @ApiBearerAuth()
   @Post('logout')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.NO_CONTENT)
   public async logout(@Request() request): Promise<void> {
-    await this.service.logout({
-      sessionId: request.user.sessionId,
-    });
+    await this.service.logout({ sessionId: request.user.sessionId });
   }
 
-  @ApiBearerAuth()
-  @SerializeOptions({
-    groups: ['me'],
-  })
+  @SerializeOptions({ groups: ['me'] })
   @Patch('me')
   @UseGuards(AuthGuard('jwt'))
-  @HttpCode(HttpStatus.OK)
   @ApiJSendResponse(User)
   public update(
     @Request() request,
@@ -136,7 +115,6 @@ export class AuthController {
     return this.service.update(request.user, userDto);
   }
 
-  @ApiBearerAuth()
   @Delete('me')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.NO_CONTENT)

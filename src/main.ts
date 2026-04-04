@@ -49,27 +49,73 @@ async function bootstrap() {
   redisIoAdapter.connectToRedis();
   app.useWebSocketAdapter(redisIoAdapter);
 
-  const options = new DocumentBuilder()
-    .setTitle('API')
-    .setDescription('API docs')
+  // --- Helper: Elite Swagger Filter ---
+  const filterByTag = (doc: any, prefix: string) => {
+    const filteredDoc = JSON.parse(JSON.stringify(doc)); // Clone
+    const paths = {};
+    Object.keys(filteredDoc.paths).forEach(path => {
+      const methods = filteredDoc.paths[path];
+      const filteredMethods = {};
+      Object.keys(methods).forEach(method => {
+        if (methods[method].tags?.some(tag => tag.startsWith(prefix))) {
+          filteredMethods[method] = methods[method];
+        }
+      });
+      if (Object.keys(filteredMethods).length > 0) {
+        paths[path] = filteredMethods;
+      }
+    });
+    filteredDoc.paths = paths;
+    return filteredDoc;
+  };
+
+  // --- Swagger Setup for USER ---
+  const optionsUser = new DocumentBuilder()
+    .setTitle('Luluspedia | User API')
     .setVersion('1.0')
     .addBearerAuth()
-    .addGlobalParameters({
-      in: 'header',
-      required: false,
-      name: process.env.APP_HEADER_LANGUAGE || 'x-custom-lang',
-      schema: {
-        example: 'en',
-      },
-    })
     .build();
+  let documentUser = SwaggerModule.createDocument(app, optionsUser);
+  documentUser = filterByTag(documentUser, 'User');
+  SwaggerModule.setup('docs/user', app, documentUser);
 
-  const document = SwaggerModule.createDocument(app, options);
-  SwaggerModule.setup('docs', app, document);
+  // --- Swagger Setup for ADMIN ---
+  const optionsAdmin = new DocumentBuilder()
+    .setTitle('Luluspedia | Admin API')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+  let documentAdmin = SwaggerModule.createDocument(app, optionsAdmin);
+  documentAdmin = filterByTag(documentAdmin, 'Admin');
+  SwaggerModule.setup('docs/admin', app, documentAdmin);
 
-  await app.listen(
-    configService.getOrThrow('app.port', { infer: true }),
-    '0.0.0.0',
-  );
+  // --- Smart Redirect for /docs ---
+  app.use('/docs', (req: any, res: any, next: any) => {
+    // Hindari infinite loop jika sudah di path docs/admin atau docs/user
+    if (req.path !== '/' && req.path !== '') return next();
+
+    const host = req.headers.host;
+    const adminDomain = configService
+      .get('app.backendDomainAdmin', { infer: true })
+      ?.replace(/^https?:\/\//, '')
+      .replace(/\/$/, '');
+
+    // Logika detour berdasarkan domain atau port local 7000
+    if (host === adminDomain || host?.includes('7000')) {
+      return res.redirect('/docs/admin');
+    }
+    return res.redirect('/docs/user');
+  });
+
+  const port = configService.getOrThrow('app.port', { infer: true });
+  await app.listen(port, '0.0.0.0');
+
+  console.log(`🚀 Application running on port: ${port}`);
+  console.log(`📖 Swagger (User): http://localhost:${port}/docs`);
+  console.log(`📖 Swagger (Admin): http://localhost:${port}/docs/admin`);
+
+  console.log(`🚀 Application running on port: ${port}`);
+  console.log(`👤 User Docs:   http://localhost:${port}/docs`);
+  console.log(`🛡️  Admin Docs:  http://localhost:${port}/docs/admin`);
 }
 void bootstrap();

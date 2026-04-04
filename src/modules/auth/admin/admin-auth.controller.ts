@@ -1,6 +1,5 @@
 import {
   Body,
-  Controller,
   Delete,
   Get,
   HttpCode,
@@ -11,7 +10,6 @@ import {
   UseGuards,
   Request,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthService } from '../auth.service';
 import { AuthEmailLoginDto } from '../dto/auth-email-login.dto';
 import { LoginResponseDto } from '../dto/login-response.dto';
@@ -22,18 +20,13 @@ import { RefreshResponseDto } from '../dto/refresh-response.dto';
 import { User } from '../../users/domain/user';
 import { NullableType } from '../../../utils/types/nullable.type';
 import { AuthUpdateDto } from '../dto/auth-update.dto';
+import { AdminController } from '../../../utils/decorators/api-controllers.decorator';
 
-@ApiTags('Admin Auth')
-@Controller({
-  path: 'auth',
-  version: '1',
-})
+@AdminController('auth', { isPublic: true })
 export class AdminAuthController {
   constructor(private readonly service: AuthService) {}
 
-  @SerializeOptions({
-    groups: ['me'],
-  })
+  @SerializeOptions({ groups: ['me'] })
   @Post('email/login')
   @ApiJSendResponse(LoginResponseDto)
   @HttpCode(HttpStatus.OK)
@@ -41,26 +34,18 @@ export class AdminAuthController {
     return this.service.validateLogin(loginDto, RoleEnum.admin);
   }
 
-  @ApiBearerAuth()
-  @SerializeOptions({
-    groups: ['me'],
-  })
+  @SerializeOptions({ groups: ['me'] })
   @Get('me')
   @UseGuards(AuthGuard('jwt'))
   @ApiJSendResponse(User)
-  @HttpCode(HttpStatus.OK)
   public me(@Request() request): Promise<NullableType<User>> {
     return this.service.me(request.user);
   }
 
-  @ApiBearerAuth()
-  @SerializeOptions({
-    groups: ['me'],
-  })
+  @SerializeOptions({ groups: ['me'] })
   @Post('refresh')
   @UseGuards(AuthGuard('jwt-refresh'))
   @ApiJSendResponse(RefreshResponseDto)
-  @HttpCode(HttpStatus.OK)
   public refresh(@Request() request): Promise<RefreshResponseDto> {
     return this.service.refreshToken({
       sessionId: request.user.sessionId,
@@ -68,23 +53,16 @@ export class AdminAuthController {
     });
   }
 
-  @ApiBearerAuth()
   @Post('logout')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.NO_CONTENT)
   public async logout(@Request() request): Promise<void> {
-    await this.service.logout({
-      sessionId: request.user.sessionId,
-    });
+    await this.service.logout({ sessionId: request.user.sessionId });
   }
 
-  @ApiBearerAuth()
-  @SerializeOptions({
-    groups: ['me'],
-  })
+  @SerializeOptions({ groups: ['me'] })
   @Patch('me')
   @UseGuards(AuthGuard('jwt'))
-  @HttpCode(HttpStatus.OK)
   @ApiJSendResponse(User)
   public update(
     @Request() request,
@@ -93,7 +71,6 @@ export class AdminAuthController {
     return this.service.update(request.user, userDto);
   }
 
-  @ApiBearerAuth()
   @Delete('me')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.NO_CONTENT)

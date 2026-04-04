@@ -42,6 +42,12 @@ import { TryoutsUserController } from './modules/tryouts/tryouts-user.controller
 import { SearchModule } from './modules/search/search.module';
 import { UserTryoutsModule } from './modules/user-tryouts/user-tryouts.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { APP_GUARD } from '@nestjs/core';
+import { DomainGuard } from './utils/guards/domain.guard';
+import { AdminAuthModule } from './modules/auth/admin/admin-auth.module';
+import { TryoutsAdminController } from './modules/tryouts/tryouts-admin.controller';
+import { UsersAdminController } from './modules/users/users-admin.controller';
+import { QuestionsAdminController } from './modules/questions/questions-admin.controller';
 
 // <database-block>
 const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
@@ -111,6 +117,7 @@ const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
     AuthFacebookModule,
     AuthGoogleModule,
     AuthAppleModule,
+    AdminAuthModule,
     SessionModule,
     MailModule,
     MailerModule,
@@ -119,6 +126,17 @@ const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
     UserTryoutsModule,
     NotificationsModule,
   ],
-  controllers: [TryoutsUserController],
+  controllers: [
+    TryoutsUserController,
+    TryoutsAdminController,
+    UsersAdminController,
+    QuestionsAdminController,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: DomainGuard,
+    },
+  ],
 })
 export class AppModule {}

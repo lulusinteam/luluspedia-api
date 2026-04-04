@@ -1,35 +1,23 @@
 import {
-  Controller,
   Get,
   Post,
   Body,
   Patch,
   Param,
   Delete,
-  UseGuards,
   HttpStatus,
   HttpCode,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
-import { Roles } from '../roles/roles.decorator';
-import { RoleEnum } from '../roles/roles.enum';
-import { AuthGuard } from '@nestjs/passport';
-import { RolesGuard } from '../roles/roles.guard';
+import { ApiParam } from '@nestjs/swagger';
 
 import { Question } from './domain/question';
 import { QuestionsService } from './questions.service';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
 import { ApiJSendResponse } from '../../utils/swagger-jsend.decorator';
+import { AdminController } from '../../utils/decorators/api-controllers.decorator';
 
-@ApiBearerAuth()
-@Roles(RoleEnum.admin)
-@UseGuards(AuthGuard('jwt'), RolesGuard)
-@ApiTags('Admin | Questions')
-@Controller({
-  path: 'questions',
-  version: '1',
-})
+@AdminController('questions')
 export class QuestionsAdminController {
   constructor(private readonly questionsService: QuestionsService) {}
 

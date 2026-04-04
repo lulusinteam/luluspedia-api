@@ -1,26 +1,20 @@
 import {
-  Controller,
   Get,
   Post,
   Body,
   Patch,
   Param,
   Delete,
-  UseGuards,
   Query,
   HttpStatus,
   HttpCode,
   Request,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
-import { Roles } from '../roles/roles.decorator';
-import { RoleEnum } from '../roles/roles.enum';
-import { AuthGuard } from '@nestjs/passport';
+import { ApiParam } from '@nestjs/swagger';
 
 import { NullableType } from '../../utils/types/nullable.type';
 import { Tryout } from './domain/tryout';
 import { TryoutsService } from './tryouts.service';
-import { RolesGuard } from '../roles/roles.guard';
 import { QuestionsService } from '../questions/questions.service';
 import { Question } from '../questions/domain/question';
 import { FindAllQuestionsDto } from '../questions/dto/find-all-questions.dto';
@@ -35,15 +29,9 @@ import { PaginationResponseDto } from '../../utils/dto/pagination-response.dto';
 import { pagination } from '../../utils/pagination';
 
 import { TryoutStatsResponseDto } from './dto/tryout-stats-response.dto';
+import { AdminController } from '../../utils/decorators/api-controllers.decorator';
 
-@ApiBearerAuth()
-@Roles(RoleEnum.admin)
-@UseGuards(AuthGuard('jwt'), RolesGuard)
-@ApiTags('Admin | Tryouts')
-@Controller({
-  path: 'tryouts',
-  version: '1',
-})
+@AdminController('tryouts')
 export class TryoutsAdminController {
   constructor(
     private readonly tryoutsService: TryoutsService,
