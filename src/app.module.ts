@@ -43,6 +43,7 @@ import { WishlistsModule } from './modules/wishlists/wishlists.module';
 import { SearchModule } from './modules/search/search.module';
 import { UserTryoutsModule } from './modules/user-tryouts/user-tryouts.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { RolesModule } from './modules/roles/roles.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { APP_GUARD } from '@nestjs/core';
 import { DomainGuard } from './utils/guards/domain.guard';
@@ -127,6 +128,7 @@ const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
     UserTryoutsModule,
     NotificationsModule,
     DashboardModule,
+    RolesModule,
   ],
   providers: [
     {
