@@ -15,6 +15,11 @@ export class FilterUserDto {
   @ValidateNested({ each: true })
   @Type(() => RoleDto)
   roles?: RoleDto[] | null;
+
+  @ApiPropertyOptional({ type: [String], example: ['admin', 'user'] })
+  @IsOptional()
+  @IsString({ each: true })
+  roleNames?: string[] | null;
 }
 
 export class SortUserDto {
@@ -49,6 +54,11 @@ export class QueryUserDto {
   @ValidateNested()
   @Type(() => FilterUserDto)
   filters?: FilterUserDto | null;
+
+  @ApiPropertyOptional({ type: String, example: 'admin' })
+  @IsOptional()
+  @IsString()
+  role?: string | null;
 
   @ApiPropertyOptional({ type: String })
   @IsOptional()

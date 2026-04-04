@@ -29,24 +29,28 @@ export class JSendInterceptor implements NestInterceptor {
           response_time: `${responseTime}ms`,
         };
 
-        // Check if data is using PaginationResponseDto structure (from pagination utility)
+        // Check if data is using PaginationResponseDto structure (either infinity or full)
         if (
           data &&
           typeof data === 'object' &&
           'data' in data &&
-          'total' in data &&
+          'hasNextPage' in data &&
           'page' in data &&
           'limit' in data
         ) {
-          const { data: items, ...paginationInfo } = data;
+          const { data: items, ...paginationInfo } = data as any;
 
-          const paginationMeta = {
+          const paginationMeta: any = {
             page: paginationInfo.page,
             limit: paginationInfo.limit,
-            total_items: paginationInfo.total,
-            total_pages: paginationInfo.totalPages,
-            has_next_page: paginationInfo.hasNextPage || false,
+            has_next_page: paginationInfo.hasNextPage,
           };
+
+          // If full pagination (has total), add those fields
+          if ('total' in paginationInfo) {
+            paginationMeta.total_items = paginationInfo.total;
+            paginationMeta.total_pages = paginationInfo.totalPages;
+          }
 
           return JSONResponse.success(items, {
             ...meta,

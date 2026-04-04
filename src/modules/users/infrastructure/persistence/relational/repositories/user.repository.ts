@@ -10,6 +10,8 @@ import { UserRepository } from '../../user.repository';
 import { UserMapper } from '../mappers/user.mapper';
 import { IPaginationOptions } from '../../../../../../utils/types/pagination-options';
 
+import { RoleEnum } from '../../../../../roles/roles.enum';
+
 @Injectable()
 export class UsersRelationalRepository implements UserRepository {
   constructor(
@@ -35,10 +37,24 @@ export class UsersRelationalRepository implements UserRepository {
     paginationOptions: IPaginationOptions;
   }): Promise<User[]> {
     const where: FindOptionsWhere<UserEntity> = {};
+
+    const roleFilters: any[] = [];
     if (filterOptions?.roles?.length) {
-      where.role = filterOptions.roles.map(role => ({
-        id: role.id as string,
-      }));
+      roleFilters.push(
+        ...filterOptions.roles.map(role => ({ id: role.id as string })),
+      );
+    }
+    if (filterOptions?.roleNames?.length) {
+      filterOptions.roleNames.forEach(name => {
+        const roleId = RoleEnum[name.toLowerCase()];
+        if (roleId) {
+          roleFilters.push({ id: roleId });
+        }
+      });
+    }
+
+    if (roleFilters.length > 0) {
+      where.role = roleFilters;
     }
 
     const entities = await this.usersRepository.find({

@@ -55,9 +55,17 @@ export class UsersAdminController {
       limit = 50;
     }
 
+    const filterOptions = query?.filters ?? {};
+    if (query?.role) {
+      if (!filterOptions.roleNames) {
+        filterOptions.roleNames = [];
+      }
+      filterOptions.roleNames.push(query.role);
+    }
+
     return infinityPagination(
       await this.usersService.findManyWithPagination({
-        filterOptions: query?.filters,
+        filterOptions,
         sortOptions: query?.sort,
         paginationOptions: {
           page,
