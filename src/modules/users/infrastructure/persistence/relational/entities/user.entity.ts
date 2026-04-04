@@ -9,10 +9,13 @@ import {
   UpdateDateColumn,
   JoinColumn,
   OneToOne,
+  BeforeInsert,
+  BeforeUpdate,
 } from 'typeorm';
 import { RoleEntity } from '../../../../../roles/infrastructure/persistence/relational/entities/role.entity';
 import { StatusEntity } from '../../../../../statuses/infrastructure/persistence/relational/entities/status.entity';
 import { FileEntity } from '../../../../../files/infrastructure/persistence/relational/entities/file.entity';
+import { StatusEnum } from '../../../../../statuses/statuses.enum';
 
 import { AuthProvidersEnum } from '../../../../../auth/auth-providers.enum';
 import { EntityRelationalHelper } from '../../../../../../utils/relational-entity-helper';
@@ -59,6 +62,9 @@ export class UserEntity extends EntityRelationalHelper {
   @JoinColumn({ name: 'role_id' })
   role?: RoleEntity | null;
 
+  @Column({ name: 'status_id', nullable: true })
+  statusId?: string | null;
+
   @ManyToOne(() => StatusEntity, {
     eager: true,
   })
@@ -73,4 +79,12 @@ export class UserEntity extends EntityRelationalHelper {
 
   @DeleteDateColumn({ name: 'deleted_at' })
   deletedAt: Date;
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  ensureStatusRecord() {
+    if (!this.status && !this.statusId) {
+      this.statusId = StatusEnum.active;
+    }
+  }
 }

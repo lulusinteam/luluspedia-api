@@ -5,6 +5,8 @@ import { StatusEntity } from '../../../../../statuses/infrastructure/persistence
 import { User } from '../../../../domain/user';
 import { UserEntity } from '../entities/user.entity';
 
+import { StatusEnum } from '../../../../../statuses/statuses.enum';
+
 export class UserMapper {
   static toDomain(raw: UserEntity): User {
     const domainEntity = new User();
@@ -46,9 +48,12 @@ export class UserMapper {
 
     let status: StatusEntity | undefined = undefined;
 
-    if (domainEntity.status) {
+    if (domainEntity.status?.id) {
       status = new StatusEntity();
       status.id = domainEntity.status.id as string;
+    } else {
+      status = new StatusEntity();
+      status.id = StatusEnum.active;
     }
 
     const persistenceEntity = new UserEntity();
@@ -64,6 +69,7 @@ export class UserMapper {
     persistenceEntity.photo = photo;
     persistenceEntity.role = role;
     persistenceEntity.status = status;
+    persistenceEntity.statusId = (status as any).id;
     persistenceEntity.createdAt = domainEntity.createdAt;
     persistenceEntity.updatedAt = domainEntity.updatedAt;
     persistenceEntity.deletedAt = domainEntity.deletedAt;

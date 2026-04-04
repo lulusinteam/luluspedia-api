@@ -83,13 +83,6 @@ export class UsersService {
     };
 
     if ((createUserDto as any).status?.id) {
-      const statusObject = Object.values(StatusEnum)
-        .map(String)
-        .includes(String((createUserDto as any).status.id));
-      if (!statusObject) {
-        throw ApiException.validation({ status: 'statusNotExists' });
-      }
-
       status = {
         id: (createUserDto as any).status.id,
       };
@@ -169,12 +162,16 @@ export class UsersService {
     // Do not remove comment below.
     // <updating-property />
 
+    const userObject = await this.usersRepository.findById(id);
+
+    if (!userObject) {
+      return null;
+    }
+
     let password: string | undefined = undefined;
 
     if (updateUserDto.password) {
-      const userObject = await this.usersRepository.findById(id);
-
-      if (userObject && userObject?.password !== updateUserDto.password) {
+      if (userObject.password !== updateUserDto.password) {
         const salt = await bcrypt.genSalt();
         password = await bcrypt.hash(updateUserDto.password, salt);
       }
@@ -225,16 +222,13 @@ export class UsersService {
       };
     }
 
-    let status: Status | undefined = undefined;
+    let status: Status | undefined = !userObject.status
+      ? {
+          id: StatusEnum.active,
+        }
+      : undefined;
 
     if ((updateUserDto as any).status?.id) {
-      const statusObject = Object.values(StatusEnum)
-        .map(String)
-        .includes(String((updateUserDto as any).status.id));
-      if (!statusObject) {
-        throw ApiException.validation({ status: 'statusNotExists' });
-      }
-
       status = {
         id: (updateUserDto as any).status.id,
       };
