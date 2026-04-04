@@ -1,9 +1,7 @@
 import {
-  Controller,
   Get,
   Post,
   Param,
-  UseGuards,
   Request,
   HttpStatus,
   HttpCode,

@@ -1,7 +1,5 @@
 import {
-  Controller,
   Get,
-  UseGuards,
   Query,
   HttpStatus,
   HttpCode,
@@ -10,8 +8,7 @@ import {
   Body,
   Param,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
+import { ApiTags } from '@nestjs/swagger';
 import { UserTryoutsService } from './user-tryouts.service';
 import { FindMyAttemptsDto } from './dto/find-my-attempts.dto';
 import { StartAttemptDto } from './dto/start-attempt.dto';

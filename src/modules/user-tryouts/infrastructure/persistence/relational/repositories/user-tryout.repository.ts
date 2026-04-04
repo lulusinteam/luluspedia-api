@@ -237,7 +237,9 @@ export class UserTryoutRelationalRepository implements UserTryoutRepository {
     return result?.maxScore ? Number(result.maxScore) : 0;
   }
 
-  async getAverageScoreByCategory(userId: string): Promise<
+  async getAverageScoreByCategory(
+    userId: string,
+  ): Promise<
     { categoryId: string; categoryLabel: string; averageScore: number }[]
   > {
     const raw = await this.repository
@@ -264,7 +266,9 @@ export class UserTryoutRelationalRepository implements UserTryoutRepository {
     }));
   }
 
-  async getStudyTimeByCategory(userId: string): Promise<
+  async getStudyTimeByCategory(
+    userId: string,
+  ): Promise<
     { categoryId: string; categoryLabel: string; totalSeconds: number }[]
   > {
     const raw = await this.repository

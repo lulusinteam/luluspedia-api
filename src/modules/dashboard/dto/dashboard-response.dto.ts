@@ -57,6 +57,10 @@ export class DashboardLeaderboardResponseDto {
   @ApiProperty({ type: [DashboardLeaderboardEntryDto] })
   topPlayers: DashboardLeaderboardEntryDto[];
 
-  @ApiProperty({ type: DashboardLeaderboardEntryDto, required: false, nullable: true })
+  @ApiProperty({
+    type: DashboardLeaderboardEntryDto,
+    required: false,
+    nullable: true,
+  })
   currentUser?: DashboardLeaderboardEntryDto | null;
 }

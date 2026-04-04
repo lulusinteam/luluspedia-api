@@ -49,7 +49,7 @@ export class TryoutsService {
   }
 
   async getStats(): Promise<TryoutStatsResponseDto> {
-    return this.tryoutRepository.countByStatus() as unknown as TryoutStatsResponseDto;
+    return (await this.tryoutRepository.countByStatus()) as unknown as TryoutStatsResponseDto;
   }
 
   async findAllUser({

@@ -1,5 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { Get } from '@nestjs/common';
 
 import { HomeService } from './home.service';
 

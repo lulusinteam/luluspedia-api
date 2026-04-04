@@ -1,12 +1,10 @@
 import {
   Body,
-  Controller,
   HttpCode,
   HttpStatus,
   Post,
   SerializeOptions,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from '../auth/auth.service';
 import { AuthGoogleService } from './auth-google.service';
 import { AuthGoogleLoginDto } from './dto/auth-google-login.dto';

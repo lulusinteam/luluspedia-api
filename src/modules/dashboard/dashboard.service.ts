@@ -20,7 +20,7 @@ export class DashboardService {
   async getStats(userId: string): Promise<DashboardStatsResponseDto> {
     const completedCount =
       await this.userTryoutRepository.countUserCompletedTryouts(userId);
-    const [_, totalTryouts] = await this.tryoutRepository.findAllUser({
+    const [, totalTryouts] = await this.tryoutRepository.findAllUser({
       paginationOptions: { page: 1, limit: 1 },
     });
     const bestScore = await this.userTryoutRepository.getBestScore(userId);
@@ -52,7 +52,9 @@ export class DashboardService {
     );
     const totalQuestions = activeAttempt.tryout.questions?.length ?? 0;
     const progressPercentage =
-      totalQuestions > 0 ? Math.round((answers.length / totalQuestions) * 100) : 0;
+      totalQuestions > 0
+        ? Math.round((answers.length / totalQuestions) * 100)
+        : 0;
 
     // Calculate remaining time
     const now = new Date();

@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Get,
-  Query,
-  HttpStatus,
-  HttpCode,
-  UseGuards,
-  Request,
-} from '@nestjs/common';
+import { Get, Query, HttpStatus, HttpCode, Request } from '@nestjs/common';
 import { ApiQuery } from '@nestjs/swagger';
 import { SearchService } from './search.service';
 import { ApiJSendResponse } from '../../utils/swagger-jsend.decorator';

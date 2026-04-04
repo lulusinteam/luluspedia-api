@@ -14,7 +14,7 @@ const getHostConstraint = (envVar: string) => {
   const isProd = process.env.NODE_ENV === 'production';
   const cleanedDomain = domain.replace(/^https?:\/\//, '').replace(/\/$/, '');
 
-  // Jika di Production (atau Docker satu kontainer), kita biarkan rute ini aktif 
+  // Jika di Production (atau Docker satu kontainer), kita biarkan rute ini aktif
   // dan biarkan Guard (DomainGuard) atau Host-Matching yang menanganinya.
   if (isProd) {
     return cleanedDomain;
@@ -33,9 +33,17 @@ const getHostConstraint = (envVar: string) => {
    * Jika Anda menjalankan proses terpisah dan port tidak cocok, matikan rute ini.
    * Tapi jika port di .env adalah 3000 (Docker Internal), jangan matikan.
    */
-  if (currentAppPort && domainPort && currentAppPort !== domainPort && currentAppPort !== '3000') {
+  if (
+    currentAppPort &&
+    domainPort &&
+    currentAppPort !== domainPort &&
+    currentAppPort !== '3000'
+  ) {
     // Allow localhost/127.0.0.1 without port restriction in local development
-    if (cleanedDomain.includes('localhost') || cleanedDomain.includes('127.0.0.1')) {
+    if (
+      cleanedDomain.includes('localhost') ||
+      cleanedDomain.includes('127.0.0.1')
+    ) {
       return undefined;
     }
     return 'unmatchable.local';
