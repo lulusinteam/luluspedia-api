@@ -158,10 +158,6 @@ export class AuthService {
       const role = {
         id: RoleEnum.user,
       };
-      const status = {
-        id: StatusEnum.active,
-      };
-
       user = await this.usersService.create({
         email: socialEmail ?? null,
         firstName: socialData.firstName ?? null,
@@ -169,7 +165,6 @@ export class AuthService {
         socialId: socialData.id,
         provider: authProvider,
         role,
-        status,
       });
 
       user = await this.usersService.findById(user.id);
@@ -223,7 +218,7 @@ export class AuthService {
       status: {
         id: StatusEnum.inactive,
       },
-    });
+    } as any);
 
     const hash = await this.jwtService.signAsync(
       {
