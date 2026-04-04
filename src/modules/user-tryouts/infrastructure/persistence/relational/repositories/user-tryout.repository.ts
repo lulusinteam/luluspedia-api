@@ -210,4 +210,192 @@ export class UserTryoutRelationalRepository implements UserTryoutRepository {
   async remove(id: UserTryout['id']): Promise<void> {
     await this.repository.delete(id);
   }
+
+  async countUserCompletedTryouts(userId: string): Promise<number> {
+    const result = await this.repository
+      .createQueryBuilder('user_tryout')
+      .select('COUNT(DISTINCT user_tryout.tryout_id)', 'count')
+      .where('user_tryout.user_id = :userId', { userId })
+      .andWhere('user_tryout.status = :status', {
+        status: UserTryoutStatusEnum.completed,
+      })
+      .getRawOne();
+
+    return result?.count ? Number(result.count) : 0;
+  }
+
+  async getBestScore(userId: string): Promise<number> {
+    const result = await this.repository
+      .createQueryBuilder('user_tryout')
+      .select('MAX(user_tryout.totalScore)', 'maxScore')
+      .where('user_tryout.user_id = :userId', { userId })
+      .andWhere('user_tryout.status = :status', {
+        status: UserTryoutStatusEnum.completed,
+      })
+      .getRawOne();
+
+    return result?.maxScore ? Number(result.maxScore) : 0;
+  }
+
+  async getAverageScoreByCategory(userId: string): Promise<
+    { categoryId: string; categoryLabel: string; averageScore: number }[]
+  > {
+    const raw = await this.repository
+      .createQueryBuilder('user_tryout')
+      .innerJoin('user_tryout.tryout', 'tryout')
+      .innerJoin('tryout.category', 'category')
+      .select([
+        'category.id as "categoryId"',
+        'category.label as "categoryLabel"',
+        'AVG(user_tryout.totalScore) as "averageScore"',
+      ])
+      .where('user_tryout.user_id = :userId', { userId })
+      .andWhere('user_tryout.status = :status', {
+        status: UserTryoutStatusEnum.completed,
+      })
+      .groupBy('category.id')
+      .addGroupBy('category.label')
+      .getRawMany();
+
+    return raw.map(item => ({
+      categoryId: item.categoryId,
+      categoryLabel: item.categoryLabel,
+      averageScore: Math.round(Number(item.averageScore)),
+    }));
+  }
+
+  async getStudyTimeByCategory(userId: string): Promise<
+    { categoryId: string; categoryLabel: string; totalSeconds: number }[]
+  > {
+    const raw = await this.repository
+      .createQueryBuilder('user_tryout')
+      .innerJoin('user_tryout.tryout', 'tryout')
+      .innerJoin('tryout.category', 'category')
+      .select([
+        'category.id as "categoryId"',
+        'category.label as "categoryLabel"',
+        'SUM(EXTRACT(EPOCH FROM (user_tryout.endTime - user_tryout.startTime))) as "totalSeconds"',
+      ])
+      .where('user_tryout.user_id = :userId', { userId })
+      .andWhere('user_tryout.status = :status', {
+        status: UserTryoutStatusEnum.completed,
+      })
+      .groupBy('category.id')
+      .addGroupBy('category.label')
+      .getRawMany();
+
+    return raw.map(item => ({
+      categoryId: item.categoryId,
+      categoryLabel: item.categoryLabel,
+      totalSeconds: Number(item.totalSeconds),
+    }));
+  }
+
+  async getLeaderboard(
+    limit: number,
+    categoryId?: string,
+  ): Promise<
+    {
+      userId: string;
+      userName: string;
+      userPhoto?: string;
+      totalScore: number;
+      rank: number;
+    }[]
+  > {
+    const leaderboardQuery = this.repository.manager.query(
+      `
+      SELECT 
+        u.id as "userId", 
+        u.first_name as "firstName", 
+        u.last_name as "lastName", 
+        f.path as "userPhoto", 
+        AVG(best_score) as "totalScore"
+      FROM (
+        SELECT ut.user_id, ut.tryout_id, MAX(ut.total_score) as best_score
+        FROM user_tryouts ut
+        INNER JOIN tryouts t ON ut.tryout_id = t.id
+        WHERE ut.status = 'completed'
+        ${categoryId && categoryId !== 'all' ? 'AND t.category_id = $2' : ''}
+        GROUP BY ut.user_id, ut.tryout_id
+      ) as user_best_scores
+      INNER JOIN "users" u ON u.id = user_best_scores.user_id
+      LEFT JOIN "files" f ON f.id = u.photo_id
+      GROUP BY u.id, f.id
+      ORDER BY "totalScore" DESC
+      LIMIT $1
+    `,
+      categoryId && categoryId !== 'all' ? [limit, categoryId] : [limit],
+    );
+
+    const raw = await leaderboardQuery;
+    return raw.map((item, index) => ({
+      userId: item.userId,
+      userName: `${item.firstName} ${item.lastName || ''}`.trim(),
+      userPhoto: item.userPhoto,
+      totalScore: Math.round(Number(item.totalScore)),
+      rank: index + 1,
+    }));
+  }
+
+  async getUserRank(userId: string, categoryId?: string): Promise<number> {
+    const subQuery = this.repository
+      .createQueryBuilder('ut')
+      .innerJoin('ut.tryout', 't')
+      .select('ut.user_id', 'user_id')
+      .addSelect('SUM(ut.total_score)', 'total')
+      .where('ut.status = :status', { status: UserTryoutStatusEnum.completed });
+
+    if (categoryId) {
+      subQuery.andWhere('t.category_id = :categoryId', { categoryId });
+    }
+    subQuery.groupBy('ut.user_id');
+
+    const raw = await this.repository.manager.query(
+      `
+      SELECT rank FROM (
+        SELECT user_id, RANK() OVER (ORDER BY AVG(best_score) DESC) as rank
+        FROM (
+          SELECT ut.user_id, ut.tryout_id, MAX(ut.total_score) as best_score
+          FROM user_tryouts ut
+          INNER JOIN tryouts t ON ut.tryout_id = t.id
+          WHERE ut.status = 'completed'
+          ${categoryId && categoryId !== 'all' ? 'AND t.category_id = $2' : ''}
+          GROUP BY ut.user_id, ut.tryout_id
+        ) as user_best_scores
+        GROUP BY user_id
+      ) AS ranking
+      WHERE user_id = $1
+    `,
+      categoryId && categoryId !== 'all' ? [userId, categoryId] : [userId],
+    );
+
+    return raw.length > 0 ? Number(raw[0].rank) : 0;
+  }
+
+  async getRecentTryoutsBestScores(
+    userId: string,
+    limit: number,
+  ): Promise<{ tryoutTitle: string; score: number }[]> {
+    const raw = await this.repository.manager.query(
+      `
+      SELECT 
+        t.title as "tryoutTitle", 
+        MAX(ut.total_score) as "score",
+        MAX(ut.updated_at) as "lastAttempt"
+      FROM user_tryouts ut
+      INNER JOIN tryouts t ON ut.tryout_id = t.id
+      WHERE ut.user_id = $1 AND ut.status = 'completed'
+      GROUP BY t.id, t.title
+      ORDER BY "lastAttempt" DESC
+      LIMIT $2
+    `,
+      [userId, limit],
+    );
+
+    return raw.map(item => ({
+      tryoutTitle: item.tryoutTitle,
+      score: Math.round(Number(item.score)),
+    }));
+  }
 }

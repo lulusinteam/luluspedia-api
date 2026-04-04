@@ -39,4 +39,44 @@ export abstract class UserTryoutRepository {
   abstract findExpiredAttempts(): Promise<UserTryout[]>;
 
   abstract remove(id: UserTryout['id']): Promise<void>;
+
+  abstract countUserCompletedTryouts(userId: string): Promise<number>;
+
+  abstract getBestScore(userId: string): Promise<number>;
+
+  abstract getAverageScoreByCategory(userId: string): Promise<
+    {
+      categoryId: string;
+      categoryLabel: string;
+      averageScore: number;
+    }[]
+  >;
+
+  abstract getStudyTimeByCategory(userId: string): Promise<
+    {
+      categoryId: string;
+      categoryLabel: string;
+      totalSeconds: number;
+    }[]
+  >;
+
+  abstract getLeaderboard(
+    limit: number,
+    categoryId?: string,
+  ): Promise<
+    {
+      userId: string;
+      userName: string;
+      userPhoto?: string;
+      totalScore: number;
+      rank: number;
+    }[]
+  >;
+
+  abstract getUserRank(userId: string, categoryId?: string): Promise<number>;
+
+  abstract getRecentTryoutsBestScores(
+    userId: string,
+    limit: number,
+  ): Promise<{ tryoutTitle: string; score: number }[]>;
 }

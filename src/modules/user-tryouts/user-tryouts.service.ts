@@ -206,7 +206,7 @@ export class UserTryoutsService {
       finalScore += questionRatio * questionValue;
     }
 
-    return Math.round(finalScore);
+    return Math.min(Math.round(finalScore), 100);
   }
 
   async findAllMyAttempts({

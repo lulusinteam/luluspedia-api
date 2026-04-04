@@ -29,6 +29,7 @@ import { SearchModule } from './modules/search/search.module';
 import { AdminAuthModule } from './modules/auth/admin/admin-auth.module';
 import { MailModule } from './modules/mail/mail.module';
 import { SessionModule } from './modules/session/session.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 import validationOptions from './utils/validation-options';
 import { AllConfigType } from './config/config.type';
 import { ResolvePromisesInterceptor } from './utils/serializer.interceptor';
@@ -116,6 +117,7 @@ async function bootstrap() {
       SearchModule,
       MailModule,
       SessionModule,
+      DashboardModule,
     ],
   });
   documentUser = filterByTag(documentUser, 'User');
