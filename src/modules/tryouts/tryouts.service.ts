@@ -8,6 +8,7 @@ import { NullableType } from '../../utils/types/nullable.type';
 
 import { NotificationsService } from '../notifications/services/notifications.service';
 import { TryoutStatusEnum } from './tryouts.enum';
+import { TryoutStatsResponseDto } from './dto/tryout-stats-response.dto';
 
 @Injectable()
 export class TryoutsService {
@@ -47,8 +48,8 @@ export class TryoutsService {
     });
   }
 
-  async getStats(): Promise<Record<string, number>> {
-    return this.tryoutRepository.countByStatus();
+  async getStats(): Promise<TryoutStatsResponseDto> {
+    return this.tryoutRepository.countByStatus() as unknown as TryoutStatsResponseDto;
   }
 
   async findAllUser({
@@ -56,12 +57,14 @@ export class TryoutsService {
     search,
     category,
     isWishlist,
+    isRecommended,
     userId,
   }: {
     paginationOptions: IPaginationOptions;
     search?: string;
     category?: string;
     isWishlist?: boolean;
+    isRecommended?: boolean;
     userId?: string;
   }): Promise<[Tryout[], number]> {
     return this.tryoutRepository.findAllUser({
@@ -69,6 +72,7 @@ export class TryoutsService {
       search,
       category,
       isWishlist,
+      isRecommended,
       userId,
     });
   }

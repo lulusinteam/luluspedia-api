@@ -17,7 +17,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { FilesS3Service } from './files.service';
 import { FileResponseDto } from './dto/file-response.dto';
 
-@ApiTags('Files')
+@ApiTags('User | Files', 'Admin | Files')
 @Controller({
   path: 'files',
   version: '1',

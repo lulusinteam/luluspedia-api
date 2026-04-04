@@ -12,12 +12,9 @@ import { AuthGoogleService } from './auth-google.service';
 import { AuthGoogleLoginDto } from './dto/auth-google-login.dto';
 import { LoginResponseDto } from '../auth/dto/login-response.dto';
 import { ApiJSendResponse } from '../../utils/swagger-jsend.decorator';
+import { UserController } from '../../utils/decorators/api-controllers.decorator';
 
-@ApiTags('Auth')
-@Controller({
-  path: 'auth/google',
-  version: '1',
-})
+@UserController('auth/google', { isPublic: true, tagName: 'auth' })
 export class AuthGoogleController {
   constructor(
     private readonly authService: AuthService,

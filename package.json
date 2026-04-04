@@ -32,7 +32,7 @@
     "start:dev": "nest start --watch",
     "start:user": "set APP_PORT=3002 && nest start --watch",
     "start:admin": "set APP_PORT=7000 && nest start --watch",
-    "start:dev:admin": "set ADMIN_PORT=3003&& nest start --watch --entryFile main-admin",
+    "start:dev:admin": "set ADMIN_PORT=7000 && nest start --watch --entryFile main-admin",
     "start:swc": "nest start -b swc -w",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",

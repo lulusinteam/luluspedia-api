@@ -5,7 +5,7 @@ import { FilesS3PresignedService } from './files.service';
 import { FileUploadDto } from './dto/file.dto';
 import { FileResponseDto } from './dto/file-response.dto';
 
-@ApiTags('Files')
+@ApiTags('User | Files', 'Admin | Files')
 @Controller({
   path: 'files',
   version: '1',

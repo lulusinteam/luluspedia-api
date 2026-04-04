@@ -7,18 +7,12 @@ import {
   UseGuards,
   Request,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags, ApiQuery } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
+import { ApiQuery } from '@nestjs/swagger';
 import { SearchService } from './search.service';
 import { ApiJSendResponse } from '../../utils/swagger-jsend.decorator';
+import { UserController } from '../../utils/decorators/api-controllers.decorator';
 
-@ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
-@ApiTags('Search')
-@Controller({
-  path: 'search',
-  version: '1',
-})
+@UserController('search')
 export class SearchController {
   constructor(private readonly searchService: SearchService) {}
 

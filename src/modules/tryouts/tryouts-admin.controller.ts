@@ -30,6 +30,7 @@ import { pagination } from '../../utils/pagination';
 
 import { TryoutStatsResponseDto } from './dto/tryout-stats-response.dto';
 import { AdminController } from '../../utils/decorators/api-controllers.decorator';
+import { JSendResponse, JSONResponse } from '../../utils/json-response';
 
 @AdminController('tryouts')
 export class TryoutsAdminController {
@@ -73,8 +74,8 @@ export class TryoutsAdminController {
   @ApiJSendResponse(TryoutStatsResponseDto)
   @Get('stats')
   @HttpCode(HttpStatus.OK)
-  async getStats(): Promise<Record<string, number>> {
-    return this.tryoutsService.getStats();
+  async getStats(): Promise<JSendResponse<TryoutStatsResponseDto>> {
+    return JSONResponse.success(await this.tryoutsService.getStats());
   }
 
   @ApiJSendResponse(Tryout)

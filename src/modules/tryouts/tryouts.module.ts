@@ -6,6 +6,8 @@ import databaseConfig from '../../database/config/database.config';
 import { QuestionsModule } from '../questions/questions.module';
 import { TryoutsService } from './tryouts.service';
 import { TryoutSchedulingService } from './tasks/tryout-scheduling.service';
+import { TryoutsUserController } from './tryouts-user.controller';
+import { TryoutsAdminController } from './tryouts-admin.controller';
 
 const infrastructurePersistenceModule = (databaseConfig() as DatabaseConfig)
   .isDocumentDatabase

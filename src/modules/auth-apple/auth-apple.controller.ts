@@ -6,17 +6,14 @@ import {
   Post,
   SerializeOptions,
 } from '@nestjs/common';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse } from '@nestjs/swagger';
 import { AuthService } from '../auth/auth.service';
 import { AuthAppleService } from './auth-apple.service';
 import { AuthAppleLoginDto } from './dto/auth-apple-login.dto';
 import { LoginResponseDto } from '../auth/dto/login-response.dto';
+import { UserController } from '../../utils/decorators/api-controllers.decorator';
 
-@ApiTags('Auth')
-@Controller({
-  path: 'auth/apple',
-  version: '1',
-})
+@UserController('auth/apple', { isPublic: true, tagName: 'auth' })
 export class AuthAppleController {
   constructor(
     private readonly authService: AuthService,

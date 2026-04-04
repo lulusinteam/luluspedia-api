@@ -43,12 +43,14 @@ export abstract class TryoutRepository {
     search,
     category,
     isWishlist,
+    isRecommended,
     userId,
   }: {
     paginationOptions: IPaginationOptions;
     search?: string;
     category?: string;
     isWishlist?: boolean;
+    isRecommended?: boolean;
     userId?: string;
   }): Promise<[Tryout[], number]>;
 

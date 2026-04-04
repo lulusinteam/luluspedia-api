@@ -24,6 +24,16 @@ export class FindUserTryoutsDto {
   isWishlist?: boolean;
 
   @ApiPropertyOptional()
+  @Transform(({ value }) => {
+    if (value === 'true') return true;
+    if (value === 'false') return false;
+    return value;
+  })
+  @IsBoolean()
+  @IsOptional()
+  isRecommended?: boolean;
+
+  @ApiPropertyOptional()
   @Transform(({ value }) => (value ? Number(value) : 1))
   @IsNumber()
   @IsOptional()

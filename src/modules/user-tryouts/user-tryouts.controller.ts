@@ -17,6 +17,7 @@ import { FindMyAttemptsDto } from './dto/find-my-attempts.dto';
 import { StartAttemptDto } from './dto/start-attempt.dto';
 import { SyncAnswerDto } from './dto/sync-answer.dto';
 import { FinishAttemptDto } from './dto/finish-attempt.dto';
+import { UserController } from '../../utils/decorators/api-controllers.decorator';
 import { PaginationResponseDto } from '../../utils/dto/pagination-response.dto';
 import { pagination } from '../../utils/pagination';
 import {
@@ -28,13 +29,8 @@ import { UserTryoutResponseDto } from './dto/user-tryout-response.dto';
 import { UserTryoutResultResponseDto } from './dto/user-tryout-result-response.dto';
 import { UserTryoutMapper } from './infrastructure/persistence/relational/mappers/user-tryout.mapper';
 
-@ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
-@ApiTags('User | Tryout Attempts')
-@Controller({
-  path: 'user-tryouts',
-  version: '1',
-})
+@ApiTags('User | user-tryouts')
+@UserController('user-tryouts')
 export class UserTryoutsController {
   constructor(private readonly userTryoutsService: UserTryoutsService) {}
 

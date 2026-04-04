@@ -26,7 +26,7 @@ import { ApiJSendResponse } from '../../utils/swagger-jsend.decorator';
 import { RoleEnum } from '../roles/roles.enum';
 import { UserController } from '../../utils/decorators/api-controllers.decorator';
 
-@UserController('auth')
+@UserController('auth', { isPublic: true })
 export class AuthController {
   constructor(private readonly service: AuthService) {}
 

@@ -12,7 +12,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { UserController } from '../../utils/decorators/api-controllers.decorator';
 import { WishlistsService } from './wishlists.service';
 import { CreateWishlistDto } from './dto/create-wishlist.dto';
 import { QueryWishlistDto } from './dto/query-wishlist.dto';
@@ -20,16 +20,10 @@ import { JSONResponse } from '../../utils/json-response';
 import { Wishlist } from './domain/wishlist';
 import { ApiJSendResponse } from '../../utils/swagger-jsend.decorator';
 
-@ApiTags('Wishlists')
-@Controller({
-  path: 'wishlists',
-  version: '1',
-})
+@UserController('wishlists')
 export class WishlistsController {
   constructor(private readonly wishlistsService: WishlistsService) {}
 
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt'))
   @Post()
   @HttpCode(HttpStatus.OK)
   @ApiJSendResponse(Wishlist)
@@ -53,8 +47,6 @@ export class WishlistsController {
     });
   }
 
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt'))
   @Get()
   @HttpCode(HttpStatus.OK)
   @ApiJSendResponse(Wishlist)
@@ -81,8 +73,6 @@ export class WishlistsController {
     });
   }
 
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param('id') id: string) {

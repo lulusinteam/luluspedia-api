@@ -34,20 +34,18 @@ import { MongooseConfigService } from './database/mongoose-config.service';
 import { DatabaseConfig } from './database/config/database-config.type';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { TryoutsModule } from './modules/tryouts/tryouts.module';
+import { TryoutsUserModule } from './modules/tryouts/tryouts-user.module';
+import { TryoutsAdminModule } from './modules/tryouts/tryouts-admin.module';
 import { QuestionsModule } from './modules/questions/questions.module';
 import { OptionsModule } from './modules/options/options.module';
 import { RatingsModule } from './modules/ratings/ratings.module';
 import { WishlistsModule } from './modules/wishlists/wishlists.module';
-import { TryoutsUserController } from './modules/tryouts/tryouts-user.controller';
 import { SearchModule } from './modules/search/search.module';
 import { UserTryoutsModule } from './modules/user-tryouts/user-tryouts.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { APP_GUARD } from '@nestjs/core';
 import { DomainGuard } from './utils/guards/domain.guard';
 import { AdminAuthModule } from './modules/auth/admin/admin-auth.module';
-import { TryoutsAdminController } from './modules/tryouts/tryouts-admin.controller';
-import { UsersAdminController } from './modules/users/users-admin.controller';
-import { QuestionsAdminController } from './modules/questions/questions-admin.controller';
 
 // <database-block>
 const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
@@ -110,6 +108,8 @@ const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
     AuthModule,
     CategoriesModule,
     TryoutsModule,
+    TryoutsUserModule,
+    TryoutsAdminModule,
     QuestionsModule,
     OptionsModule,
     RatingsModule,
@@ -125,12 +125,6 @@ const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
     SearchModule,
     UserTryoutsModule,
     NotificationsModule,
-  ],
-  controllers: [
-    TryoutsUserController,
-    TryoutsAdminController,
-    UsersAdminController,
-    QuestionsAdminController,
   ],
   providers: [
     {

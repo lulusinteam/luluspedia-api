@@ -11,8 +11,7 @@ import {
   DefaultValuePipe,
   ParseIntPipe,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags, ApiQuery } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
+import { ApiQuery } from '@nestjs/swagger';
 import { NotificationsService } from './services/notifications.service';
 import { pagination } from '../../utils/pagination';
 import { PaginationResponseDto } from '../../utils/dto/pagination-response.dto';
@@ -21,14 +20,9 @@ import {
   ApiJSendResponse,
   ApiJSendPaginatedResponse,
 } from '../../utils/swagger-jsend.decorator';
+import { UserController } from '../../utils/decorators/api-controllers.decorator';
 
-@ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
-@ApiTags('Notifications')
-@Controller({
-  path: 'notifications',
-  version: '1',
-})
+@UserController('notifications')
 export class NotificationsController {
   constructor(private readonly service: NotificationsService) {}
 

@@ -14,36 +14,51 @@ const getHostConstraint = (envVar: string) => {
   const isProd = process.env.NODE_ENV === 'production';
   const cleanedDomain = domain.replace(/^https?:\/\//, '').replace(/\/$/, '');
 
-  // Jika di Production, gunakan Host Matching (Standard)
+  // Jika di Production (atau Docker satu kontainer), kita biarkan rute ini aktif 
+  // dan biarkan Guard (DomainGuard) atau Host-Matching yang menanganinya.
   if (isProd) {
     return cleanedDomain;
   }
 
-  /**
-   * DI LOCAL: Kita gunakan trik cerdas.
-   * Karena Anda menjalankan 2 instance terpisah (Port 3002 & 7000),
-   * kita cek apakah port di Domain cocok dengan APP_PORT saat ini.
-   */
+  // IN DEV: Bypass host constraint entirely to keep it flexible
+  if (!isProd) {
+    return undefined;
+  }
+
   const currentAppPort = process.env.APP_PORT?.trim();
   const domainPort = cleanedDomain.split(':')[1]?.trim();
 
-  if (currentAppPort && domainPort && currentAppPort !== domainPort) {
-    /**
-     * Jika port tidak cocok, kita kasih Host yang mustahil (UNMATCHABLE)
-     * agar rute ini tidak muncul di instance ini.
-     */
+  /**
+   * DI LOCAL (NON-DOCKER):
+   * Jika Anda menjalankan proses terpisah dan port tidak cocok, matikan rute ini.
+   * Tapi jika port di .env adalah 3000 (Docker Internal), jangan matikan.
+   */
+  if (currentAppPort && domainPort && currentAppPort !== domainPort && currentAppPort !== '3000') {
+    // Allow localhost/127.0.0.1 without port restriction in local development
+    if (cleanedDomain.includes('localhost') || cleanedDomain.includes('127.0.0.1')) {
+      return undefined;
+    }
     return 'unmatchable.local';
   }
 
-  // Jika port cocok atau tidak ada port, biarkan rute ini aktif (undefined host = match all)
-  return undefined;
+  /**
+   * FORMAT HOST UNTUK NESTJS v8 + PORT:
+   * Kita pisahkan host dan port ke dalam parameter agar tidak crash
+   */
+  if (cleanedDomain.includes(':')) {
+    const [h, p] = cleanedDomain.split(':');
+    return `${h}:port{${p}}`;
+  }
+
+  return cleanedDomain;
 };
 
 export function AdminController(
   path: string | string[],
-  options: { isPublic?: boolean } = {},
+  options: { isPublic?: boolean; tagName?: string } = {},
 ) {
   const hostConstraint = getHostConstraint('BACKEND_DOMAIN_ADMIN');
+  const tag = options.tagName || (Array.isArray(path) ? path[0] : path);
 
   const decorators = [
     Controller({
@@ -51,7 +66,7 @@ export function AdminController(
       host: hostConstraint,
       version: '1',
     }),
-    ApiTags(`Admin | ${Array.isArray(path) ? path[0] : path}`),
+    ApiTags(`Admin | ${tag}`),
     DomainScope('admin'),
     ApiBearerAuth(),
   ];
@@ -66,16 +81,27 @@ export function AdminController(
   return applyDecorators(...decorators);
 }
 
-export function UserController(path: string | string[]) {
+export function UserController(
+  path: string | string[],
+  options: { isPublic?: boolean; tagName?: string } = {},
+) {
   const hostConstraint = getHostConstraint('BACKEND_DOMAIN');
+  const tag = options.tagName || (Array.isArray(path) ? path[0] : path);
 
-  return applyDecorators(
+  const decorators = [
     Controller({
       path,
       host: hostConstraint,
       version: '1',
     }),
-    ApiTags(`User | ${Array.isArray(path) ? path[0] : path}`),
+    ApiTags(`User | ${tag}`),
     DomainScope('user'),
-  );
+    ApiBearerAuth(),
+  ];
+
+  if (!options.isPublic) {
+    decorators.push(UseGuards(AuthGuard('jwt')));
+  }
+
+  return applyDecorators(...decorators);
 }

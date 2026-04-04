@@ -315,12 +315,14 @@ export class TryoutRelationalRepository implements TryoutRepository {
     search,
     category,
     isWishlist,
+    isRecommended,
     userId,
   }: {
     paginationOptions: IPaginationOptions;
     search?: string;
     category?: string;
     isWishlist?: boolean;
+    isRecommended?: boolean;
     userId?: string;
   }): Promise<[Tryout[], number]> {
     const query = this.tryoutRepository
@@ -365,6 +367,12 @@ export class TryoutRelationalRepository implements TryoutRepository {
       } else {
         query.andWhere('category.slug = :category', { category });
       }
+    }
+
+    if (isRecommended !== undefined) {
+      query.andWhere('tryouts.isRecommended = :isRecommended', {
+        isRecommended,
+      });
     }
 
     if (userId) {

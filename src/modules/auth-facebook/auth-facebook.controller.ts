@@ -6,17 +6,14 @@ import {
   Post,
   SerializeOptions,
 } from '@nestjs/common';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse } from '@nestjs/swagger';
 import { AuthService } from '../auth/auth.service';
 import { AuthFacebookService } from './auth-facebook.service';
 import { AuthFacebookLoginDto } from './dto/auth-facebook-login.dto';
 import { LoginResponseDto } from '../auth/dto/login-response.dto';
+import { UserController } from '../../utils/decorators/api-controllers.decorator';
 
-@ApiTags('Auth')
-@Controller({
-  path: 'auth/facebook',
-  version: '1',
-})
+@UserController('auth/facebook', { isPublic: true, tagName: 'auth' })
 export class AuthFacebookController {
   constructor(
     private readonly authService: AuthService,

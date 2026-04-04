@@ -29,33 +29,22 @@ services:
     ports:
       - 6379:6379
 
-  # User API — handles register, login (user only), forgot-password, etc.
+  # Unified API Service — handles BOTH Admin and User domains via Host-Based Routing
   api:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - ${APP_PORT}:${APP_PORT}
+      - "3002:3000" # User Port
+      - "7000:3000" # Admin Port
+    environment:
+      - PORT=3000
+      - APP_PORT=3000
     env_file:
       - .env
     depends_on:
       - postgres
       - redis
-
-  # Admin API — handles login (admin only), separate port & swagger
-  api-admin:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    command: ["/opt/startup.admin.sh"]
-    ports:
-      - ${ADMIN_PORT}:${ADMIN_PORT}
-    env_file:
-      - .env
-    depends_on:
-      - postgres
-      - redis
-      - api   # Pastikan User API (yang run migration) sudah up duluan
 
 volumes:
   boilerplate-db:

@@ -3,8 +3,9 @@ import { ApiTags } from '@nestjs/swagger';
 
 import { HomeService } from './home.service';
 
-@ApiTags('Home')
-@Controller()
+import { UserController } from '../../utils/decorators/api-controllers.decorator';
+
+@UserController('', { isPublic: true })
 export class HomeController {
   constructor(private service: HomeService) {}
 
