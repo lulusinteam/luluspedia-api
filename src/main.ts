@@ -29,6 +29,7 @@ import { SearchModule } from './modules/search/search.module';
 import { AdminAuthModule } from './modules/auth/admin/admin-auth.module';
 import { MailModule } from './modules/mail/mail.module';
 import { SessionModule } from './modules/session/session.module';
+import { RolesModule } from './modules/roles/roles.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import validationOptions from './utils/validation-options';
 import { AllConfigType } from './config/config.type';
@@ -138,6 +139,7 @@ async function bootstrap() {
       QuestionsModule,
       NotificationsModule,
       FilesModule,
+      RolesModule,
     ],
   });
   documentAdmin = filterByTag(documentAdmin, 'Admin');
