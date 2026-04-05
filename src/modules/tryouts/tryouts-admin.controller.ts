@@ -135,6 +135,18 @@ export class TryoutsAdminController {
     return this.tryoutsService.update(id, updateTryoutDto);
   }
 
+  @Post(':id/unpublish')
+  @HttpCode(HttpStatus.OK)
+  @ApiParam({
+    name: 'id',
+    type: String,
+    required: true,
+  })
+  @ApiJSendResponse(Tryout)
+  async unpublish(@Param('id') id: Tryout['id']): Promise<Tryout> {
+    return this.tryoutsService.unpublish(id);
+  }
+
   @Delete(':id')
   @ApiParam({
     name: 'id',

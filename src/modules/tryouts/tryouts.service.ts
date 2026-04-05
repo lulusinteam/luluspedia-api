@@ -9,6 +9,7 @@ import { NullableType } from '../../utils/types/nullable.type';
 import { NotificationsService } from '../notifications/services/notifications.service';
 import { TryoutStatusEnum } from './tryouts.enum';
 import { TryoutStatsResponseDto } from './dto/tryout-stats-response.dto';
+import { ApiException } from '../../utils/exceptions/api.exception';
 
 @Injectable()
 export class TryoutsService {
@@ -112,6 +113,30 @@ export class TryoutsService {
 
   async softDelete(id: Tryout['id']): Promise<void> {
     await this.tryoutRepository.remove(id);
+  }
+
+  async unpublish(id: Tryout['id']): Promise<Tryout> {
+    const tryout = await this.tryoutRepository.findById(id);
+
+    if (!tryout) {
+      throw ApiException.notFound('tryoutNotFound');
+    }
+
+    if (tryout.status !== TryoutStatusEnum.published) {
+      throw ApiException.fail('tryoutNotPublished', {
+        status: 'tryout must be published to be unpublished',
+      });
+    }
+
+    const updated = await this.tryoutRepository.update(id, {
+      status: TryoutStatusEnum.draft,
+    });
+
+    if (!updated) {
+      throw ApiException.server('failedToUnpublish');
+    }
+
+    return updated;
   }
 
   async globalSearch(query: string): Promise<Tryout[]> {
