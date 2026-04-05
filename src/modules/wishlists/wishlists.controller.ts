@@ -13,7 +13,6 @@ import { UserController } from '../../utils/decorators/api-controllers.decorator
 import { WishlistsService } from './wishlists.service';
 import { CreateWishlistDto } from './dto/create-wishlist.dto';
 import { QueryWishlistDto } from './dto/query-wishlist.dto';
-import { JSONResponse } from '../../utils/json-response';
 import { Wishlist } from './domain/wishlist';
 import { ApiJSendResponse } from '../../utils/swagger-jsend.decorator';
 
@@ -34,14 +33,16 @@ export class WishlistsController {
     );
 
     if (!result) {
-      return JSONResponse.success(null, {
-        message: 'wishlistItemRemoved',
-      });
+      return {
+        data: null,
+        meta: { message: 'wishlistItemRemoved' },
+      };
     }
 
-    return JSONResponse.success(result, {
-      message: 'wishlistItemAdded',
-    });
+    return {
+      data: result,
+      meta: { message: 'wishlistItemAdded' },
+    };
   }
 
   @Get()
@@ -61,13 +62,16 @@ export class WishlistsController {
       userId: request.user.id,
     });
 
-    return JSONResponse.success(data, {
-      pagination: {
-        page,
-        limit,
-        count: data.length,
+    return {
+      data,
+      meta: {
+        pagination: {
+          page,
+          limit,
+          count: data.length,
+        },
       },
-    });
+    };
   }
 
   @Delete(':id')

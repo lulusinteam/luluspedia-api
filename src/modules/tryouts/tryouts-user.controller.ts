@@ -21,7 +21,6 @@ import { pagination } from '../../utils/pagination';
 import { NullableType } from '../../utils/types/nullable.type';
 import { UserController } from '../../utils/decorators/api-controllers.decorator';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { JSendResponse, JSONResponse } from '../../utils/json-response';
 import { TryoutStatsResponseDto } from './dto/tryout-stats-response.dto';
 
 @ApiTags('User | tryouts')
@@ -64,8 +63,8 @@ export class TryoutsUserController {
   @ApiJSendResponse(TryoutStatsResponseDto)
   @Get('stats')
   @HttpCode(HttpStatus.OK)
-  async getStats(): Promise<JSendResponse<TryoutStatsResponseDto>> {
-    return JSONResponse.success(await this.tryoutsService.getStats());
+  async getStats(): Promise<TryoutStatsResponseDto> {
+    return this.tryoutsService.getStats();
   }
 
   @ApiOperation({ operationId: 'user_tryouts_findOne' })

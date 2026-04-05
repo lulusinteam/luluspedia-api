@@ -31,6 +31,7 @@ import { UsersAdminController } from './modules/users/users-admin.controller';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { RolesModule } from './modules/roles/roles.module';
 import { RolesAdminController } from './modules/roles/roles-admin.controller';
+import { NotificationsAdminController } from './modules/notifications/notifications-admin.controller';
 
 // <database-block>
 const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
@@ -104,6 +105,7 @@ const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
     UsersAdminController,
     QuestionsAdminController,
     RolesAdminController,
+    NotificationsAdminController,
   ],
 })
 export class AdminAppModule {}

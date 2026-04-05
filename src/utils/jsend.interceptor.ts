@@ -22,7 +22,26 @@ export class JSendInterceptor implements NestInterceptor {
         const responseTime = Date.now() - startTime;
         const time = new Date().toISOString();
 
-        // Create meta object with required information
+        // If data is already a JSendResponse, just return it as is but update response time
+        if (
+          data &&
+          typeof data === 'object' &&
+          'status' in data &&
+          'data' in data &&
+          'meta' in data
+        ) {
+          // If it's a JSendResponse, we don't want to double wrap it
+          // But we can update the response time in meta
+          const jsendData = data as any;
+          jsendData.meta = {
+            ...jsendData.meta,
+            endpoint: endpoint,
+            time: time,
+            response_time: `${responseTime}ms`,
+          };
+          return jsendData;
+        }
+
         const meta: any = {
           endpoint,
           time,

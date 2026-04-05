@@ -8,6 +8,7 @@ import { NotificationsGateway } from './gateways/notifications.gateway';
 import { RelationalNotificationPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
 import { AllConfigType } from '../../config/config.type';
 import { NotificationsController } from './notifications.controller';
+import { NotificationsAdminController } from './notifications-admin.controller';
 import { UsersModule } from '../users/users.module';
 import { MailModule } from '../mail/mail.module';
 
@@ -26,7 +27,7 @@ import { MailModule } from '../mail/mail.module';
       inject: [ConfigService],
     }),
   ],
-  controllers: [NotificationsController],
+  controllers: [NotificationsController, NotificationsAdminController],
   providers: [
     WebhookService,
     NotificationTemplateService,
