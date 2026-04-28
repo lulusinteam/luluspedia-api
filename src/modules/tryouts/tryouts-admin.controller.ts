@@ -10,7 +10,7 @@ import {
   HttpCode,
   Request,
 } from '@nestjs/common';
-import { ApiParam } from '@nestjs/swagger';
+import { ApiParam, ApiOperation } from '@nestjs/swagger';
 
 import { NullableType } from '../../utils/types/nullable.type';
 import { Tryout } from './domain/tryout';
@@ -141,6 +141,11 @@ export class TryoutsAdminController {
     name: 'id',
     type: String,
     required: true,
+  })
+  @ApiOperation({
+    summary: 'Unpublish a tryout',
+    description:
+      'Set tryout status back to draft. Only works for published tryouts.',
   })
   @ApiJSendResponse(Tryout)
   async unpublish(@Param('id') id: Tryout['id']): Promise<Tryout> {
