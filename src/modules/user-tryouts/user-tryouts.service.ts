@@ -90,10 +90,11 @@ export class UserTryoutsService {
 
     // STRICT VALIDATION: Ensure the option actually belongs to this question (if provided)
     if (data.optionId) {
+      const targetOptionId = data.optionId;
       const options = question.options || [];
       const isOptionValid = options.some(
         opt =>
-          opt.id.toLowerCase().trim() === data.optionId.toLowerCase().trim(),
+          opt.id.toLowerCase().trim() === targetOptionId.toLowerCase().trim(),
       );
 
       if (!isOptionValid) {
