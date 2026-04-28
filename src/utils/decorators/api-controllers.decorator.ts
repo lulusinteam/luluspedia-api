@@ -14,51 +14,37 @@ const getHostConstraint = (envVar: string) => {
   const isProd = process.env.NODE_ENV === 'production';
   const cleanedDomain = domain.replace(/^https?:\/\//, '').replace(/\/$/, '');
 
-  // Jika di Production (atau Docker satu kontainer), kita biarkan rute ini aktif
-  // dan biarkan Guard (DomainGuard) atau Host-Matching yang menanganinya.
+  // In production, always use the strict domain constraint
   if (isProd) {
     return cleanedDomain;
-  }
-
-  // IN DEV: Bypass host constraint entirely to keep it flexible
-  if (!isProd) {
-    return undefined;
   }
 
   const currentAppPort = process.env.APP_PORT?.trim();
   const domainPort = cleanedDomain.split(':')[1]?.trim();
 
   /**
-   * DI LOCAL (NON-DOCKER):
-   * Jika Anda menjalankan proses terpisah dan port tidak cocok, matikan rute ini.
-   * Tapi jika port di .env adalah 3000 (Docker Internal), jangan matikan.
+   * DOCKER / UNIFIED MODE (Port 3000):
+   * Jika running di port 3000, berarti satu proses menangani semua domain.
+   * Aktifkan Host-based routing secara ketat.
    */
-  if (
-    currentAppPort &&
-    domainPort &&
-    currentAppPort !== domainPort &&
-    currentAppPort !== '3000'
-  ) {
-    // Allow localhost/127.0.0.1 without port restriction in local development
-    if (
-      cleanedDomain.includes('localhost') ||
-      cleanedDomain.includes('127.0.0.1')
-    ) {
-      return undefined;
-    }
+  if (currentAppPort === '3000') {
+    return cleanedDomain;
+  }
+
+  /**
+   * ISOLATED PROCESS MODE (e.g. port 7000 or 3002):
+   * Jika port tidak cocok, kita matikan rute ini (return unmatchable).
+   * Ini mencegah UserController (3002) 'mencuri' rute dari AdminController (7000) di AppModule.
+   */
+  if (currentAppPort && domainPort && currentAppPort !== domainPort) {
     return 'unmatchable.local';
   }
 
   /**
-   * FORMAT HOST UNTUK NESTJS v8 + PORT:
-   * Kita pisahkan host dan port ke dalam parameter agar tidak crash
+   * Jika port cocok, kita return undefined agar rute aktif di port ini
+   * tapi FLEKSIBEL terhadap hostname (localhost/127.0.0.1/IP tetap bisa).
    */
-  if (cleanedDomain.includes(':')) {
-    const [h, p] = cleanedDomain.split(':');
-    return `${h}:port{${p}}`;
-  }
-
-  return cleanedDomain;
+  return undefined;
 };
 
 export function AdminController(

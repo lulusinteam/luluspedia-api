@@ -33,6 +33,7 @@ export class DomainGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const currentHost = request.headers.host; // e.g. "api.luluspedia.com" or "localhost:3002"
 
+
     // Clean up domains from config (strip http/https and trailing slashes)
     const adminDomain = this.configService
       .get('app.backendDomainAdmin', { infer: true })
@@ -43,6 +44,7 @@ export class DomainGuard implements CanActivate {
       .get('app.backendDomain', { infer: true })
       ?.replace(/^https?:\/\//, '')
       .replace(/\/$/, ''); // localhost:3002
+
 
     if (scope === 'admin') {
       if (
