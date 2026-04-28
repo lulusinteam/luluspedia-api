@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsUUID, ValidateIf } from 'class-validator';
 
 export class SyncAnswerDto {
   @ApiProperty({ example: 'uuid-attempt' })
@@ -13,6 +13,7 @@ export class SyncAnswerDto {
   questionId: string;
 
   @ApiProperty({ example: 'uuid-option', nullable: true })
+  @ValidateIf((o) => o.optionId !== null && o.optionId !== undefined && o.optionId !== '')
   @IsOptional()
   @IsUUID()
   optionId: string | null;
