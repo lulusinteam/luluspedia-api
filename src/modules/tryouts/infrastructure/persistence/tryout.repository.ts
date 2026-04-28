@@ -2,6 +2,7 @@ import { DeepPartial } from '../../../../utils/types/deep-partial.type';
 import { NullableType } from '../../../../utils/types/nullable.type';
 import { IPaginationOptions } from '../../../../utils/types/pagination-options';
 import { Tryout } from '../../domain/tryout';
+import { Category } from '../../../categories/domain/category';
 
 export abstract class TryoutRepository {
   abstract create(
@@ -57,6 +58,8 @@ export abstract class TryoutRepository {
   abstract countByStatus(): Promise<Record<string, number>>;
 
   abstract remove(id: Tryout['id']): Promise<void>;
+
+  abstract countByCategory(categoryId: Category['id']): Promise<number>;
 
   abstract autoPublishScheduled(): Promise<number>;
 

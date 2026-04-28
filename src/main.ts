@@ -140,6 +140,7 @@ async function bootstrap() {
       QuestionsModule,
       NotificationsModule,
       FilesModule,
+      CategoriesModule,
     ],
   });
   documentAdmin = filterByTag(documentAdmin, 'Admin');

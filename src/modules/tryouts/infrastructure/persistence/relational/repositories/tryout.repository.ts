@@ -428,6 +428,16 @@ export class TryoutRelationalRepository implements TryoutRepository {
     await this.tryoutRepository.softDelete(id);
   }
 
+  async countByCategory(categoryId: string): Promise<number> {
+    return this.tryoutRepository.count({
+      where: {
+        category: {
+          id: categoryId,
+        },
+      },
+    });
+  }
+
   async autoPublishScheduled(): Promise<number> {
     const result = await this.tryoutRepository
       .createQueryBuilder()

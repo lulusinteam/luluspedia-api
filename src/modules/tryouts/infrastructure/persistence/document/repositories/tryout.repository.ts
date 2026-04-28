@@ -198,6 +198,10 @@ export class TryoutDocumentRepository implements TryoutRepository {
     await this.tryoutModel.deleteOne({ _id: id });
   }
 
+  async countByCategory(categoryId: string): Promise<number> {
+    return this.tryoutModel.countDocuments({ category: categoryId });
+  }
+
   async autoPublishScheduled(): Promise<number> {
     const result = await this.tryoutModel.updateMany(
       {
