@@ -128,6 +128,7 @@ Table user_tryouts {
   end_time timestamp [note: 'When the user submitted the tryout']
   total_score integer [default: 0]
   status user_tryout_status_enum [default: 'in_progress']
+  question_order jsonb [note: 'Persisted sequence of randomized question IDs']
   created_at timestamp
   updated_at timestamp
   deleted_at timestamp

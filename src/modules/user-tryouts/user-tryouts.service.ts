@@ -11,6 +11,7 @@ import { ApiException } from '../../utils/exceptions/api.exception';
 import { UserTryoutStatusEnum } from './domain/user-tryout';
 import { User } from '../users/domain/user';
 import { Tryout } from '../tryouts/domain/tryout';
+import { TryoutsService } from '../tryouts/tryouts.service';
 import { UserAnswer } from './domain/user-answer';
 
 import { NotificationsService } from '../notifications/services/notifications.service';
@@ -19,6 +20,7 @@ import { NotificationsService } from '../notifications/services/notifications.se
 export class UserTryoutsService {
   constructor(
     private readonly userTryoutRepository: UserTryoutRepository,
+    private readonly tryoutsService: TryoutsService,
     private readonly notificationsService: NotificationsService,
   ) {}
 
@@ -34,6 +36,18 @@ export class UserTryoutsService {
     }
 
     // Create new attempt
+    const tryout = await this.tryoutsService.findOne(tryoutId);
+    if (!tryout) {
+      throw new ApiException('tryoutNotFound', 404);
+    }
+
+    let questionOrder: string[] | null = null;
+    if (tryout.shuffleOptions && tryout.questions) {
+      questionOrder = tryout.questions
+        .map(q => q.id)
+        .sort(() => Math.random() - 0.5);
+    }
+
     return this.userTryoutRepository.create({
       user: { id: userId } as User,
       tryout: { id: tryoutId } as Tryout,
@@ -41,6 +55,7 @@ export class UserTryoutsService {
       endTime: null,
       totalScore: 0,
       status: UserTryoutStatusEnum.inProgress,
+      questionOrder,
     });
   }
 

@@ -51,4 +51,7 @@ export class UserTryout {
   // Answers associated with this tryout attempt
   @ApiProperty({ type: () => UserAnswer, isArray: true, required: false })
   answers?: UserAnswer[];
+
+  @ApiProperty({ type: [String], nullable: true })
+  questionOrder?: string[] | null;
 }

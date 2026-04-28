@@ -7,7 +7,6 @@ import {
   UserTryoutResultResponseDto,
   UserTryoutResultQuestionDto,
 } from '../../../../dto/user-tryout-result-response.dto';
-import { seededShuffle } from '../../../../../../utils/seeded-shuffle';
 import { UserTryout } from '../../../../domain/user-tryout';
 import { UserTryoutEntity } from '../entities/user-tryout.entity';
 import { UserMapper } from '../../../../../users/infrastructure/persistence/relational/mappers/user.mapper';
@@ -33,6 +32,7 @@ export class UserTryoutMapper {
     domain.createdAt = raw.createdAt;
     domain.updatedAt = raw.updatedAt;
     domain.deletedAt = raw.deletedAt;
+    domain.questionOrder = raw.questionOrder;
 
     if (raw.userAnswers) {
       domain.answers = raw.userAnswers.map(ans =>
@@ -66,6 +66,7 @@ export class UserTryoutMapper {
     entity.createdAt = domain.createdAt;
     entity.updatedAt = domain.updatedAt;
     entity.deletedAt = domain.deletedAt;
+    entity.questionOrder = domain.questionOrder || null;
 
     return entity;
   }
@@ -95,7 +96,22 @@ export class UserTryoutMapper {
         });
       }
 
-      dto.questions = domain.tryout.questions.map(q => {
+      // Sort questions based on questionOrder if available
+      let sortedQuestions = domain.tryout.questions;
+      if (domain.questionOrder && domain.questionOrder.length > 0) {
+        const orderMap = new Map(
+          domain.questionOrder.map((id, index) => [id.toLowerCase(), index]),
+        );
+        sortedQuestions = [...domain.tryout.questions].sort((a, b) => {
+          const indexA = orderMap.get(a.id.toLowerCase());
+          const indexB = orderMap.get(b.id.toLowerCase());
+          if (indexA !== undefined && indexB !== undefined)
+            return indexA - indexB;
+          return (a.orderNumber ?? 0) - (b.orderNumber ?? 0);
+        });
+      }
+
+      dto.questions = sortedQuestions.map(q => {
         const questionDto = new UserTryoutQuestionResponseDto();
         const qId = q.id?.toString().toLowerCase().trim();
 
@@ -107,12 +123,7 @@ export class UserTryoutMapper {
         questionDto.selectedOptionId = qId ? answerMap.get(qId) || null : null;
 
         if (q.options) {
-          // SEEDED SHUFFLE: Use attempt ID (domain.id) as seed if shuffleOptions is enabled
-          const shuffledOptions = domain.tryout?.shuffleOptions
-            ? seededShuffle(q.options, domain.id)
-            : q.options;
-
-          questionDto.options = shuffledOptions.map((opt: any) => {
+          questionDto.options = q.options.map((opt: any) => {
             const optDto = new UserTryoutOptionResponseDto();
             optDto.id = opt.id;
             optDto.content = opt.content;
@@ -159,10 +170,24 @@ export class UserTryoutMapper {
         });
       }
 
-      // Sort by order number
-      const sortedQuestions = [...domain.tryout.questions].sort(
-        (a, b) => (a.orderNumber ?? 0) - (b.orderNumber ?? 0),
-      );
+      // Sort by questionOrder if available, otherwise by orderNumber
+      let sortedQuestions = domain.tryout.questions;
+      if (domain.questionOrder && domain.questionOrder.length > 0) {
+        const orderMap = new Map(
+          domain.questionOrder.map((id, index) => [id.toLowerCase(), index]),
+        );
+        sortedQuestions = [...domain.tryout.questions].sort((a, b) => {
+          const indexA = orderMap.get(a.id.toLowerCase());
+          const indexB = orderMap.get(b.id.toLowerCase());
+          if (indexA !== undefined && indexB !== undefined)
+            return indexA - indexB;
+          return (a.orderNumber ?? 0) - (b.orderNumber ?? 0);
+        });
+      } else {
+        sortedQuestions = [...domain.tryout.questions].sort(
+          (a, b) => (a.orderNumber ?? 0) - (b.orderNumber ?? 0),
+        );
+      }
 
       dto.questions = sortedQuestions.map(q => {
         const qId = q.id?.toString().toLowerCase().trim();

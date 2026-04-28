@@ -53,6 +53,9 @@ export class UserTryoutEntity extends EntityRelationalHelper {
   })
   status: UserTryoutStatusEnum;
 
+  @Column({ type: 'jsonb', name: 'question_order', nullable: true })
+  questionOrder: string[] | null;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
