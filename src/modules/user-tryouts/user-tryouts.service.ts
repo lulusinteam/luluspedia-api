@@ -88,16 +88,20 @@ export class UserTryoutsService {
       });
     }
 
-    // STRICT VALIDATION: Ensure the option actually belongs to this question
-    const options = question.options || [];
-    const isOptionValid = options.some(
-      opt => opt.id.toLowerCase().trim() === data.optionId.toLowerCase().trim(),
-    );
+    // STRICT VALIDATION: Ensure the option actually belongs to this question (if provided)
+    if (data.optionId) {
+      const options = question.options || [];
+      const isOptionValid = options.some(
+        opt =>
+          opt.id.toLowerCase().trim() === data.optionId.toLowerCase().trim(),
+      );
 
-    if (!isOptionValid) {
-      throw new ApiException('optionNotInQuestion', 400, {
-        error: 'The selected option does not belong to the specified question.',
-      });
+      if (!isOptionValid) {
+        throw new ApiException('optionNotInQuestion', 400, {
+          error:
+            'The selected option does not belong to the specified question.',
+        });
+      }
     }
 
     await this.userTryoutRepository.saveAnswer(data);

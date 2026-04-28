@@ -31,7 +31,7 @@ export abstract class UserTryoutRepository {
   abstract saveAnswer(data: {
     userTryoutId: string;
     questionId: string;
-    optionId: string;
+    optionId: string | null;
   }): Promise<void>;
 
   abstract getAnswersByAttemptId(userTryoutId: string): Promise<any[]>;

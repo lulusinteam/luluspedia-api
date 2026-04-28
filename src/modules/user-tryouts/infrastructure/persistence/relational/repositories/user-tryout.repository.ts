@@ -160,8 +160,17 @@ export class UserTryoutRelationalRepository implements UserTryoutRepository {
   async saveAnswer(data: {
     userTryoutId: string;
     questionId: string;
-    optionId: string;
+    optionId: string | null;
   }): Promise<void> {
+    if (!data.optionId) {
+      // Unselect: Remove the answer record
+      await this.answerRepository.delete({
+        userTryout: { id: data.userTryoutId },
+        question: { id: data.questionId },
+      });
+      return;
+    }
+
     // Robust upsert using unique constraint target - handling relation objects properly
     await this.answerRepository
       .createQueryBuilder()
