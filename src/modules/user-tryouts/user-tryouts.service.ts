@@ -65,7 +65,7 @@ export class UserTryoutsService {
 
   async syncAnswer(
     userId: string,
-    data: { userTryoutId: string; questionId: string; optionId: string },
+    data: { userTryoutId: string; questionId: string; optionId: string | null },
   ): Promise<void> {
     // Optional: Check if attempt belongs to user and is still in progress
     const attempt = await this.userTryoutRepository.findById(data.userTryoutId);

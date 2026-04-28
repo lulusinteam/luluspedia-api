@@ -13,7 +13,9 @@ export class SyncAnswerDto {
   questionId: string;
 
   @ApiProperty({ example: 'uuid-option', nullable: true })
-  @ValidateIf((o) => o.optionId !== null && o.optionId !== undefined && o.optionId !== '')
+  @ValidateIf(
+    o => o.optionId !== null && o.optionId !== undefined && o.optionId !== '',
+  )
   @IsOptional()
   @IsUUID()
   optionId: string | null;
