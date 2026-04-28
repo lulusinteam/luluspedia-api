@@ -111,12 +111,12 @@ export class UserTryoutMapper {
         });
       }
 
-      dto.questions = sortedQuestions.map(q => {
+      dto.questions = sortedQuestions.map((q, index) => {
         const questionDto = new UserTryoutQuestionResponseDto();
         const qId = q.id?.toString().toLowerCase().trim();
 
         questionDto.id = q.id;
-        questionDto.orderNumber = q.orderNumber;
+        questionDto.orderNumber = index + 1;
         questionDto.content = q.content;
         questionDto.image = getFileUrl(q.image?.path);
         questionDto.scoringType = q.scoringType || 'point';
@@ -189,13 +189,13 @@ export class UserTryoutMapper {
         );
       }
 
-      dto.questions = sortedQuestions.map(q => {
+      dto.questions = sortedQuestions.map((q, index) => {
         const qId = q.id?.toString().toLowerCase().trim();
         const userAns = qId ? answerMap.get(qId) : undefined;
         const qDto = new UserTryoutResultQuestionDto();
 
         qDto.id = q.id;
-        qDto.orderNumber = q.orderNumber;
+        qDto.orderNumber = index + 1;
         qDto.content = q.content;
         qDto.image = getFileUrl(q.image?.path);
         qDto.explanation = q.explanation;
