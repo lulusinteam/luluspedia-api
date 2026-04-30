@@ -15,7 +15,7 @@ RUN chmod +x /opt/startup.relational.prod.sh
 COPY ./startup.admin.sh /opt/startup.admin.sh
 RUN chmod +x /opt/startup.admin.sh
 RUN sed -i 's/\r//g' /opt/wait-for-it.sh
-RUN sed -i 's/\r//g' /opt/startup.relational.dev.sh
+RUN sed -i 's/\r//g' /opt/startup.relational.prod.sh
 RUN sed -i 's/\r//g' /opt/startup.admin.sh
 
 WORKDIR /usr/src/app
