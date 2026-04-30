@@ -23,8 +23,8 @@ export class OptionEntity extends EntityRelationalHelper {
   @JoinColumn({ name: 'question_id' })
   question: QuestionEntity;
 
-  @Column({ type: 'text' })
-  content: string;
+  @Column({ type: 'text', nullable: true })
+  content: string | null;
 
   @ManyToOne(() => FileEntity, { nullable: true })
   @JoinColumn({ name: 'image_id' })

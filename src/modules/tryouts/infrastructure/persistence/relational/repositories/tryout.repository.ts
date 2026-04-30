@@ -88,7 +88,9 @@ export class TryoutRelationalRepository implements TryoutRepository {
         category: true,
         cover: true,
         questions: {
-          options: true,
+          options: {
+            image: true,
+          },
         },
       },
     });
@@ -179,7 +181,9 @@ export class TryoutRelationalRepository implements TryoutRepository {
       where: { id },
       relations: {
         questions: {
-          options: true,
+          options: {
+            image: true,
+          },
         },
       },
     });

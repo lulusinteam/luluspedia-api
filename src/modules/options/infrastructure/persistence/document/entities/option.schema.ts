@@ -17,8 +17,8 @@ export class OptionSchemaClass extends EntityDocumentHelper {
   @Prop({ type: QuestionSchemaClass })
   question: QuestionSchemaClass;
 
-  @Prop({ type: String })
-  content: string;
+  @Prop({ type: String, required: false, default: null })
+  content: string | null;
 
   @Prop({ type: FileSchemaClass })
   image: FileSchemaClass | null;

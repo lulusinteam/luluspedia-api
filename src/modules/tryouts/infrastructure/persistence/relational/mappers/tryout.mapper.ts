@@ -41,9 +41,9 @@ export class TryoutMapper {
     }
 
     if (raw.questions && Array.isArray(raw.questions)) {
-      domainEntity.questions = raw.questions.map(question =>
-        QuestionMapper.toDomain(question),
-      );
+      domainEntity.questions = raw.questions
+        .map(question => QuestionMapper.toDomain(question))
+        .sort((a, b) => (a.orderNumber || 0) - (b.orderNumber || 0));
       domainEntity.questionCount = raw.questions.length;
     } else if (
       raw.questionCount !== undefined ||
@@ -109,8 +109,12 @@ export class TryoutMapper {
     }
 
     if (domainEntity.questions) {
-      persistenceEntity.questions = domainEntity.questions.map(question =>
-        QuestionMapper.toPersistence(question),
+      persistenceEntity.questions = domainEntity.questions.map(
+        (question, index) => {
+          const persistenceQuestion = QuestionMapper.toPersistence(question);
+          persistenceQuestion.orderNumber = question.orderNumber || index + 1;
+          return persistenceQuestion;
+        },
       );
     }
 

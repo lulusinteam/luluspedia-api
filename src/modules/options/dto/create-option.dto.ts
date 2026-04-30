@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsBoolean,
-  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
@@ -20,10 +19,10 @@ export class CreateOptionDto {
   @IsOptional()
   question?: Question;
 
-  @ApiProperty()
+  @ApiProperty({ required: false, nullable: true })
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  content: string;
+  content?: string | null;
 
   @ApiProperty({ type: () => FileDto, required: false })
   @IsOptional()

@@ -32,9 +32,9 @@ export class QuestionMapper {
     }
 
     if (raw.options) {
-      domainEntity.options = raw.options.map(option =>
-        OptionMapper.toDomain(option),
-      );
+      domainEntity.options = raw.options
+        .map(option => OptionMapper.toDomain(option))
+        .sort((a, b) => (a.orderNumber || 0) - (b.orderNumber || 0));
     }
 
     return domainEntity;
@@ -89,9 +89,11 @@ export class QuestionMapper {
     }
 
     if (domainEntity.options) {
-      persistenceEntity.options = domainEntity.options.map(option =>
-        OptionMapper.toPersistence(option),
-      );
+      persistenceEntity.options = domainEntity.options.map((option, index) => {
+        const persistenceOption = OptionMapper.toPersistence(option);
+        persistenceOption.orderNumber = option.orderNumber || index + 1;
+        return persistenceOption;
+      });
     }
 
     return persistenceEntity;

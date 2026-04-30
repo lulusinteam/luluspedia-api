@@ -11,8 +11,8 @@ export class Option {
   @ApiProperty({ type: () => Question, required: false })
   question?: Question;
 
-  @ApiProperty()
-  content: string;
+  @ApiProperty({ required: false, nullable: true })
+  content: string | null;
 
   @ApiProperty({ type: () => FileType, required: false, nullable: true })
   image: FileType | null;

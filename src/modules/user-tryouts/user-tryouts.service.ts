@@ -123,6 +123,7 @@ export class UserTryoutsService {
       options: question.options?.map(opt => ({
         id: opt.id,
         content: opt.content,
+        image: opt.image, // Sertakan image dalam snapshot
         isCorrect: opt.isCorrect,
         weight: opt.weight,
       })),
@@ -132,6 +133,7 @@ export class UserTryoutsService {
       ? {
           id: selectedOption.id,
           content: selectedOption.content,
+          image: selectedOption.image, // Sertakan image dalam snapshot
           isCorrect: selectedOption.isCorrect,
           weight: selectedOption.weight,
         }
