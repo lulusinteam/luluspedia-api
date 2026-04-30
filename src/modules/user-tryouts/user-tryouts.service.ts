@@ -131,9 +131,7 @@ export class UserTryoutsService {
     const answers =
       await this.userTryoutRepository.getAnswersByAttemptId(userTryoutId);
 
-    const totalQuestions =
-      userTryout.tryout.questionCount || answers.length || 1;
-    const totalScore = this.calculateScore(answers, totalQuestions);
+    const totalScore = this.calculateScore(answers);
 
     // Notify result
     this.notificationsService
@@ -168,9 +166,7 @@ export class UserTryoutsService {
     const answers =
       await this.userTryoutRepository.getAnswersByAttemptId(userTryoutId);
 
-    const totalQuestions =
-      userTryout.tryout.questionCount || answers.length || 1;
-    const totalScore = this.calculateScore(answers, totalQuestions);
+    const totalScore = this.calculateScore(answers);
 
     // Notify result
     this.notificationsService
@@ -190,43 +186,27 @@ export class UserTryoutsService {
   }
 
   /**
-   * DRY: Logic to calculate score based on points or weights normalized to 100.
-   * Formula: Score Per Question = 100 / totalQuestions.
-   * Total Score = Sum of [ (Achieved / MaxPossibleForQuestion) * ScorePerQuestion ]
+   * Calculate absolute score based on points or weights.
+   * Point type: uses question.correctPoint if answer is correct.
+   * Weight type: uses option.weight directly.
    */
-  private calculateScore(
-    answers: UserAnswer[],
-    totalQuestions: number,
-  ): number {
-    const questionValue = 100 / totalQuestions;
+  private calculateScore(answers: UserAnswer[]): number {
     let finalScore = 0;
 
     for (const ans of answers) {
       if (!ans.question || !ans.option) continue;
 
-      let questionRatio = 0;
-
       if (ans.question.scoringType === 'weight') {
-        const maxWeight =
-          ans.question.options?.reduce(
-            (max, opt) => Math.max(max, opt.weight || 0),
-            0,
-          ) || 0;
-
-        if (maxWeight > 0) {
-          questionRatio = (ans.option.weight || 0) / maxWeight;
-        }
+        finalScore += ans.option.weight || 0;
       } else {
         // Point type (e.g. TIU/TWK)
         if (ans.option.isCorrect) {
-          questionRatio = 1;
+          finalScore += ans.question.correctPoint || 0;
         }
       }
-
-      finalScore += questionRatio * questionValue;
     }
 
-    return Math.min(Math.round(finalScore), 100);
+    return Math.round(finalScore);
   }
 
   async findAllMyAttempts({

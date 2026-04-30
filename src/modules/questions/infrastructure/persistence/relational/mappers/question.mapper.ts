@@ -17,7 +17,7 @@ export class QuestionMapper {
     domainEntity.explanation = raw.explanation;
     domainEntity.difficulty = raw.difficulty;
     domainEntity.scoringType = raw.scoringType;
-    domainEntity.points = raw.points ?? 0;
+    domainEntity.correctPoint = raw.correctPoint;
 
     if (raw.image) {
       domainEntity.image = FileMapper.toDomain(raw.image);
@@ -54,7 +54,7 @@ export class QuestionMapper {
       domainEntity.difficulty || DifficultyEnum.medium;
     persistenceEntity.scoringType =
       domainEntity.scoringType || ScoringTypeEnum.point;
-    persistenceEntity.points = domainEntity.points || 0;
+    persistenceEntity.correctPoint = domainEntity.correctPoint ?? null;
 
     if (domainEntity.tryout) {
       const tryout = new TryoutEntity();

@@ -7,6 +7,8 @@ import {
   IsString,
   IsArray,
   ValidateNested,
+  ValidateIf,
+  Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { Tryout } from '../../tryouts/domain/tryout';
@@ -68,10 +70,14 @@ export class CreateQuestionDto {
   @IsOptional()
   scoringType?: ScoringTypeEnum;
 
-  @ApiProperty({ required: false, default: 0 })
-  @IsOptional()
+  @ApiProperty({ required: false, nullable: true })
+  @ValidateIf(o => o.scoringType === ScoringTypeEnum.point)
+  @IsNotEmpty({ message: 'correctPoint is required when scoringType is point' })
   @IsNumber()
-  points?: number;
+  @Min(1)
+  @ValidateIf(o => o.scoringType === ScoringTypeEnum.weight)
+  @IsOptional()
+  correctPoint?: number | null;
 
   @ApiProperty({ type: () => CreateOptionDto, isArray: true, required: false })
   @IsOptional()

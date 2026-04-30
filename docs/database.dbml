@@ -208,3 +208,16 @@ Table search_history {
 
 Ref: search_history.user_id > users.id
 
+Table notifications {
+  id uuid [primary key]
+  user_id uuid
+  title varchar [note: 'nullable']
+  message text
+  is_read boolean [default: false]
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+}
+
+Ref: notifications.user_id > users.id
+

@@ -63,8 +63,8 @@ export class QuestionEntity extends EntityRelationalHelper {
   })
   scoringType: ScoringTypeEnum;
 
-  @Column({ type: 'int', default: 0 })
-  points: number;
+  @Column({ type: 'int', name: 'correct_point', nullable: true, default: null })
+  correctPoint: number | null;
 
   @CreateDateColumn()
   createdAt: Date;
