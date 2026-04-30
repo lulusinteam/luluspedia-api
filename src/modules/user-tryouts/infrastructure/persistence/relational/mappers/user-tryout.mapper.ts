@@ -83,6 +83,16 @@ export class UserTryoutMapper {
     dto.tryoutTitle = domain.tryout?.title ?? '';
     dto.status = domain.status;
 
+    // Calculate actual elapsed time in seconds
+    if (domain.startTime) {
+      const end = domain.endTime || new Date();
+      dto.elapsedTimeInSeconds = Math.floor(
+        (end.getTime() - domain.startTime.getTime()) / 1000,
+      );
+    } else {
+      dto.elapsedTimeInSeconds = 0;
+    }
+
     if (domain.tryout?.questions) {
       // Create a map for quick lookup of answers
       const answerMap = new Map<string, string>();

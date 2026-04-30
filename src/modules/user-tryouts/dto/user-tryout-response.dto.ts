@@ -64,6 +64,9 @@ export class UserTryoutResponseDto {
   @ApiProperty()
   status: string;
 
+  @ApiProperty({ description: 'Actual time taken in seconds' })
+  elapsedTimeInSeconds: number;
+
   @ApiProperty({ type: [UserTryoutQuestionResponseDto], required: false })
   questions?: UserTryoutQuestionResponseDto[];
 }

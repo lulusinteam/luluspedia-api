@@ -69,6 +69,8 @@ export class UserTryoutRelationalRepository implements UserTryoutRepository {
         'user_tryout.status',
         'user_tryout.createdAt',
         'tryout.id',
+        'tryout.title',
+        'tryout.duration',
         'tryout.passScore',
       ])
       .where('user_tryout.user = :userId', { userId });
