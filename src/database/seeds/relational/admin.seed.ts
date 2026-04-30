@@ -15,7 +15,7 @@ export async function seedAdmin(dataSource: DataSource) {
   const repo = dataSource.getRepository(UserEntity);
 
   // Remove all existing users (including any admins) to ensure a fresh state
-  await repo.delete({});
+  await repo.createQueryBuilder().delete().execute();
 
   const adminEmail = process.env.ADMIN_EMAIL || 'admin@example.com';
   const adminPassword = process.env.ADMIN_PASSWORD || 'ChangeMe123!';
