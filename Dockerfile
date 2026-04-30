@@ -22,4 +22,4 @@ WORKDIR /usr/src/app
 RUN if [ ! -f .env ]; then cp env-example-relational .env; fi
 RUN npm run build
 
-ENTRYPOINT ["/opt/startup.relational.dev.sh"]
+ENTRYPOINT ["/opt/startup.relational.prod.sh"]
