@@ -131,7 +131,7 @@ export class UserTryoutsService {
     const answers =
       await this.userTryoutRepository.getAnswersByAttemptId(userTryoutId);
 
-    const totalScore = this.calculateScore(answers);
+    const totalScore = this.calculateScore(answers, userTryout.tryout);
 
     // Notify result
     this.notificationsService
@@ -166,7 +166,7 @@ export class UserTryoutsService {
     const answers =
       await this.userTryoutRepository.getAnswersByAttemptId(userTryoutId);
 
-    const totalScore = this.calculateScore(answers);
+    const totalScore = this.calculateScore(answers, userTryout.tryout);
 
     // Notify result
     this.notificationsService
@@ -186,27 +186,43 @@ export class UserTryoutsService {
   }
 
   /**
-   * Calculate absolute score based on points or weights.
-   * Point type: uses question.correctPoint if answer is correct.
-   * Weight type: uses option.weight directly.
+   * Calculate score normalized to 100.
+   * Formula: (Total Earned / Total Possible) * 100
    */
-  private calculateScore(answers: UserAnswer[]): number {
-    let finalScore = 0;
+  private calculateScore(answers: UserAnswer[], tryout: Tryout): number {
+    const questions = tryout.questions || [];
+    let totalPossible = 0;
+    let totalEarned = 0;
 
+    // 1. Calculate Total Possible Score
+    for (const q of questions) {
+      if (q.scoringType === 'weight') {
+        const maxWeight =
+          q.options?.reduce((max, opt) => Math.max(max, opt.weight || 0), 0) ||
+          0;
+        totalPossible += maxWeight;
+      } else {
+        totalPossible += q.correctPoint || 0;
+      }
+    }
+
+    // 2. Calculate Total Earned Score
     for (const ans of answers) {
       if (!ans.question || !ans.option) continue;
 
       if (ans.question.scoringType === 'weight') {
-        finalScore += ans.option.weight || 0;
+        totalEarned += ans.option.weight || 0;
       } else {
-        // Point type (e.g. TIU/TWK)
         if (ans.option.isCorrect) {
-          finalScore += ans.question.correctPoint || 0;
+          totalEarned += ans.question.correctPoint || 0;
         }
       }
     }
 
-    return Math.round(finalScore);
+    if (totalPossible === 0) return 0;
+
+    const finalScore = (totalEarned / totalPossible) * 100;
+    return Math.min(Math.round(finalScore), 100);
   }
 
   async findAllMyAttempts({
