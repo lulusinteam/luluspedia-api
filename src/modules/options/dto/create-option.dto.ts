@@ -11,6 +11,11 @@ import { Question } from '../../questions/domain/question';
 import { FileDto } from '../../files/dto/file.dto';
 
 export class CreateOptionDto {
+  @ApiProperty({ type: String, required: false })
+  @IsOptional()
+  @IsString()
+  id?: string;
+
   @ApiProperty({ type: () => Question, required: false })
   @IsOptional()
   question?: Question;

@@ -47,6 +47,12 @@ export class UserAnswerMapper {
     domain.createdAt = raw.createdAt;
     domain.updatedAt = raw.updatedAt;
 
+    domain.isCorrectSnapshot = raw.isCorrectSnapshot ?? false;
+    domain.weightSnapshot = raw.weightSnapshot ?? 0;
+    domain.pointsSnapshot = raw.pointsSnapshot ?? 0;
+    domain.questionSnapshot = raw.questionSnapshot;
+    domain.optionSnapshot = raw.optionSnapshot;
+
     return domain;
   }
 
@@ -61,6 +67,13 @@ export class UserAnswerMapper {
     if (domain.option) {
       entity.option = OptionMapper.toPersistence(domain.option);
     }
+
+    entity.isCorrectSnapshot = domain.isCorrectSnapshot;
+    entity.weightSnapshot = domain.weightSnapshot;
+    entity.pointsSnapshot = domain.pointsSnapshot;
+    entity.questionSnapshot = domain.questionSnapshot;
+    entity.optionSnapshot = domain.optionSnapshot;
+
     entity.createdAt = domain.createdAt;
     entity.updatedAt = domain.updatedAt;
 

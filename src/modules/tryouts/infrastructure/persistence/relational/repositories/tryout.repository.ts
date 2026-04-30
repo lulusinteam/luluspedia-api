@@ -177,10 +177,53 @@ export class TryoutRelationalRepository implements TryoutRepository {
   ): Promise<Tryout | null> {
     const entity = await this.tryoutRepository.findOne({
       where: { id },
+      relations: {
+        questions: {
+          options: true,
+        },
+      },
     });
 
     if (!entity) {
       return null;
+    }
+
+    // MANUALLY SYNC QUESTIONS AND OPTIONS TO PREVENT ORPHANS
+    // This is necessary because orphanRemoval isn't always reliable with complex nested mappers
+    if (payload.questions) {
+      const payloadQuestionIds = payload.questions
+        .map(q => q.id)
+        .filter(Boolean) as string[];
+
+      const questionsToDelete = entity.questions.filter(
+        q => !payloadQuestionIds.includes(q.id),
+      );
+
+      if (questionsToDelete.length > 0) {
+        await this.tryoutRepository.manager.remove(questionsToDelete);
+      }
+
+      // Sync Options within existing questions
+      for (const payloadQuestion of payload.questions) {
+        if (payloadQuestion.id && payloadQuestion.options) {
+          const existingQuestion = entity.questions.find(
+            q => q.id === payloadQuestion.id,
+          );
+          if (existingQuestion && existingQuestion.options) {
+            const payloadOptionIds = payloadQuestion.options
+              .map(o => o.id)
+              .filter(Boolean) as string[];
+
+            const optionsToDelete = existingQuestion.options.filter(
+              o => !payloadOptionIds.includes(o.id),
+            );
+
+            if (optionsToDelete.length > 0) {
+              await this.tryoutRepository.manager.remove(optionsToDelete);
+            }
+          }
+        }
+      }
     }
 
     const updatedPersistence = TryoutMapper.toPersistence({

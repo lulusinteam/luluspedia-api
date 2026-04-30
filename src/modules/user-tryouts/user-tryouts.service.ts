@@ -89,15 +89,16 @@ export class UserTryoutsService {
     }
 
     // STRICT VALIDATION: Ensure the option actually belongs to this question (if provided)
+    let selectedOption: any = null;
     if (data.optionId) {
       const targetOptionId = data.optionId;
       const options = question.options || [];
-      const isOptionValid = options.some(
+      selectedOption = options.find(
         opt =>
           opt.id.toLowerCase().trim() === targetOptionId.toLowerCase().trim(),
       );
 
-      if (!isOptionValid) {
+      if (!selectedOption) {
         throw new ApiException('optionNotInQuestion', 400, {
           error:
             'The selected option does not belong to the specified question.',
@@ -105,7 +106,45 @@ export class UserTryoutsService {
       }
     }
 
-    await this.userTryoutRepository.saveAnswer(data);
+    // Capture Snapshots
+    const isCorrectSnapshot = selectedOption?.isCorrect || false;
+    const weightSnapshot = selectedOption?.weight || 0;
+    const pointsSnapshot = question.correctPoint || 0;
+
+    // Deep copy question and option to avoid circular refs and strip unnecessary fields
+    const questionSnapshot = {
+      id: question.id,
+      content: question.content,
+      image: question.image,
+      scoringType: question.scoringType,
+      correctPoint: question.correctPoint,
+      explanation: question.explanation,
+      explanationImage: question.explanationImage,
+      options: question.options?.map(opt => ({
+        id: opt.id,
+        content: opt.content,
+        isCorrect: opt.isCorrect,
+        weight: opt.weight,
+      })),
+    };
+
+    const optionSnapshot = selectedOption
+      ? {
+          id: selectedOption.id,
+          content: selectedOption.content,
+          isCorrect: selectedOption.isCorrect,
+          weight: selectedOption.weight,
+        }
+      : null;
+
+    await this.userTryoutRepository.saveAnswer({
+      ...data,
+      isCorrectSnapshot,
+      weightSnapshot,
+      pointsSnapshot,
+      questionSnapshot,
+      optionSnapshot,
+    });
   }
 
   async finishAttempt(
@@ -208,13 +247,27 @@ export class UserTryoutsService {
 
     // 2. Calculate Total Earned Score
     for (const ans of answers) {
-      if (!ans.question || !ans.option) continue;
+      // Use snapshot data if available for stability, fallback to current entity relations
+      const scoringType =
+        ans.questionSnapshot?.scoringType || ans.question?.scoringType;
+      const isCorrect =
+        ans.isCorrectSnapshot !== undefined
+          ? ans.isCorrectSnapshot
+          : ans.option?.isCorrect;
+      const weight =
+        ans.weightSnapshot !== undefined
+          ? ans.weightSnapshot
+          : ans.option?.weight || 0;
+      const correctPoint =
+        ans.pointsSnapshot !== undefined
+          ? ans.pointsSnapshot
+          : ans.question?.correctPoint || 0;
 
-      if (ans.question.scoringType === 'weight') {
-        totalEarned += ans.option.weight || 0;
+      if (scoringType === 'weight') {
+        totalEarned += weight;
       } else {
-        if (ans.option.isCorrect) {
-          totalEarned += ans.question.correctPoint || 0;
+        if (isCorrect) {
+          totalEarned += correctPoint;
         }
       }
     }
@@ -241,10 +294,10 @@ export class UserTryoutsService {
     });
   }
 
-  async getAttemptResult(id: string): Promise<UserTryout> {
+  async getAttemptResult(id: string, userId: string): Promise<UserTryout> {
     const attempt = await this.userTryoutRepository.findById(id);
 
-    if (!attempt) {
+    if (!attempt || (attempt.user && attempt.user.id !== userId)) {
       throw new NotFoundException({
         id: 'attemptNotFound',
       });

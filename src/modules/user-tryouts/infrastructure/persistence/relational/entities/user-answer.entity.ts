@@ -6,6 +6,7 @@ import {
   ManyToOne,
   JoinColumn,
   Unique,
+  Column,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../../utils/relational-entity-helper';
 import { UserTryoutEntity } from './user-tryout.entity';
@@ -31,6 +32,21 @@ export class UserAnswerEntity extends EntityRelationalHelper {
   @ManyToOne(() => OptionEntity)
   @JoinColumn({ name: 'option_id' })
   option: OptionEntity;
+
+  @Column({ type: 'boolean', name: 'is_correct_snapshot', nullable: true })
+  isCorrectSnapshot: boolean | null;
+
+  @Column({ type: 'float', name: 'weight_snapshot', nullable: true })
+  weightSnapshot: number | null;
+
+  @Column({ type: 'int', name: 'points_snapshot', nullable: true })
+  pointsSnapshot: number | null;
+
+  @Column({ type: 'jsonb', name: 'question_snapshot', nullable: true })
+  questionSnapshot: any | null;
+
+  @Column({ type: 'jsonb', name: 'option_snapshot', nullable: true })
+  optionSnapshot: any | null;
 
   @CreateDateColumn()
   createdAt: Date;

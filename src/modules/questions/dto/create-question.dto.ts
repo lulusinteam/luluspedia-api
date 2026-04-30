@@ -17,6 +17,11 @@ import { DifficultyEnum, ScoringTypeEnum } from '../questions.enum';
 import { CreateOptionDto } from '../../options/dto/create-option.dto';
 
 export class CreateQuestionDto {
+  @ApiProperty({ type: String, required: false })
+  @IsOptional()
+  @IsString()
+  id?: string;
+
   @ApiProperty({ type: () => Tryout, required: false })
   @IsOptional()
   tryout?: Tryout;

@@ -114,9 +114,13 @@ export class UserTryoutsController {
   @Get('attempts/:id')
   @HttpCode(HttpStatus.OK)
   async findAttemptResult(
+    @Request() request,
     @Param('id') id: string,
   ): Promise<UserTryoutResultResponseDto> {
-    const result = await this.userTryoutsService.getAttemptResult(id);
+    const result = await this.userTryoutsService.getAttemptResult(
+      id,
+      request.user.id,
+    );
     return UserTryoutMapper.toResultResponseDto(result);
   }
 }

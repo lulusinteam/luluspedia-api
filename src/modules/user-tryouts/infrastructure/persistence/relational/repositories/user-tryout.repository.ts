@@ -35,15 +35,19 @@ export class UserTryoutRelationalRepository implements UserTryoutRepository {
       .leftJoinAndSelect('user_tryout.user', 'user')
       .leftJoinAndSelect('user_tryout.tryout', 'tryout')
       .leftJoinAndSelect('tryout.questions', 'questions')
-      .leftJoinAndSelect('user_tryout.userAnswers', 'userAnswers')
-      .leftJoinAndSelect('userAnswers.question', 'userAnswerQuestion')
-      .leftJoinAndSelect('userAnswers.option', 'selectedOption')
       .leftJoinAndSelect('questions.options', 'options')
       .leftJoinAndSelect('questions.image', 'questionImage')
       .leftJoinAndSelect('options.image', 'optionImage')
       .where('user_tryout.id = :id', { id: newEntity.id })
       .orderBy('questions.orderNumber', 'ASC')
       .getOne();
+
+    if (reloaded) {
+      reloaded.userAnswers = await this.answerRepository.find({
+        where: { userTryout: { id: reloaded.id } },
+        relations: ['option', 'question'],
+      });
+    }
 
     return UserTryoutMapper.toDomain(reloaded!);
   }
@@ -94,9 +98,6 @@ export class UserTryoutRelationalRepository implements UserTryoutRepository {
       .createQueryBuilder('user_tryout')
       .leftJoinAndSelect('user_tryout.user', 'user')
       .leftJoinAndSelect('user_tryout.tryout', 'tryout')
-      .leftJoinAndSelect('user_tryout.userAnswers', 'userAnswers')
-      .leftJoinAndSelect('userAnswers.option', 'selectedOption')
-      .leftJoinAndSelect('userAnswers.question', 'userAnswerQuestion')
       .leftJoinAndSelect('tryout.questions', 'questions')
       .leftJoinAndSelect('questions.options', 'options')
       .leftJoinAndSelect('questions.image', 'questionImage')
@@ -109,6 +110,13 @@ export class UserTryoutRelationalRepository implements UserTryoutRepository {
       }, 'tryout_questionCount')
       .where('user_tryout.id = :id', { id })
       .getOne();
+
+    if (entity) {
+      entity.userAnswers = await this.answerRepository.find({
+        where: { userTryout: { id: entity.id } },
+        relations: ['option', 'question'],
+      });
+    }
 
     return entity ? UserTryoutMapper.toDomain(entity) : null;
   }
@@ -143,18 +151,22 @@ export class UserTryoutRelationalRepository implements UserTryoutRepository {
       .createQueryBuilder('user_tryout')
       .leftJoinAndSelect('user_tryout.tryout', 'tryout')
       .leftJoinAndSelect('tryout.questions', 'questions')
-      .leftJoinAndSelect('user_tryout.userAnswers', 'userAnswers')
-      .leftJoinAndSelect('userAnswers.question', 'userAnswerQuestion')
-      .leftJoinAndSelect('userAnswers.option', 'selectedOption')
       .leftJoinAndSelect('questions.options', 'options')
       .leftJoinAndSelect('questions.image', 'questionImage')
       .leftJoinAndSelect('options.image', 'optionImage')
-      .where('user_tryout.user = :userId', { userId })
+      .where('user_tryout.user_id = :userId', { userId })
       .andWhere('user_tryout.status = :status', {
         status: UserTryoutStatusEnum.inProgress,
       })
       .orderBy('questions.orderNumber', 'ASC')
       .getOne();
+
+    if (entity) {
+      entity.userAnswers = await this.answerRepository.find({
+        where: { userTryout: { id: entity.id } },
+        relations: ['option', 'question'],
+      });
+    }
 
     return entity ? UserTryoutMapper.toDomain(entity) : null;
   }
@@ -163,6 +175,11 @@ export class UserTryoutRelationalRepository implements UserTryoutRepository {
     userTryoutId: string;
     questionId: string;
     optionId: string | null;
+    isCorrectSnapshot?: boolean;
+    weightSnapshot?: number;
+    pointsSnapshot?: number;
+    questionSnapshot?: any;
+    optionSnapshot?: any;
   }): Promise<void> {
     if (!data.optionId) {
       // Unselect: Remove the answer record
@@ -183,9 +200,25 @@ export class UserTryoutRelationalRepository implements UserTryoutRepository {
         userTryout: { id: data.userTryoutId } as any,
         question: { id: data.questionId } as any,
         option: { id: data.optionId } as any,
+        isCorrectSnapshot: data.isCorrectSnapshot,
+        weightSnapshot: data.weightSnapshot,
+        pointsSnapshot: data.pointsSnapshot,
+        questionSnapshot: data.questionSnapshot,
+        optionSnapshot: data.optionSnapshot,
         updatedAt: new Date(),
       })
-      .orUpdate(['option_id', 'updatedAt'], ['user_tryout_id', 'question_id'])
+      .orUpdate(
+        [
+          'option_id',
+          'is_correct_snapshot',
+          'weight_snapshot',
+          'points_snapshot',
+          'question_snapshot',
+          'option_snapshot',
+          'updatedAt',
+        ],
+        ['user_tryout_id', 'question_id'],
+      )
       .execute();
   }
 

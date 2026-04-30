@@ -32,6 +32,11 @@ export abstract class UserTryoutRepository {
     userTryoutId: string;
     questionId: string;
     optionId: string | null;
+    isCorrectSnapshot?: boolean;
+    weightSnapshot?: number;
+    pointsSnapshot?: number;
+    questionSnapshot?: any;
+    optionSnapshot?: any;
   }): Promise<void>;
 
   abstract getAnswersByAttemptId(userTryoutId: string): Promise<any[]>;

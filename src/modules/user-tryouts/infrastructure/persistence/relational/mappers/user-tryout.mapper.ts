@@ -199,48 +199,119 @@ export class UserTryoutMapper {
         );
       }
 
-      dto.questions = sortedQuestions.map((q, index) => {
-        const qId = q.id?.toString().toLowerCase().trim();
-        const userAns = qId ? answerMap.get(qId) : undefined;
-        const qDto = new UserTryoutResultQuestionDto();
+      const currentQuestionIds = new Set(
+        sortedQuestions.map(q => q.id?.toString().toLowerCase().trim()),
+      );
 
-        qDto.id = q.id;
-        qDto.orderNumber = index + 1;
-        qDto.content = q.content;
-        qDto.image = getFileUrl(q.image?.path);
-        qDto.explanation = q.explanation;
-        qDto.explanationImage = getFileUrl(q.explanationImage?.path);
-        qDto.scoringType = q.scoringType;
+      const questionDtos: UserTryoutResultQuestionDto[] = sortedQuestions.map(
+        (q, index) => {
+          const qId = q.id?.toString().toLowerCase().trim();
+          const userAns = qId ? answerMap.get(qId) : undefined;
+          const qDto = new UserTryoutResultQuestionDto();
 
-        // Map selectedOptionId from matched answer
-        qDto.selectedOptionId = userAns?.option?.id || null;
-        qDto.correctOptionId =
-          q.options?.find(opt => opt.isCorrect)?.id || null;
+          // Use snapshot if available for robustness against tryout edits
+          const qSnapshot = userAns?.questionSnapshot;
+          const optSnapshot = userAns?.optionSnapshot;
 
-        // Determine status (Support TIU/TWK and TKP)
-        if (!userAns || !userAns.option) {
-          qDto.status = 'unanswered';
-        } else if (
-          userAns.option.isCorrect ||
-          (userAns.option.weight !== undefined && userAns.option.weight > 0)
-        ) {
-          qDto.status = 'correct';
-        } else {
-          qDto.status = 'incorrect';
-        }
+          qDto.id = q.id;
+          qDto.orderNumber = index + 1;
+          qDto.content = qSnapshot?.content || q.content;
+          qDto.image = qSnapshot
+            ? getFileUrl(qSnapshot.image?.path)
+            : getFileUrl(q.image?.path);
+          qDto.explanation = qSnapshot?.explanation || q.explanation;
+          qDto.explanationImage = qSnapshot
+            ? getFileUrl(qSnapshot.explanationImage?.path)
+            : getFileUrl(q.explanationImage?.path);
+          qDto.scoringType = qSnapshot?.scoringType || q.scoringType;
 
-        if (q.options) {
-          qDto.options = q.options.map(opt => ({
-            id: opt.id,
-            content: opt.content,
-            image: getFileUrl(opt.image?.path),
-            isCorrect: opt.isCorrect,
-            weight: opt.weight || 0,
-          }));
-        }
+          qDto.selectedOptionId =
+            optSnapshot?.id || userAns?.option?.id || null;
 
-        return qDto;
-      });
+          const optionsToUse = qSnapshot?.options || q.options;
+          qDto.correctOptionId =
+            optionsToUse?.find(opt => opt.isCorrect)?.id || null;
+
+          const isCorrect =
+            userAns?.isCorrectSnapshot !== undefined
+              ? userAns.isCorrectSnapshot
+              : userAns?.option?.isCorrect;
+          const weight =
+            userAns?.weightSnapshot !== undefined
+              ? userAns.weightSnapshot
+              : userAns?.option?.weight;
+
+          if (!userAns || (!userAns.option && !optSnapshot)) {
+            qDto.status = 'unanswered';
+          } else if (isCorrect || (weight !== undefined && weight > 0)) {
+            qDto.status = 'correct';
+          } else {
+            qDto.status = 'incorrect';
+          }
+
+          if (optionsToUse) {
+            qDto.options = optionsToUse.map(opt => ({
+              id: opt.id,
+              content: opt.content,
+              image: getFileUrl(opt.image?.path),
+              isCorrect: opt.isCorrect,
+              weight: opt.weight || 0,
+            }));
+          }
+
+          return qDto;
+        },
+      );
+
+      // Add orphaned answers (questions that were deleted from the tryout)
+      if (domain.answers) {
+        domain.answers.forEach(ans => {
+          const qId = (
+            ans.question?.id || ans.questionSnapshot?.id
+          )?.toLowerCase();
+          if (qId && !currentQuestionIds.has(qId) && ans.questionSnapshot) {
+            const qSnap = ans.questionSnapshot;
+            const optSnap = ans.optionSnapshot;
+            const qDto = new UserTryoutResultQuestionDto();
+
+            qDto.id = qSnap.id;
+            qDto.orderNumber = questionDtos.length + 1;
+            qDto.content = qSnap.content;
+            qDto.image = getFileUrl(qSnap.image?.path);
+            qDto.explanation = qSnap.explanation;
+            qDto.explanationImage = getFileUrl(qSnap.explanationImage?.path);
+            qDto.scoringType = qSnap.scoringType;
+            qDto.selectedOptionId = optSnap?.id || null;
+
+            const isCorrect = ans.isCorrectSnapshot;
+            const weight = ans.weightSnapshot;
+
+            if (!optSnap) {
+              qDto.status = 'unanswered';
+            } else if (isCorrect || (weight !== undefined && weight > 0)) {
+              qDto.status = 'correct';
+            } else {
+              qDto.status = 'incorrect';
+            }
+
+            if (qSnap.options) {
+              qDto.options = qSnap.options.map(opt => ({
+                id: opt.id,
+                content: opt.content,
+                image: getFileUrl(opt.image?.path),
+                isCorrect: opt.isCorrect,
+                weight: opt.weight || 0,
+              }));
+              qDto.correctOptionId =
+                qSnap.options.find(opt => opt.isCorrect)?.id || null;
+            }
+
+            questionDtos.push(qDto);
+          }
+        });
+      }
+
+      dto.questions = questionDtos;
     }
 
     return dto;

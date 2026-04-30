@@ -7,6 +7,14 @@ export class UserAnswer {
   userTryout: UserTryout;
   question: Question;
   option: Option;
+
+  // Snapshots
+  isCorrectSnapshot: boolean;
+  weightSnapshot: number;
+  pointsSnapshot: number;
+  questionSnapshot: any;
+  optionSnapshot: any;
+
   createdAt: Date;
   updatedAt: Date;
 }
