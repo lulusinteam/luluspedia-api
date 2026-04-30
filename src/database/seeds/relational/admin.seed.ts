@@ -39,9 +39,7 @@ export async function seedAdmin(dataSource: DataSource) {
 // When executed directly (node dist/...)
 if (require.main === module) {
   void (async () => {
-    const { AppDataSource } = await import(
-      '../../../../dist/database/data-source'
-    );
+    const { AppDataSource } = await import('../../data-source');
     await AppDataSource.initialize();
     await seedAdmin(AppDataSource);
     await AppDataSource.destroy();
