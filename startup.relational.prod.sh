@@ -7,11 +7,6 @@ set -e
 # Run database migrations for production
 pnpm run migration:run:prod
 
-# Seed admin user only on first start
-if [ ! -f /opt/.admin_seed_done ]; then
-  pnpm run seed:admin:prod
-  touch /opt/.admin_seed_done
-fi
 
 # Start the NestJS application in production mode
 pnpm run start:prod
