@@ -9,6 +9,7 @@ FRONTEND_DOMAIN=http://localhost:3000
 FRONTEND_DOMAIN_ADMIN=http://localhost:4001
 BACKEND_DOMAIN=http://localhost:3000
 BACKEND_DOMAIN_ADMIN=http://localhost:3001
+APP_MAX_BODY_SIZE=50mb
 
 DATABASE_TYPE=postgres
 DATABASE_HOST=postgres

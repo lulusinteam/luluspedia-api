@@ -62,6 +62,10 @@ class EnvironmentVariablesValidator {
   @IsString()
   @IsOptional()
   APP_HEADER_LANGUAGE: string;
+
+  @IsString()
+  @IsOptional()
+  APP_MAX_BODY_SIZE: string;
 }
 
 export default registerAs<AppConfig>('app', () => {
@@ -89,5 +93,6 @@ export default registerAs<AppConfig>('app', () => {
     apiPrefix: process.env.API_PREFIX || 'api',
     fallbackLanguage: process.env.APP_FALLBACK_LANGUAGE || 'id',
     headerLanguage: process.env.APP_HEADER_LANGUAGE || 'x-custom-lang',
+    maxBodySize: process.env.APP_MAX_BODY_SIZE || '50mb',
   };
 });

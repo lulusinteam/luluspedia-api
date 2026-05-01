@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import { json, urlencoded } from 'express';
 import {
   ClassSerializerInterceptor,
   ValidationPipe,
@@ -42,6 +43,12 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
   const configService = app.get(ConfigService<AllConfigType>);
+  const maxBodySize = configService.getOrThrow('app.maxBodySize', {
+    infer: true,
+  });
+
+  app.use(json({ limit: maxBodySize }));
+  app.use(urlencoded({ extended: true, limit: maxBodySize }));
 
   app.enableShutdownHooks();
   app.setGlobalPrefix(

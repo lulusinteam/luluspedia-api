@@ -15,6 +15,8 @@ RUN chmod +x /opt/startup.document.dev.sh
 RUN sed -i 's/\r//g' /opt/wait-for-it.sh
 RUN sed -i 's/\r//g' /opt/startup.document.dev.sh
 
+ENV APP_MAX_BODY_SIZE=50mb
+
 WORKDIR /usr/src/app
 RUN if [ ! -f .env ]; then cp env-example-document .env; fi
 RUN npm run build
