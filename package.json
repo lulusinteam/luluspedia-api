@@ -25,6 +25,7 @@
     "seed:admin:prod": "node dist/database/seeds/relational/admin.seed.js",
     "seed:run:document": "ts-node -r tsconfig-paths/register ./src/database/seeds/document/run-seed.ts",
     "db:refresh:local": "ts-node -r tsconfig-paths/register ./src/database/refresh-db.ts",
+    "db:reset:admin": "ts-node -r tsconfig-paths/register ./src/database/reset-to-admin.ts",
     "prebuild": "rimraf dist",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
