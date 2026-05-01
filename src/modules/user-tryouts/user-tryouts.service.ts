@@ -172,7 +172,7 @@ export class UserTryoutsService {
     const answers =
       await this.userTryoutRepository.getAnswersByAttemptId(userTryoutId);
 
-    const totalScore = this.calculateScore(answers, userTryout.tryout);
+    const totalScore = this.calculateScore(answers);
 
     // Notify result
     this.notificationsService
@@ -207,7 +207,7 @@ export class UserTryoutsService {
     const answers =
       await this.userTryoutRepository.getAnswersByAttemptId(userTryoutId);
 
-    const totalScore = this.calculateScore(answers, userTryout.tryout);
+    const totalScore = this.calculateScore(answers);
 
     // Notify result
     this.notificationsService
@@ -227,27 +227,12 @@ export class UserTryoutsService {
   }
 
   /**
-   * Calculate score normalized to 100.
-   * Formula: (Total Earned / Total Possible) * 100
+   * Calculate total earned points.
    */
-  private calculateScore(answers: UserAnswer[], tryout: Tryout): number {
-    const questions = tryout.questions || [];
-    let totalPossible = 0;
+  private calculateScore(answers: UserAnswer[]): number {
     let totalEarned = 0;
 
-    // 1. Calculate Total Possible Score
-    for (const q of questions) {
-      if (q.scoringType === 'weight') {
-        const maxWeight =
-          q.options?.reduce((max, opt) => Math.max(max, opt.weight || 0), 0) ||
-          0;
-        totalPossible += maxWeight;
-      } else {
-        totalPossible += q.correctPoint || 0;
-      }
-    }
-
-    // 2. Calculate Total Earned Score
+    // Calculate Total Earned Score
     for (const ans of answers) {
       // Use snapshot data if available for stability, fallback to current entity relations
       const scoringType =
@@ -274,10 +259,7 @@ export class UserTryoutsService {
       }
     }
 
-    if (totalPossible === 0) return 0;
-
-    const finalScore = (totalEarned / totalPossible) * 100;
-    return Math.min(Math.round(finalScore), 100);
+    return totalEarned;
   }
 
   async findAllMyAttempts({
