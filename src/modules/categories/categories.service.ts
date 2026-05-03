@@ -14,12 +14,16 @@ export class CategoriesService {
   ) {}
 
   async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
-    return this.categoryRepository.create(createCategoryDto);
+    return this.categoryRepository.create({
+      ...createCategoryDto,
+      isActive: createCategoryDto.isActive ?? true,
+    });
   }
 
-  async findAll(): Promise<Category[]> {
+  async findAll(isActive?: boolean): Promise<Category[]> {
     return this.categoryRepository.findAllWithPagination({
       paginationOptions: { page: 1, limit: 100 },
+      isActive,
     });
   }
 
@@ -32,6 +36,10 @@ export class CategoriesService {
     updateCategoryDto: UpdateCategoryDto,
   ): Promise<Category | null> {
     return this.categoryRepository.update(id, updateCategoryDto);
+  }
+
+  async toggleActive(id: Category['id'], isActive: boolean): Promise<Category | null> {
+    return this.categoryRepository.update(id, { isActive });
   }
 
   async remove(id: Category['id']): Promise<void> {

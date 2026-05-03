@@ -14,6 +14,6 @@ export class CategoriesUserController {
   @Get()
   @HttpCode(HttpStatus.OK)
   async findAll(): Promise<Category[]> {
-    return this.categoriesService.findAll();
+    return this.categoriesService.findAll(true);
   }
 }

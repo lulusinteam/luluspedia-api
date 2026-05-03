@@ -20,6 +20,9 @@ export class CategoryEntity extends EntityRelationalHelper {
   @Column({ type: String })
   label: string;
 
+  @Column({ type: Boolean, default: true, name: 'is_active' })
+  isActive: boolean;
+
   @CreateDateColumn()
   createdAt: Date;
 

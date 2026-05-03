@@ -19,6 +19,9 @@ export class Category {
   slug: string;
 
   @ApiProperty()
+  isActive: boolean;
+
+  @ApiProperty()
   createdAt: Date;
 
   @ApiProperty()

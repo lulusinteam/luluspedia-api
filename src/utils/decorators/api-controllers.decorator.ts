@@ -16,7 +16,7 @@ const getHostConstraint = (envVar: string) => {
 
   // In production, always use the strict domain constraint
   if (isProd) {
-    return cleanedDomain;
+    return cleanedDomain.replace(/:/g, '\\:');
   }
 
   const currentAppPort = process.env.APP_PORT?.trim();
@@ -28,7 +28,7 @@ const getHostConstraint = (envVar: string) => {
    * Aktifkan Host-based routing secara ketat.
    */
   if (currentAppPort === '3000') {
-    return cleanedDomain;
+    return cleanedDomain.replace(/:/g, '\\:');
   }
 
   /**

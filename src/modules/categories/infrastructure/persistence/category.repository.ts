@@ -10,8 +10,10 @@ export abstract class CategoryRepository {
 
   abstract findAllWithPagination({
     paginationOptions,
+    isActive,
   }: {
     paginationOptions: IPaginationOptions;
+    isActive?: boolean;
   }): Promise<Category[]>;
 
   abstract findById(id: Category['id']): Promise<NullableType<Category>>;

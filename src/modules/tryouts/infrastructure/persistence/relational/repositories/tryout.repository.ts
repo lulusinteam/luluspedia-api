@@ -140,7 +140,8 @@ export class TryoutRelationalRepository implements TryoutRepository {
         'CASE WHEN wishlist.id IS NOT NULL THEN true ELSE false END',
         'tryouts_isWishlist',
       )
-      .where('tryouts.id = :id', { id });
+      .andWhere('tryouts.id = :id', { id })
+      .andWhere('tryouts.deletedAt IS NULL');
 
     const { entities, raw } = await query.getRawAndEntities();
     const entity = entities[0];
@@ -312,6 +313,8 @@ export class TryoutRelationalRepository implements TryoutRepository {
       query.andWhere('tryouts.status = :status', { status });
     }
 
+    query.andWhere('tryouts.deletedAt IS NULL');
+
     query
       .skip((paginationOptions.page - 1) * paginationOptions.limit)
       .take(paginationOptions.limit)
@@ -406,6 +409,7 @@ export class TryoutRelationalRepository implements TryoutRepository {
 
     // Only published tryouts for users
     query.andWhere('tryouts.status = :status', { status: 'published' });
+    query.andWhere('tryouts.deletedAt IS NULL');
 
     if (search) {
       query.andWhere('tryouts.title ILIKE :search', { search: `%${search}%` });
@@ -509,11 +513,12 @@ export class TryoutRelationalRepository implements TryoutRepository {
       .leftJoinAndSelect('tryouts.category', 'category')
       .leftJoinAndSelect('tryouts.cover', 'cover')
       .leftJoinAndSelect('tryouts.questions', 'questions')
-      .where('tryouts.status = :status', { status: 'published' })
+      .andWhere('tryouts.status = :status', { status: 'published' })
       .andWhere(
         '(tryouts.title ILIKE :query OR questions.content ILIKE :query)',
         { query: `%${query}%` },
       )
+      .andWhere('tryouts.deletedAt IS NULL')
       .loadRelationCountAndMap('tryouts.questionCount', 'tryouts.questions')
       .orderBy('tryouts.publishedAt', 'DESC');
 

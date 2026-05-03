@@ -7,8 +7,9 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
-import { ApiTags, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { CategoriesService } from './categories.service';
 import { AdminController } from '../../utils/decorators/api-controllers.decorator';
 import { ApiJSendResponse } from '../../utils/swagger-jsend.decorator';
@@ -31,8 +32,11 @@ export class CategoriesAdminController {
   @ApiJSendResponse(Category)
   @Get()
   @HttpCode(HttpStatus.OK)
-  async findAll(): Promise<Category[]> {
-    return this.categoriesService.findAll();
+  @ApiQuery({ name: 'isActive', type: Boolean, required: false })
+  async findAll(@Query('isActive') isActive?: boolean): Promise<Category[]> {
+    // If isActive is provided (e.g. from dropdowns), use it.
+    // Otherwise, in management, show all (undefined).
+    return this.categoriesService.findAll(isActive);
   }
 
   @ApiJSendResponse(Category)
@@ -59,5 +63,21 @@ export class CategoriesAdminController {
   @ApiParam({ name: 'id', type: String })
   remove(@Param('id') id: string): Promise<void> {
     return this.categoriesService.remove(id);
+  }
+
+  @ApiJSendResponse(Category)
+  @Patch(':id/activate')
+  @HttpCode(HttpStatus.OK)
+  @ApiParam({ name: 'id', type: String })
+  activate(@Param('id') id: string): Promise<Category | null> {
+    return this.categoriesService.toggleActive(id, true);
+  }
+
+  @ApiJSendResponse(Category)
+  @Patch(':id/deactivate')
+  @HttpCode(HttpStatus.OK)
+  @ApiParam({ name: 'id', type: String })
+  deactivate(@Param('id') id: string): Promise<Category | null> {
+    return this.categoriesService.toggleActive(id, false);
   }
 }

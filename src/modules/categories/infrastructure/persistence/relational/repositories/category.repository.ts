@@ -25,12 +25,20 @@ export class CategoryRelationalRepository implements CategoryRepository {
 
   async findAllWithPagination({
     paginationOptions,
+    isActive,
   }: {
     paginationOptions: IPaginationOptions;
+    isActive?: boolean;
   }): Promise<Category[]> {
+    const where: any = {};
+    if (isActive !== undefined) {
+      where.isActive = isActive;
+    }
+
     const entities = await this.categoryRepository.find({
       skip: (paginationOptions.page - 1) * paginationOptions.limit,
       take: paginationOptions.limit,
+      where,
     });
 
     return entities.map(entity => CategoryMapper.toDomain(entity));

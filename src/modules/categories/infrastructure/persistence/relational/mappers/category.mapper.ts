@@ -8,6 +8,7 @@ export class CategoryMapper {
     domainEntity.createdAt = raw.createdAt;
     domainEntity.slug = raw.slug;
     domainEntity.label = raw.label;
+    domainEntity.isActive = raw.isActive;
     domainEntity.updatedAt = raw.updatedAt;
 
     return domainEntity;
@@ -21,6 +22,7 @@ export class CategoryMapper {
     persistenceEntity.createdAt = domainEntity.createdAt;
     persistenceEntity.slug = domainEntity.slug;
     persistenceEntity.label = domainEntity.label;
+    persistenceEntity.isActive = domainEntity.isActive;
     persistenceEntity.updatedAt = domainEntity.updatedAt;
 
     return persistenceEntity;
