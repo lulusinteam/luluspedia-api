@@ -38,7 +38,10 @@ export class CategoriesService {
     return this.categoryRepository.update(id, updateCategoryDto);
   }
 
-  async toggleActive(id: Category['id'], isActive: boolean): Promise<Category | null> {
+  async toggleActive(
+    id: Category['id'],
+    isActive: boolean,
+  ): Promise<Category | null> {
     return this.categoryRepository.update(id, { isActive });
   }
 
