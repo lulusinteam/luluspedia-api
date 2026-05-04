@@ -141,7 +141,8 @@ export class TryoutRelationalRepository implements TryoutRepository {
         'tryouts_isWishlist',
       )
       .andWhere('tryouts.id = :id', { id })
-      .andWhere('tryouts.deletedAt IS NULL');
+      .andWhere('tryouts.deletedAt IS NULL')
+      .andWhere('category.isActive = :isActive', { isActive: true });
 
     const { entities, raw } = await query.getRawAndEntities();
     const entity = entities[0];
@@ -446,6 +447,7 @@ export class TryoutRelationalRepository implements TryoutRepository {
     // Only published tryouts for users
     query.andWhere('tryouts.status = :status', { status: 'published' });
     query.andWhere('tryouts.deletedAt IS NULL');
+    query.andWhere('category.isActive = :isActive', { isActive: true });
 
     if (search) {
       query.andWhere('tryouts.title ILIKE :search', { search: `%${search}%` });
@@ -555,6 +557,7 @@ export class TryoutRelationalRepository implements TryoutRepository {
         { query: `%${query}%` },
       )
       .andWhere('tryouts.deletedAt IS NULL')
+      .andWhere('category.isActive = :isActive', { isActive: true })
       .loadRelationCountAndMap('tryouts.questionCount', 'tryouts.questions')
       .orderBy('tryouts.publishedAt', 'DESC');
 
