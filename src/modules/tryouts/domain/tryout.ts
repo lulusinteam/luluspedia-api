@@ -54,6 +54,9 @@ export class Tryout {
   @ApiProperty({ type: () => Question, isArray: true, required: false })
   questions?: Question[];
 
+  @ApiProperty({ type: String, isArray: true, required: false })
+  deleteQuestionIds?: string[];
+
   createdAt: Date;
 
   @ApiProperty()

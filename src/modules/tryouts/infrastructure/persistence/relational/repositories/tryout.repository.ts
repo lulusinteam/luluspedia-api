@@ -185,6 +185,8 @@ export class TryoutRelationalRepository implements TryoutRepository {
           options: {
             image: true,
           },
+          image: true,
+          explanationImage: true,
         },
       },
     });
@@ -193,22 +195,24 @@ export class TryoutRelationalRepository implements TryoutRepository {
       return null;
     }
 
-    // MANUALLY SYNC QUESTIONS AND OPTIONS TO PREVENT ORPHANS
-    // This is necessary because orphanRemoval isn't always reliable with complex nested mappers
-    if (payload.questions) {
-      const payloadQuestionIds = payload.questions
-        .map(q => q.id)
-        .filter(Boolean) as string[];
-
-      const questionsToDelete = entity.questions.filter(
-        q => !payloadQuestionIds.includes(q.id),
+    // 1. EXPLICITLY DELETE QUESTIONS IF PROVIDED IN PAYLOAD
+    if (payload.deleteQuestionIds && payload.deleteQuestionIds.length > 0) {
+      const questionsToDelete = entity.questions.filter(q =>
+        payload.deleteQuestionIds?.includes(q.id),
       );
 
       if (questionsToDelete.length > 0) {
         await this.tryoutRepository.manager.remove(questionsToDelete);
+        // Remove from the local entity array to keep it in sync
+        entity.questions = entity.questions.filter(
+          q => !payload.deleteQuestionIds?.includes(q.id),
+        );
       }
+    }
 
-      // Sync Options within existing questions
+    // 2. SYNC OPTIONS WITHIN PROVIDED QUESTIONS
+    // We only sync options for questions that are actually sent in the payload
+    if (payload.questions) {
       for (const payloadQuestion of payload.questions) {
         if (payloadQuestion.id && payloadQuestion.options) {
           const existingQuestion = entity.questions.find(
@@ -231,10 +235,42 @@ export class TryoutRelationalRepository implements TryoutRepository {
       }
     }
 
-    const updatedPersistence = TryoutMapper.toPersistence({
-      ...TryoutMapper.toDomain(entity),
-      ...payload,
-    });
+    // 3. MERGE PAYLOAD INTO DOMAIN ENTITY
+    const domainEntity = TryoutMapper.toDomain(entity);
+
+    // Merge questions correctly (don't just overwrite)
+    if (payload.questions) {
+      const existingQuestions = domainEntity.questions || [];
+      const updatedQuestions = [...existingQuestions];
+
+      for (const pQ of payload.questions) {
+        if (pQ.id) {
+          const idx = updatedQuestions.findIndex(q => q.id === pQ.id);
+          if (idx !== -1) {
+            // Update existing question
+            updatedQuestions[idx] = {
+              ...updatedQuestions[idx],
+              ...(pQ as any),
+            };
+          } else {
+            // New question but with an ID (unlikely but possible)
+            updatedQuestions.push(pQ as any);
+          }
+        } else {
+          // New question without ID
+          updatedQuestions.push(pQ as any);
+        }
+      }
+      domainEntity.questions = updatedQuestions;
+    }
+
+    // Apply other payload fields, excluding questions and deleteQuestionIds
+    const otherPayload = { ...payload };
+    delete (otherPayload as any).questions;
+    delete (otherPayload as any).deleteQuestionIds;
+    Object.assign(domainEntity, otherPayload);
+
+    const updatedPersistence = TryoutMapper.toPersistence(domainEntity);
     updatedPersistence.id = id;
 
     // If category is provided by slug instead of UUID

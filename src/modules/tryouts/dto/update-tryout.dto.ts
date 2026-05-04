@@ -4,7 +4,8 @@ import {
   IsArray,
   IsNotEmpty,
   ValidateNested,
-  ArrayMinSize,
+  IsOptional,
+  IsString,
 } from 'class-validator';
 import { CategoryDto } from '../../categories/dto/category.dto';
 import { CreateQuestionDto } from '../../questions/dto/create-question.dto';
@@ -20,11 +21,21 @@ export class UpdateTryoutDto extends PartialType(CreateTryoutDto) {
   @ApiProperty({
     type: () => CreateQuestionDto,
     isArray: true,
+    required: false,
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsArray()
-  @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => CreateQuestionDto)
   questions: CreateQuestionDto[];
+
+  @ApiProperty({
+    type: String,
+    isArray: true,
+    required: false,
+  })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  deleteQuestionIds?: string[];
 }
