@@ -1,5 +1,4 @@
 import 'dotenv/config';
-import { json, urlencoded } from 'express';
 import {
   ClassSerializerInterceptor,
   ValidationPipe,
@@ -7,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory, Reflector } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { useContainer } from 'class-validator';
 import { AppModule } from './app.module';
@@ -40,15 +40,17 @@ import { JSendExceptionFilter } from './utils/jsend-exception.filter';
 import { RedisIoAdapter } from './utils/redis-io.adapter';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { cors: true });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    cors: true,
+  });
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
   const configService = app.get(ConfigService<AllConfigType>);
   const maxBodySize = configService.getOrThrow('app.maxBodySize', {
     infer: true,
   });
 
-  app.use(json({ limit: maxBodySize }));
-  app.use(urlencoded({ extended: true, limit: maxBodySize }));
+  app.useBodyParser('json', { limit: maxBodySize });
+  app.useBodyParser('urlencoded', { extended: true, limit: maxBodySize });
 
   app.enableShutdownHooks();
   app.setGlobalPrefix(
